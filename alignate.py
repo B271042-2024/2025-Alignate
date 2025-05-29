@@ -1,11 +1,12 @@
 import sys, re, subprocess, tempfile, os
-from PySide6.QtGui import QIcon, QPixmap, QFont
-from PySide6.QtWidgets import QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QGroupBox, QToolBar, QHBoxLayout, QVBoxLayout, QScrollBar, QSlider
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QStackedWidget, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
 from Bio import SeqIO
+
 app = QApplication(sys.argv)
 app.setStyle("Fusion")
-icon_logo = 'logo_ninja1'
+icon_logo = 'images/logo_ninja1'
 
 
 
