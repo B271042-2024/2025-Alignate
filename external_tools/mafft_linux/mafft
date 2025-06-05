@@ -33,11 +33,15 @@ if [ "$windows" = "yes" ]; then
 	echo "https://mafft.cbrc.jp/alignment/software/wsl.html" 1>&2
 fi
 
-if [ "$MAFFT_BINARIES" ]; then
-	prefix="$MAFFT_BINARIES"
-else
-	prefix=/usr/lib/mafft/lib/mafft
-fi
+#if [ "$MAFFT_BINARIES" ]; then
+#	prefix="$MAFFT_BINARIES"
+#else
+#	prefix=/usr/local/libexec/mafft
+#fi
+
+# patched to ignore MAFFT_BINARIES and use local path
+prefix="$(dirname "$0")/binaries"
+
 export prefix # iranai
 
 if [ $# -gt 0 ]; then
@@ -54,34 +58,34 @@ if [ -x "$prefix/version" ]; then
 		versionbin="0.000"
 fi
 
-if ! expr "$version" : v"$versionbin" > /dev/null ; then
-	echo "" 1>&2
-	echo "v$versionbin != $version" 1>&2
-	echo "" 1>&2
-	echo "There is a problem in the configuration of your shell." 1>&2
-	echo "Check the MAFFT_BINARIES environmental variable by" 1>&2
-	echo "$ echo \$MAFFT_BINARIES" 1>&2
-	echo "" 1>&2
-	echo "This variable must be *unset*, unless you have installed MAFFT" 1>&2
-	echo "with a special configuration.  To unset this variable, type" 1>&2
-	echo "$ unset MAFFT_BINARIES" 1>&2
-	echo "or" 1>&2
-	echo "% unsetenv MAFFT_BINARIES" 1>&2
-	echo "Then retry" 1>&2
-	echo "$ mafft input > output" 1>&2
-	echo "" 1>&2
-	echo "To keep this change permanently, edit setting files" 1>&2
-	echo "(.bash_profile, .profile, .cshrc, etc) in your home directory" 1>&2
-	echo "to delete the MAFFT_BINARIES line." 1>&2
-	echo "On MacOSX, also edit or remove the .MacOSX/environment.plist file" 1>&2
-	echo "and then re-login (MacOSX 10.6) or reboot (MacOSX 10.7)." 1>&2
-	echo "" 1>&2
-	echo "Please send a problem report to katoh@ifrec.osaka-u.ac.jp," 1>&2
-	echo "if this problem remains." 1>&2
-	echo "" 1>&2
-	exit 1
-	er=1
-fi
+#if ! expr "$version" : v"$versionbin" > /dev/null ; then
+#	echo "" 1>&2
+#	echo "v$versionbin != $version" 1>&2
+#	echo "" 1>&2
+#	echo "There is a problem in the configuration of your shell." 1>&2
+#	echo "Check the MAFFT_BINARIES environmental variable by" 1>&2
+#	echo "$ echo \$MAFFT_BINARIES" 1>&2
+#	echo "" 1>&2
+#	echo "This variable must be *unset*, unless you have installed MAFFT" 1>&2
+#	echo "with a special configuration.  To unset this variable, type" 1>&2
+#	echo "$ unset MAFFT_BINARIES" 1>&2
+#	echo "or" 1>&2
+#	echo "% unsetenv MAFFT_BINARIES" 1>&2
+#	echo "Then retry" 1>&2
+#	echo "$ mafft input > output" 1>&2
+#	echo "" 1>&2
+#	echo "To keep this change permanently, edit setting files" 1>&2
+#	echo "(.bash_profile, .profile, .cshrc, etc) in your home directory" 1>&2
+#	echo "to delete the MAFFT_BINARIES line." 1>&2
+#	echo "On MacOSX, also edit or remove the .MacOSX/environment.plist file" 1>&2
+#	echo "and then re-login (MacOSX 10.6) or reboot (MacOSX 10.7)." 1>&2
+#	echo "" 1>&2
+#	echo "Please send a problem report to katoh@ifrec.osaka-u.ac.jp," 1>&2
+#	echo "if this problem remains." 1>&2
+#	echo "" 1>&2
+#	exit 1
+#	er=1
+#fi
 
 defaultiterate=0
 defaultcycle=2
