@@ -1,6 +1,0 @@
-1. get the fasta online
-wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
-gunzip uniprot_sprot.fasta.gz
-
-2. make the binaries for fasta file
-../ncbi.../bin/makeblastdb -in file.fasta -dbtype -out swissprot
