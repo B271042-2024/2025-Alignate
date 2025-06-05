@@ -1,7 +1,0 @@
-- name: Install PSIPRED
-  hosts: all
-  roles:
-    - blast
-    - psipred
-  vars_files:
-   - ./config_vars.yml
