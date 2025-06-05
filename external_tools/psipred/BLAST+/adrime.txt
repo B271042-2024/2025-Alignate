@@ -1,0 +1,2 @@
+# to download ncbi to download database swissprot
+https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
