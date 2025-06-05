@@ -73,6 +73,7 @@ class main(QMainWindow):
         menu1_save.triggered.connect(self.window_protein.save_project)
         menu2_all.triggered.connect(self.window_protein.view_show_all)
         menu2_hide.triggered.connect(self.window_protein.view_hide_toggles)
+        menu2_consensus.triggered.connect(lambda: self.window_protein.apply_new_consensus_threshold())
 
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________2 Toolbar: About
@@ -307,7 +308,6 @@ class protein(QWidget):
 
 
 
-
     def view_show_all(self):
         for widget in self.widget_toggles:
             widget.show()
@@ -315,6 +315,120 @@ class protein(QWidget):
     def view_hide_toggles(self):
         for widget in self.widget_toggles:
             widget.hide()
+
+    def todeladjust_consensusmode(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Set Consensus Threshold")
+        layout = QVBoxLayout()
+        dialog.setLayout(layout)
+        label = QLabel("Threshold (0.0 – 1.0):")
+        layout.addWidget(label)
+        slider = QSlider(Qt.Horizontal)
+        slider.setRange(0, 100)  # map 0–100 to 0.0–1.0
+        slider.setValue(100)     # default 1.0
+        layout.addWidget(slider)
+        value_label = QLabel("1.00")
+        layout.addWidget(value_label)
+
+        def update_label(value):
+            value_label.setText(f"{value / 100:.2f}")
+        slider.valueChanged.connect(update_label)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        layout.addWidget(button_box)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+
+        if dialog.exec() == QDialog.Accepted:
+            return slider.value() / 100.0  # return float threshold
+        else:
+            return None  # or a default like 1.0
+
+
+    def adjust_consensusmode(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Set Consensus Threshold")
+        layout = QVBoxLayout(dialog)
+        label = QLabel("Threshold (0.0 – 1.0):")
+        layout.addWidget(label)
+        slider = QSlider(Qt.Horizontal)
+        slider.setRange(0, 100)
+        slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
+        layout.addWidget(slider)
+        value_label = QLabel(f"{slider.value()/100:.2f}")
+        layout.addWidget(value_label)
+        slider.valueChanged.connect(lambda v: value_label.setText(f"{v/100:.2f}"))
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        layout.addWidget(buttons)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+
+        if dialog.exec() == QDialog.Accepted:
+            threshold = slider.value() / 100.0
+            self.consensus_threshold = threshold
+            return threshold
+        return None
+
+
+    def apply_new_consensus_threshold(self):
+
+        # 1. Remove consensus row widget (per group)
+        for group in self.groups:
+            layout = group['layout_seq']
+            widgets_to_remove = []
+            target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if widget and widget.objectName() in target_names:
+                    widgets_to_remove.append(widget)
+                else:
+                    for name in target_names:
+                        nested = widget.findChild(QWidget, name)
+                        if nested:
+                            widgets_to_remove.append(nested)
+
+            for widget in widgets_to_remove:
+                layout.removeWidget(widget)
+                widget.setParent(None)
+                widget.deleteLater()
+
+        threshold = self.adjust_consensusmode()
+        if threshold is not None:
+            # global consensus
+            self.get_global_consensus(threshold=threshold)
+            # by group consensus
+            for group in self.groups:
+                self.get_consensus_aln(group, threshold=threshold)
+
+            # calculate %base conservation
+            ref_consensus = None
+            for group in self.groups:
+                if group['checkbox_setrefgroup'].isChecked():
+                    ref_consensus = group.get('consensus_seq')
+                    break
+            for group in self.groups:
+                layout = group['layout_seq']
+                target_consensus = group.get('consensus_seq')
+                if not target_consensus or target_consensus == ref_consensus:
+                    continue    # Skip if reference group
+                matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                percent_conservation = (matches / len(ref_consensus)) * 100
+                str_percent_conservation = f"{percent_conservation:.3g}%"
+                # Find QLable inside consensus_row
+                for i in range(layout.count()):
+                    widget = layout.itemAt(i).widget()
+                    if widget and widget.objectName() == "consensus_row":
+                        label = widget.findChild(QLabel, "perc_conservation")
+                        if label:
+                            label.setText(str_percent_conservation)
+            # calculate by region conservation
+            if hasattr(self, 'prediction_text'):
+                self.compute_region_conservation(self.prediction_text)
+
+
+
+
+
+
 
 
 
@@ -455,10 +569,21 @@ class protein(QWidget):
         # 1. Remove consensus row widget (per group)
         for group in self.groups:
             if group['layout_seq'] == layout:
+                widgets_to_remove = []
+                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
-                    if widget and widget.objectName() in ['consensus_row', 'conservation_block']:
+                    if widget and widget.objectName() in target_names:
+                        widgets_to_remove.append(widget)
+                    else:
+                        for name in target_names:
+                            nested = widget.findChild(QWidget, name)
+                            if nested:
+                                widgets_to_remove.append(nested)
+
+                    for widget in widgets_to_remove:
                         layout.removeWidget(widget)
+                        widget.setParent(None)
                         widget.deleteLater()
 
 
@@ -647,12 +772,22 @@ class protein(QWidget):
         # 1. Remove consensus row widget (per group)
         for group in self.groups:
             if group['layout_seq'] == layout:
+                widgets_to_remove = []
+                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
-                    if widget and widget.objectName() in ['consensus_row', 'conservation_block']:
+                    if widget and widget.objectName() in target_names:
+                        widgets_to_remove.append(widget)
+                    else:
+                        for name in target_names:
+                            nested = widget.findChild(QWidget, name)
+                            if nested:
+                                widgets_to_remove.append(nested)
+
+                    for widget in widgets_to_remove:
                         layout.removeWidget(widget)
+                        widget.setParent(None)
                         widget.deleteLater()
-                        #break  # remove only one consensus_row
 
         # 2. Remove global consensus if exists
         if hasattr(self, 'widget_global') and self.widget_global is not None:
@@ -918,7 +1053,6 @@ class protein(QWidget):
 
         ## 1 for Alignall (all groups)
         if seq_map:
-
             for group in self.groups:
                 layout = group['layout_seq']
                 for i in reversed(range(layout.count())):
@@ -950,7 +1084,7 @@ class protein(QWidget):
                 if self.cancelled:
                     self.widget_progress.reject()
                     return
-                self.get_consensus_aln(group, seq_map)
+                self.get_consensus_aln(group, seq_map, threshold=None)
 
 
 
@@ -997,9 +1131,9 @@ class protein(QWidget):
                 # run PSIPRED
                 base_path = os.path.dirname(os.path.abspath(__file__))
                 psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
-                self.draw_secondary_structure_to_gui(prediction_text)
-                self.compute_region_conservation(prediction_text)
+                self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
+                self.draw_secondary_structure_to_gui(self.prediction_text)
+                self.compute_region_conservation(self.prediction_text)
 
         ## 2 for Align (by group)
         else:
@@ -1024,7 +1158,7 @@ class protein(QWidget):
 
                     #group['widget_seq'].append({'seq_header': QLineEdit(name), 'seq': seq, 'seq_letters': [], 'widget_row': None})
                     self.add_sequences_toGUI(group, layout, name, seq)
-                self.get_consensus_aln(group)
+                self.get_consensus_aln(group, threshold=None)
 
 
                 # color code sequences
@@ -1043,8 +1177,8 @@ class protein(QWidget):
                     # run PSIPRED
                     base_path = os.path.dirname(os.path.abspath(__file__))
                     psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                    prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
-                    self.draw_secondary_structure_to_gui(prediction_text)
+                    self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
+                    self.draw_secondary_structure_to_gui(self.prediction_text)
                 else:
                     QMessageBox.warning(self, "Missing consensus", "Consensus sequence not found.")
                     return
@@ -1057,7 +1191,7 @@ class protein(QWidget):
 
 
     # 1 Global consensus (Alignall)
-    def get_global_consensus(self):
+    def get_global_consensus(self, threshold=None):
 
         #### GUI: IF PRESENT, REMOVE CONSENSUS GLOBAL ###
         if hasattr(self, 'widget_global') and self.widget_global is not None:
@@ -1083,7 +1217,10 @@ class protein(QWidget):
             return None
         alignment = MultipleSeqAlignment(all_records)
         summary = AlignInfo.SummaryInfo(alignment)
-        consensus = summary.dumb_consensus(threshold=1.0, ambiguous='X')  # strict: even 1 difference → 'N'
+#        consensus = summary.dumb_consensus(threshold=1.0, ambiguous='X')  # strict: even 1 difference → 'N'
+        if threshold is None:
+            threshold = 1.0
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
 
         # Layout: Global consensus
         ## 1 Set main layout
@@ -1115,9 +1252,7 @@ class protein(QWidget):
             layout_global.addWidget(lbl)
 
         ## 5 Add to main layout
-        #self.layout_protein_l4.addWidget(self.widget_global, alignment=Qt.AlignLeft)
         self.layout_protein_l3.addWidget(self.widget_global, alignment=Qt.AlignLeft)
-
         return str(consensus)                                           # for secondary structure
 
 
@@ -1125,14 +1260,14 @@ class protein(QWidget):
 
 
     # 2 Consensus per group
-    def get_consensus_aln(self, group, seq_map=None):
+    def get_consensus_aln(self, group, seq_map=None, threshold=None):
 
         # 0 If global consensus is present, remove it from GUI
-        if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)     # remove from layout (optional)
-            self.widget_global.setParent(None)                          # remove from parent GUI hierarchy
-            self.widget_global.deleteLater()                            # schedule for safe deletion by Qt event loop
-            self.widget_global = None                                   # no widget global
+#        if hasattr(self, 'widget_global') and self.widget_global is not None:
+#            self.layout_protein_l3.removeWidget(self.widget_global)     # remove from layout (optional)
+#            self.widget_global.setParent(None)                          # remove from parent GUI hierarchy
+#            self.widget_global.deleteLater()                            # schedule for safe deletion by Qt event loop
+#            self.widget_global = None                                   # no widget global
 
         # 1 Get sequence layout
         layout = group['layout_seq']
@@ -1152,7 +1287,12 @@ class protein(QWidget):
         records = [SeqRecord(Seq(entry['seq']), id=entry['seq_header'].text()) for entry in group['widget_seq']]
         alignment = MultipleSeqAlignment(records)
         summary = AlignInfo.SummaryInfo(alignment)
-        consensus = summary.dumb_consensus(threshold=0.5, ambiguous='X')
+#        consensus = summary.dumb_consensus(threshold=0.5, ambiguous='X')
+        if threshold is None:
+#            threshold = 1.0
+            threshold = getattr(self, 'consensus_threshold', 1.0)
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
+
         consensus_str = str(consensus)
 
         # 4 Store consensus seq for PSIRED (without gaps)
@@ -1192,6 +1332,7 @@ class protein(QWidget):
             lbl.setStyleSheet('color: gray;')
             layout_consensus.addWidget(lbl)
 
+        return consensus_str
 
 ####____________________________________________________________________________________________________4 Add sequences from file to GUI
 
@@ -1302,8 +1443,8 @@ class protein(QWidget):
         if not os.path.exists(horiz_file):
             raise FileNotFoundError(f"Expected output file {horiz_file} not found!")
         with open(horiz_file, "r") as f:
-            prediction_text = f.read()
-        return prediction_text
+            self.prediction_text = f.read()
+        return self.prediction_text
 
 
 ##
@@ -1459,6 +1600,7 @@ class protein(QWidget):
             invisible_checkbox.setStyleSheet('background: transparent; border: none;')
             layout_result.addWidget(invisible_checkbox)
             lbl_second = QLabel('%Conservation')
+            lbl_second.setObjectName("lbl_second")
             lbl_second.setFixedSize(120,20)
             layout_result.addWidget(lbl_second, alignment=Qt.AlignLeft)
 
