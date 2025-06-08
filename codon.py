@@ -12,182 +12,13 @@ from matplotlib.patches import Rectangle, FancyArrow
 import matplotlib.colors as mcolors
 from io import BytesIO
 from collections import Counter
-
 from drawingcanvas import DrawingCanvas
 from ruler import ruler, ClickableLabel
-#from codon import codon
-
-app = QApplication(sys.argv)
-app.setStyle('Fusion')
-icon_logo = 'images/logo_ninja1'
 
 
 
 
-################################################################################################
-#FORMAT
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________1 CLASS: Main Window
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-
-#_______________________________________________________________________________________________1 DEF: ALIGNMENT
-#_______________________________________________________________________________________________
-# . . .  CLEAR GUI . . .
-# . . . CLEAR DICT . . .
-# . . .   BEGINS   . . .
-# --------------------------------------------Main
-# --------------------------------------------Sub-elements
-# --------------------------------------------Connect
-# --------------------------------------------Others
-# ***** to amend *****
-
-################################################################################################
-# Summary
-# groups < widget group (header, seq, letters, widget row), group name, layout seq, widget seq, checkbox ref group
-# group = {
-# 'widget_group': # WIDGET GROUP: {'seq_header', 'seq', 'seq_letters', 'widget_row' (the whole row of each seq)}
-# 'lineedit_groupname': # GROUP NAME
-# 'layout_seq':  # LAYOUT SEQUENCE (The whole layout, not just 1 row)
-# 'widget_seq': # WIDGET SEQUENCE (The whole widget, not just 1 row)
-# 'checkbox1_setrefgroup': # CHECKBOX REFERENCE GROUP }
-#
-#
-# 1 Delete temp files: tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta'
-#
-################################################################################################
-
-
-
-
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________1 CLASS: main
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-
-
-
-
-class main(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-# --------------------------------------------Main
-        self.setWindowTitle('Alignate')
-        self.setWindowIcon(QIcon(icon_logo))
-        self.resize(10000, 500)                         # resize = initial size of widget (pixels)
-
-# --------------------------------------------Sub-elements
-        # ---Menu
-        menu = self.menuBar()
-        menu1 = menu.addMenu('File')
-        menu1_load = menu1.addAction('Load Project')
-        menu1_save = menu1.addAction('Save Project')
-        menu1_saveas = menu1.addMenu('Save as')
-        menu1_saveas_aln = menu1_saveas.addAction('.aln')           # ***** to amend 1 ***** connect           
-        menu1_saveas_txt = menu1_saveas.addAction('.txt')           # ***** to amend 2 ***** connect
-        menu1_saveas_png = menu1_saveas.addAction('.png')           # ***** to amend 3 ***** connect
-        menu1_saveas_jpg = menu1_saveas.addAction('.jpg')           # ***** to amend 4 ***** connect
-        menu1_saveas_pdf = menu1_saveas.addAction('.pdf')           # ***** to amend 5 ***** connect
-        menu2 = menu.addMenu('View')
-        menu2_all = menu2.addAction('All')
-        menu2_hide = menu2.addAction('Hide toggles')
-        menu2_consensus = menu2.addAction('Consensus mode (DEFAULT: 1)')
-        menu3 = menu.addMenu('Help')
-
-        # ---Toolbar
-        self.stack = QStackedWidget()
-        self.setCentralWidget(self.stack)
-        self.window_about = about()
-        self.window_protein = protein()
-        self.window_codon = QWidget()                   # ***** to amend  ***** 1
-        self.stack.addWidget(self.window_about)
-        self.stack.addWidget(self.window_protein)
-        self.stack.addWidget(self.window_codon)
-        toolbar = self.addToolBar('Main Toolbar')
-
-# --------------------------------------------Connect   (triggered)
-        # ---Menu
-        menu1_load.triggered.connect(self.window_protein.load_project)
-        menu1_save.triggered.connect(self.window_protein.save_project)
-        menu2_all.triggered.connect(self.window_protein.view_show_all)
-        menu2_hide.triggered.connect(self.window_protein.view_hide_toggles)
-        menu2_consensus.triggered.connect(lambda: self.window_protein.apply_new_consensus_threshold())      
-
-        # ---Toolbar
-        toolbar.addAction('About').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_about))
-        toolbar.addAction('Protein').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_protein))
-        toolbar.addAction('Codon').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_codon))     
-
-
-
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________2 CLASS: Toolbar - about
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-
-
-
-
-class about(QWidget):
-    def __init__(self):
-        super().__init__()
-
-# --------------------------------------------Main
-        # ---Layer 1
-        widget_about_l1 = QWidget()
-        layout_about_l1 = QVBoxLayout()
-        widget_about_l1.setLayout(layout_about_l1)
-        layout_about_l1.setSizeConstraint(QLayout.SetFixedSize)
-
-        # ---Layer 2: Widget for Texts only
-        widget_about_l2 = QWidget()
-        layout_about_l2 = QVBoxLayout()
-        layout_about_l2.setSpacing(0)
-        layout_about_l2.setSizeConstraint(QLayout.SetFixedSize)
-        widget_about_l2.setLayout(layout_about_l2)  
-
-# --------------------------------------------Sub-elements
-        # ---Logo
-        image_label1 = QLabel()
-        image_label1.setPixmap(QPixmap(icon_logo).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        image_label1.setFixedSize(100,100)
-
-        # ---Texts
-        label_text1 = QLabel("Version: 1.0.0")
-        label_text2 = QLabel("Source: githublink")
-        label_text3 = QLabel("Developed by Adriana as part of her Masters Dissertation")
-        label_text4 = QLabel("The University of Edinburgh")
-
-        for label in [label_text1, label_text2, label_text3, label_text4]:
-            label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)             # preferred = based on available space
-
-        # ---Add widgets to layout
-        layout_about_l1.addWidget(image_label1)
-        layout_about_l1.addWidget(widget_about_l2)
-        layout_about_l2.addWidget(label_text1)
-        layout_about_l2.addWidget(label_text2)
-        layout_about_l2.addWidget(label_text3)
-        layout_about_l2.addWidget(label_text4)
-        self.setLayout(layout_about_l1)
-
-
-
-
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________2 CLASS: Toolbar - protein
-#_______________________________________________________________________________________________
-#_______________________________________________________________________________________________
-
-
-
-
-class protein(QWidget):
+class codon(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -202,50 +33,49 @@ class protein(QWidget):
         if shutil.which('tcsh') is None:
             self.show_tcsh_warning()
 
-
 # --------------------------------------------Main
         # ---Layer 1
         # start window self
-        layout_protein_l1 = QVBoxLayout()
-        self.setLayout(layout_protein_l1)
-        layout_protein_l1.setContentsMargins(0,0,0,0)
+        layout_codon_l1 = QVBoxLayout()
+        self.setLayout(layout_codon_l1)
+        layout_codon_l1.setContentsMargins(0,0,0,0)
 
         # ---Layer 2
-        widget_protein_l2 = QScrollArea()
-        widget_protein_l2.setWidgetResizable(True)
-        widget_protein_l2.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        widget_protein_l2.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        widget_codon_l2 = QScrollArea()
+        widget_codon_l2.setWidgetResizable(True)
+        widget_codon_l2.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        widget_codon_l2.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
          # ---Add widgets to layout
-        layout_protein_l1.addWidget(widget_protein_l2)
+        layout_codon_l1.addWidget(widget_codon_l2)
 
         # ---Layer 3
-        widget_protein_l3 = QWidget()
-        widget_protein_l3.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        self.layout_protein_l3 = QVBoxLayout()
-        self.layout_protein_l3.setSpacing(0)
-        self.layout_protein_l3.setContentsMargins(5,5,5,5)
-        widget_protein_l3.setLayout(self.layout_protein_l3)
-         # ---Add widgets to parent widget
-        widget_protein_l2.setWidget(widget_protein_l3)
+        widget_codon_l3 = QWidget()
+        widget_codon_l3.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.layout_codon_l3 = QVBoxLayout()
+        self.layout_codon_l3.setSpacing(0)
+        self.layout_codon_l3.setContentsMargins(5,5,5,5)
+        widget_codon_l3.setLayout(self.layout_codon_l3)
+        # ---Add widgets to parent widget
+        widget_codon_l2.setWidget(widget_codon_l3)
 
 # --------------------------------------------Sub-elements
         # ---Ruler (In Layer 3)
-        self.ruler = ruler(protein=self)                                        # CONNECT TO FILE 1: ruler.py
-        self.layout_protein_l3.addWidget(self.ruler)
+        self.ruler = ruler(codon=self)                                        # CONNECT TO FILE 1: ruler.py
+        self.layout_codon_l3.addWidget(self.ruler)
 
         # ---Layer 4
-        self.widget_protein_l4 = QWidget()
-        self.layout_protein_l4 = QVBoxLayout()
-        self.layout_protein_l4.setSpacing(0)
-        self.layout_protein_l4.setContentsMargins(0, 0, 0, 0)
-        self.widget_protein_l4.setLayout(self.layout_protein_l4)
-        self.layout_protein_l3.addWidget(self.widget_protein_l4, alignment=Qt.AlignTop)
+        self.widget_codon_l4 = QWidget()
+        self.layout_codon_l4 = QVBoxLayout()
+        self.layout_codon_l4.setSpacing(0)
+        self.layout_codon_l4.setContentsMargins(0, 0, 0, 0)
+        self.widget_codon_l4.setLayout(self.layout_codon_l4)
+        self.layout_codon_l3.addWidget(self.widget_codon_l4, alignment=Qt.AlignTop)
 
         # ---Drawing Canvas (In Layer 4)
         self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
         self.canvas.setFixedHeight(40)
         self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.layout_protein_l4.addWidget(self.canvas)
+        self.layout_codon_l4.addWidget(self.canvas)
 
         # ---Layer 4 Elements
         # Line 1
@@ -276,30 +106,30 @@ class protein(QWidget):
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
         # # Add widgets to parent widget
-        self.widget_protein_buttons = QWidget()
-        self.layout_protein_buttons = QHBoxLayout()
-        self.layout_protein_buttons.setContentsMargins(0,2,0,2)
-        self.widget_protein_buttons.setLayout(self.layout_protein_buttons)
-        self.layout_protein_buttons.addWidget(self.button1_addgroup, alignment=Qt.AlignLeft)
-        self.layout_protein_buttons.addWidget(self.button2_alignall, alignment=Qt.AlignLeft)
-        self.layout_protein_buttons.addWidget(self.slidercon, alignment=Qt.AlignLeft)
-        self.layout_protein_buttons.addWidget(self.checkboxslider, alignment=Qt.AlignLeft)
-        self.layout_protein_buttons.addStretch(1)
-        self.layout_protein_l4.addWidget(self.widget_protein_buttons, alignment=Qt.AlignTop)
+        self.widget_codon_buttons = QWidget()
+        self.layout_codon_buttons = QHBoxLayout()
+        self.layout_codon_buttons.setContentsMargins(0,2,0,2)
+        self.widget_codon_buttons.setLayout(self.layout_codon_buttons)
+        self.layout_codon_buttons.addWidget(self.button1_addgroup, alignment=Qt.AlignLeft)
+        self.layout_codon_buttons.addWidget(self.button2_alignall, alignment=Qt.AlignLeft)
+        self.layout_codon_buttons.addWidget(self.slidercon, alignment=Qt.AlignLeft)
+        self.layout_codon_buttons.addWidget(self.checkboxslider, alignment=Qt.AlignLeft)
+        self.layout_codon_buttons.addStretch(1)
+        self.layout_codon_l4.addWidget(self.widget_codon_buttons, alignment=Qt.AlignTop)
 
         # Line 2
-        self.widget_protein_l4_2ndarystructure = QWidget()
-        self.layout_protein_l4_2ndarystructure = QHBoxLayout()
-        self.layout_protein_l4_2ndarystructure.setContentsMargins(5,0,0,0)
-        self.layout_protein_l4_2ndarystructure.setSpacing(0)
-        self.widget_protein_l4_2ndarystructure.setLayout(self.layout_protein_l4_2ndarystructure)
-        self.widget_protein_l4_2ndarystructure.setObjectName("line_0")
-        self.widget_protein_l4_2ndarystructure.setStyleSheet(
+        self.widget_codon_l4_2ndarystructure = QWidget()
+        self.layout_codon_l4_2ndarystructure = QHBoxLayout()
+        self.layout_codon_l4_2ndarystructure.setContentsMargins(5,0,0,0)
+        self.layout_codon_l4_2ndarystructure.setSpacing(0)
+        self.widget_codon_l4_2ndarystructure.setLayout(self.layout_codon_l4_2ndarystructure)
+        self.widget_codon_l4_2ndarystructure.setObjectName("line_0")
+        self.widget_codon_l4_2ndarystructure.setStyleSheet(
             """ #line_0 {
                 padding: 2px;
             } """
         )    
-        self.layout_protein_l4.addWidget(self.widget_protein_l4_2ndarystructure)
+        self.layout_codon_l4.addWidget(self.widget_codon_l4_2ndarystructure)
 
 # --------------------------------------------Connect
         self.button1_addgroup.clicked.connect(self.button1_addgroup_clicked)
@@ -581,34 +411,34 @@ class protein(QWidget):
     def button1_addgroup_clicked(self):
 # . . .  CLEAR GUI . . .
         if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)             # only remove from layout
+            self.layout_codon_l3.removeWidget(self.widget_global)             # only remove from layout
             self.widget_global.setParent(None)                                  # detach from parent widget
             self.widget_global.deleteLater()                                    # schedule for deletion to free memory safely
             self.widget_global = None                                           # clear subject
 
 # --------------------------------------------Main
         # MAIN WIDGET: GROUP
-        self.widget_protein_l4_group_l1 = QWidget()
-        self.widget_protein_l4_group_l1.setObjectName('group')         
-        self.widget_protein_l4_group_l1.setStyleSheet(
+        self.widget_codon_l4_group_l1 = QWidget()
+        self.widget_codon_l4_group_l1.setObjectName('group')         
+        self.widget_codon_l4_group_l1.setStyleSheet(
             """ #group {
                 border: 1px solid #A9A9A9;
                 border-radius: 6px;
                 padding: 2px;
             }"""
         )
-        self.layout_protein_l4_group_l1 = QVBoxLayout()
-        self.layout_protein_l4_group_l1.setContentsMargins(0,2,0,2)                                               
-        self.widget_protein_l4_group_l1.setLayout(self.layout_protein_l4_group_l1)
-        self.layout_protein_l4.addWidget(self.widget_protein_l4_group_l1)
+        self.layout_codon_l4_group_l1 = QVBoxLayout()
+        self.layout_codon_l4_group_l1.setContentsMargins(0,2,0,2)                                               
+        self.widget_codon_l4_group_l1.setLayout(self.layout_codon_l4_group_l1)
+        self.layout_codon_l4.addWidget(self.widget_codon_l4_group_l1)
 
 # --------------------------------------------Sub-elements
         # ---1 LINE 1 (BUTTONS)
         # MAIN WIDGET: LINE 1
-        widget_protein_l4_group_l1_line1 = QWidget()
-        layout_protein_l4_group_l1_line1 = QHBoxLayout()
-        widget_protein_l4_group_l1_line1.setLayout(layout_protein_l4_group_l1_line1)
-        self.layout_protein_l4_group_l1.addWidget(widget_protein_l4_group_l1_line1, alignment=Qt.AlignTop)
+        widget_codon_l4_group_l1_line1 = QWidget()
+        layout_codon_l4_group_l1_line1 = QHBoxLayout()
+        widget_codon_l4_group_l1_line1.setLayout(layout_codon_l4_group_l1_line1)
+        self.layout_codon_l4_group_l1.addWidget(widget_codon_l4_group_l1_line1, alignment=Qt.AlignTop)
 
         # ELEMENTS
         # 1 create elements
@@ -632,40 +462,40 @@ class protein(QWidget):
             checkbox1_setrefgroup.setChecked(True)
         label2_setrefgroup = QLabel('Tick to set reference group (Default: Group 1)')
         # 2 add elements to layout
-        layout_protein_l4_group_l1_line1.addWidget(lineedit_groupname, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(button2_removegroup, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(button3_addseq, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(button4_removeseq, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(button5_align, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(checkbox1_setrefgroup, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addWidget(label2_setrefgroup, alignment=Qt.AlignLeft)
-        layout_protein_l4_group_l1_line1.addStretch(1)                      # to left-align all elements
+        layout_codon_l4_group_l1_line1.addWidget(lineedit_groupname, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(button2_removegroup, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(button3_addseq, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(button4_removeseq, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(button5_align, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(checkbox1_setrefgroup, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addWidget(label2_setrefgroup, alignment=Qt.AlignLeft)
+        layout_codon_l4_group_l1_line1.addStretch(1)                      # to left-align all elements
         
         # ---2 LINE 2 (SEQUENCES)
         # MAIN WIDGET: SEQUENCES
-        widget_protein_l4_group_l1_seq = QWidget()
-        layout_protein_l4_group_l1_seq = QVBoxLayout()
-        widget_protein_l4_group_l1_seq.setLayout(layout_protein_l4_group_l1_seq)
-        layout_protein_l4_group_l1_seq.setSpacing(0)
-        layout_protein_l4_group_l1_seq.setContentsMargins(5,0,0,0)
-        self.layout_protein_l4_group_l1.addWidget(widget_protein_l4_group_l1_seq)
+        widget_codon_l4_group_l1_seq = QWidget()
+        layout_codon_l4_group_l1_seq = QVBoxLayout()
+        widget_codon_l4_group_l1_seq.setLayout(layout_codon_l4_group_l1_seq)
+        layout_codon_l4_group_l1_seq.setSpacing(0)
+        layout_codon_l4_group_l1_seq.setContentsMargins(5,0,0,0)
+        self.layout_codon_l4_group_l1.addWidget(widget_codon_l4_group_l1_seq)
 
         # INITIATE DICTIONARY
         group = {
-            'widget_group': self.widget_protein_l4_group_l1,        # WIDGET GROUP
+            'widget_group': self.widget_codon_l4_group_l1,        # WIDGET GROUP
             'lineedit_groupname': lineedit_groupname,               # GROUP NAME
-            'layout_seq': layout_protein_l4_group_l1_seq,           # LAYOUT SEQUENCE
+            'layout_seq': layout_codon_l4_group_l1_seq,           # LAYOUT SEQUENCE
             'widget_seq': [],                                       # WIDGET SEQUENCE
             'checkbox1_setrefgroup': checkbox1_setrefgroup          # CHECKBOX REFERENCE GROUP
         }
 
 # --------------------------------------------Connect
-        self.widget_toggles.append(widget_protein_l4_group_l1_line1)
+        self.widget_toggles.append(widget_codon_l4_group_l1_line1)
         self.groups.append(group)
-        button2_removegroup.clicked.connect(lambda _=None, w=self.widget_protein_l4_group_l1: self.button2_removegroup_clicked(w))
-        button3_addseq.clicked.connect(lambda _=None, layout=layout_protein_l4_group_l1_seq: self.button3_addseq_clicked(layout))
-        button4_removeseq.clicked.connect(lambda _=None, layout=self.layout_protein_l4_group_l1: self.button4_removeseq_clicked(layout))
-        button5_align.clicked.connect(lambda _=None, layout=layout_protein_l4_group_l1_seq: self.button5_align_clicked(layout))
+        button2_removegroup.clicked.connect(lambda _=None, w=self.widget_codon_l4_group_l1: self.button2_removegroup_clicked(w))
+        button3_addseq.clicked.connect(lambda _=None, layout=layout_codon_l4_group_l1_seq: self.button3_addseq_clicked(layout))
+        button4_removeseq.clicked.connect(lambda _=None, layout=self.layout_codon_l4_group_l1: self.button4_removeseq_clicked(layout))
+        button5_align.clicked.connect(lambda _=None, layout=layout_codon_l4_group_l1_seq: self.button5_align_clicked(layout))
         checkbox1_setrefgroup.toggled.connect(lambda checked, this_box=checkbox1_setrefgroup: self.handle_reference_group_toggle(this_box))                                                 # only 1 group is allowed at a time
 
 
@@ -687,7 +517,7 @@ class protein(QWidget):
 # . . .  CLEAR GUI . . .
         # 1 Remove global consensus
         if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)     # remove from layout (optional)
+            self.layout_codon_l3.removeWidget(self.widget_global)     # remove from layout (optional)
             self.widget_global.setParent(None)                          # remove from parent GUI hierarchy
             self.widget_global.deleteLater()                            # schedule for safe deletion by Qt event loop
             self.widget_global = None                                   # no widget global
@@ -729,40 +559,40 @@ class protein(QWidget):
                         widget.deleteLater()
 
         if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)
+            self.layout_codon_l3.removeWidget(self.widget_global)
             self.widget_global.setParent(None)
             self.widget_global.deleteLater()
             self.widget_global = None
 
 # --------------------------------------------Main
-        self.widget_protein_14_group_l1_seq_dialoginput = QDialog()
-        self.layout_protein_l4_group_l1_seq_dialoginput = QVBoxLayout()
-        self.widget_protein_14_group_l1_seq_dialoginput.setLayout(self.layout_protein_l4_group_l1_seq_dialoginput)
+        self.widget_codon_14_group_l1_seq_dialoginput = QDialog()
+        self.layout_codon_l4_group_l1_seq_dialoginput = QVBoxLayout()
+        self.widget_codon_14_group_l1_seq_dialoginput.setLayout(self.layout_codon_l4_group_l1_seq_dialoginput)
 
 # --------------------------------------------Sub-elements
         # 1 label
-        widget_protein_l4_group_l1_seq_dialoginput_label = QLabel()
-        widget_protein_l4_group_l1_seq_dialoginput_label.setText('Please specify method to add sequences:')
-        self.layout_protein_l4_group_l1_seq_dialoginput.addWidget(widget_protein_l4_group_l1_seq_dialoginput_label)
+        widget_codon_l4_group_l1_seq_dialoginput_label = QLabel()
+        widget_codon_l4_group_l1_seq_dialoginput_label.setText('Please specify method to add sequences:')
+        self.layout_codon_l4_group_l1_seq_dialoginput.addWidget(widget_codon_l4_group_l1_seq_dialoginput_label)
 
         # 2 buttons
         self.seqtext_button1text = QPushButton('Input Text')
         self.seqtext_button2file = QPushButton('Upload File')
         self.seqtext_button3cancel = QPushButton('Cancel')
-        self.widget_protein_l4_group_l1_seq_dialoginput_seqbutton = QDialogButtonBox()
-        self.widget_protein_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button1text, QDialogButtonBox.ActionRole)
-        self.widget_protein_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button2file, QDialogButtonBox.ActionRole)
-        self.widget_protein_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button3cancel, QDialogButtonBox.RejectRole)
-        self.layout_protein_l4_group_l1_seq_dialoginput.addWidget(self.widget_protein_l4_group_l1_seq_dialoginput_seqbutton)
+        self.widget_codon_l4_group_l1_seq_dialoginput_seqbutton = QDialogButtonBox()
+        self.widget_codon_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button1text, QDialogButtonBox.ActionRole)
+        self.widget_codon_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button2file, QDialogButtonBox.ActionRole)
+        self.widget_codon_l4_group_l1_seq_dialoginput_seqbutton.addButton(self.seqtext_button3cancel, QDialogButtonBox.RejectRole)
+        self.layout_codon_l4_group_l1_seq_dialoginput.addWidget(self.widget_codon_l4_group_l1_seq_dialoginput_seqbutton)
 
 # --------------------------------------------Connect
-        self.seqtext_button3cancel.clicked.connect(self.widget_protein_14_group_l1_seq_dialoginput.reject)
+        self.seqtext_button3cancel.clicked.connect(self.widget_codon_14_group_l1_seq_dialoginput.reject)
         self.seqtext_button1text.clicked.connect(lambda _=None, layout=layout: self.seqtext_button1text_clicked(layout))
         self.seqtext_button2file.clicked.connect(lambda _=None, layout=layout: self.seqtext_button2file_clicked(layout))
 
 # --------------------------------------------Others
         # Execution
-        self.widget_protein_14_group_l1_seq_dialoginput.exec()
+        self.widget_codon_14_group_l1_seq_dialoginput.exec()
 
 
 #_______________________________________________________________________________________________6-2 DEF: Line 1 - Add Sequence via text 1
@@ -855,7 +685,7 @@ class protein(QWidget):
                 
 # --------------------------------------------Others
         self.widget_seq_text_inputtext_dialogbox.hide()
-        self.widget_protein_14_group_l1_seq_dialoginput.hide()
+        self.widget_codon_14_group_l1_seq_dialoginput.hide()
 
 # --------------------------------------------Connect
         for seq_name, seq in zip(self.allinput_header, self.allinput_seq):
@@ -891,7 +721,7 @@ class protein(QWidget):
             QMessageBox.critical(self, 'Error', f'Could not load file:\n{e}')
 
 # --------------------------------------------Others
-        self.widget_protein_14_group_l1_seq_dialoginput.hide()
+        self.widget_codon_14_group_l1_seq_dialoginput.hide()
 
 
 #_______________________________________________________________________________________________7 DEF: Line 1 - Remove Sequence
@@ -919,7 +749,7 @@ class protein(QWidget):
                         widget.deleteLater()
 
         if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)
+            self.layout_codon_l3.removeWidget(self.widget_global)
             self.widget_global.setParent(None)
             self.widget_global.deleteLater()
             self.widget_global = None
@@ -1360,9 +1190,9 @@ class protein(QWidget):
         avg_char_width = 8
         min_padding = 200
         seq_pixel_length = len(seq) * avg_char_width + min_padding
-        current_width = self.widget_protein_l4.minimumWidth()
+        current_width = self.widget_codon_l4.minimumWidth()
         if seq_pixel_length > current_width:
-            self.widget_protein_l4.setMinimumWidth(seq_pixel_length)
+            self.widget_codon_l4.setMinimumWidth(seq_pixel_length)
 
 
 #_______________________________________________________________________________________________12-1 Get & Display Consensus (by Group)
@@ -1435,7 +1265,7 @@ class protein(QWidget):
     def get_global_consensus(self, threshold=None):
 # . . .  CLEAR GUI . . .
         if hasattr(self, 'widget_global') and self.widget_global is not None:
-            self.layout_protein_l3.removeWidget(self.widget_global)
+            self.layout_codon_l3.removeWidget(self.widget_global)
             self.widget_global.setParent(None)
             self.widget_global.deleteLater()
             self.widget_global = None
@@ -1446,7 +1276,7 @@ class protein(QWidget):
         layout_global.setContentsMargins(5,0,0,0)
         layout_global.setSpacing(0)
         self.widget_global.setLayout(layout_global)
-        self.layout_protein_l3.addWidget(self.widget_global, alignment=Qt.AlignLeft)
+        self.layout_codon_l3.addWidget(self.widget_global, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Sub-elements
         # 1 Checkbox (only for spacing)
@@ -1621,7 +1451,7 @@ class protein(QWidget):
 # . . .  CLEAR GUI . . .
         # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
         if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
-            self.layout_protein_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
+            self.layout_codon_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
             self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
             self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
             self.widget_horizontal = None                                                   # no widget global
@@ -1681,7 +1511,7 @@ class protein(QWidget):
         layout_horizontal.setContentsMargins(0,0,0,0)
         layout_horizontal.addSpacing(0)
         self.widget_horizontal.setLayout(layout_horizontal)
-        self.layout_protein_l4_2ndarystructure.addWidget(self.widget_horizontal, alignment=Qt.AlignLeft)
+        self.layout_codon_l4_2ndarystructure.addWidget(self.widget_horizontal, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Sub-elements
         # ---1 Labels (Spacing)
@@ -1862,20 +1692,6 @@ class protein(QWidget):
 
 
 
-# Execute
-window = main()
-window.show()
-app.exec()
-
-
-
-
-
-
-
-
-
-
 # . . .  CLEAR GUI . . .
 # . . . CLEAR DICT . . .
 # . . .   BEGINS   . . .
@@ -1884,5 +1700,3 @@ app.exec()
 # --------------------------------------------Connect
 # --------------------------------------------Others
 # ***** to amend *****
-
-
