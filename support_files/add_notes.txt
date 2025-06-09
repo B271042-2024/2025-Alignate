@@ -1,2 +1,0 @@
-1 add exclusive checkbox in line 1 for ref seq (marked)
-2 default is group 1

@@ -36,10 +36,13 @@ class ClickableLabel(QLabel):
 
 
 class ruler(QWidget):
-    def __init__(self, protein, parent=None):
+    def __init__(self, parent_context, parent=None):
+#    def __init__(self, context, parent=None):
         super().__init__(parent)
 
-        self.protein = protein
+#        self.context = context
+        self.context = parent_context
+
         # call fxn 1: build the ruler
         self.build_ruler()
 
@@ -139,7 +142,7 @@ class ruler(QWidget):
             button_cancel.clicked.connect(widget_dialog.reject)
             button_cancel.clicked.connect(reset_state)
 
-            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.protein.custom_display_perc_cons(pos1, pos2)))
+            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
             button_yes.clicked.connect(reset_state)
 
             widget_dialog.exec()
@@ -147,13 +150,6 @@ class ruler(QWidget):
             for label in self.ruler_labels:                                      # 8 red mark
                 label.marked = False
                 label.update()
-
-
-
-
-
-
-
 
 
 
@@ -192,7 +188,7 @@ class ruler(QWidget):
             print(f'test: {position}')
 
             button_cancel.clicked.connect(widget_dialog.reject)
-            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.protein.custom_display_perc_cons(pos1, pos2)))
+            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
 
             label = self.ruler_labels[position]                                  # 5 red mark
             label.marked = True                                                  # 6 red mark
