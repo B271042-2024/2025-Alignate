@@ -1,6 +1,6 @@
-import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform
+import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, requests, time
 from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QPen, QMouseEvent
-from PySide6.QtWidgets import QToolButton, QStyleOptionSlider, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
+from PySide6.QtWidgets import QToolButton, QStyleOptionSlider, QGroupBox, QRadioButton, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
 from PySide6.QtCore import QSize, Qt, QPoint
 from Bio import SeqIO, AlignIO
 from Bio.Align import MultipleSeqAlignment, AlignInfo
@@ -198,6 +198,7 @@ class protein(QWidget):
         self.seq_rows = []                                              # SEQUENCE ROWS BY GROUP
         self.groups = []                                                # SEQUENCE DETAILS DICT
         self.widget_toggles = []                                        # FOR MENU2_HIDE TOGGLES
+        self.is_alignall = False
 
         # QC System
 #        if shutil.which('tcsh') is None:
@@ -444,7 +445,11 @@ class protein(QWidget):
         if checked:
             self.slider_threshold()
         else:
-            self.color_code_seq(seq_map=self.seq_map)
+            if hasattr(self, 'seq_map') and self.seq_map:
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 #_______________________________________________________________________________________________3-2 DEF: Slider
@@ -484,7 +489,11 @@ class protein(QWidget):
                             lbl.setStyleSheet('color: lightgray;')
 
         else:
-            self.color_code_seq(seq_map=self.seq_map)
+            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 #_______________________________________________________________________________________________4 DEF: Menu - Save Project
@@ -811,6 +820,9 @@ class protein(QWidget):
 #_______________________________________________________________________________________________
 
     def widget_seq_text_inputtext_dialogbox_button1_clicked(self, layout):
+# --------------------------------------------Others
+        self.widget_protein_l4_group_l1_seq_dialoginput.hide()
+
 # --------------------------------------------Main
         # 1 QC1: Messagebox Error if no input
         text = self.widget_seq_text_inputtext_dialogbox_textbox.toPlainText()
@@ -857,8 +869,7 @@ class protein(QWidget):
             full_sequence = ''.join(sequence)                       # form a full sequence
             self.allinput_seq.append(full_sequence)                 # add to sequence list
                 
-# --------------------------------------------Others
-        self.widget_protein_l4_group_l1_seq_dialoginput.hide()
+
 
 # --------------------------------------------Connect
         for seq_name, seq in zip(self.allinput_header, self.allinput_seq):
@@ -875,7 +886,7 @@ class protein(QWidget):
 
 # --------------------------------------------Others
         self.widget_protein_l4_group_l1_seq_dialoginput.hide()
-
+            
 # --------------------------------------------Main
         # 1 File Upload Dialog Box
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select File', '', 'FASTA files (*.fasta *.fa *.txt);;All Files (*)')
@@ -896,7 +907,6 @@ class protein(QWidget):
                         self.add_sequences_toGUI(group, layout, name, seq)
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'Could not load file:\n{e}')
-#            self.widget_protein_l4_group_l1_seq_dialoginput.hide()
 
 
 
@@ -960,7 +970,7 @@ class protein(QWidget):
         self.seq_rows = [(row, checkbox) for (row, checkbox) in self.seq_rows if (row, checkbox) not in seq_removed]    # used to mark for deletion
 
 
-#_______________________________________________________________________________________________8 DEF: Line 1 - Align sequences
+#_______________________________________________________________________________________________8-1 DEF: Line 1 - Align sequences
 #__________________________________________________________________________________________ALIGN
 
     def button5_align_clicked(self, layout):
@@ -986,6 +996,23 @@ class protein(QWidget):
         layout_buttons_align.addWidget(widget_button3_cancel)
         layout_dialogbox_align.addWidget(widget_buttons_align)
 
+        # 3 Radiobutton for PSIPRED (Run online or offline)
+        widget_radiobtns_psipred = QGroupBox('PSIPRED Setting:')
+        layout_radiobtns_psipred = QHBoxLayout()
+        self.widget_psipred_offline = QRadioButton('Run Offline')
+        self.widget_psipred_offline.setChecked(True)
+        self.widget_psipred_online = QRadioButton('Run Online')
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_offline)
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_online)
+        widget_radiobtns_psipred.setLayout(layout_radiobtns_psipred)
+        layout_dialogbox_align.addWidget(widget_radiobtns_psipred)
+
+#        if self.widget_psipred_online.isChecked():
+        self.qlineedit_email = QLineEdit()
+        self.qlineedit_email.setPlaceholderText('Please enter your email')
+        self.qlineedit_email.setVisible(False)                                      # defaule: not visible
+        layout_dialogbox_align.addWidget(self.qlineedit_email)
+
 # --------------------------------------------Connect
         # 1 if the group sequence layout is correct, extract group
         group = None
@@ -997,18 +1024,32 @@ class protein(QWidget):
         widget_button3_cancel.clicked.connect(widget_dialogbox_align.reject)
         widget_button1_clustalo.clicked.connect(lambda _=None: (widget_dialogbox_align.accept(), self.run_alignment([(entry['seq_header'].text().strip(), ''.join(label.text() for label in entry['seq_letters']).strip()) for entry in group['widget_seq']], group, layout, widget_button1_clustalo)))
         widget_button2_mafft.clicked.connect(lambda _=None: (widget_dialogbox_align.accept(), self.run_alignment([(entry['seq_header'].text().strip(), ''.join(label.text() for label in entry['seq_letters']).strip()) for entry in group['widget_seq']], group, layout, widget_button2_mafft)))
+        self.widget_psipred_offline.toggled.connect(self.toggle_email_field)
+        self.widget_psipred_online.toggled.connect(self.toggle_email_field)
 
 # --------------------------------------------Others
         widget_dialogbox_align.exec()
 
 
+#_______________________________________________________________________________________________8-2 DEF: Line 1 - Align sequences
+#__________________________________________________________________________________________ALIGN
+
+    def toggle_email_field(self):
+        if self.widget_psipred_online.isChecked():
+            self.qlineedit_email.setVisible(True)
+        else:
+            self.qlineedit_email.setVisible(False)
+
+
 #_______________________________________________________________________________________________9 DEF: 1 Align all sequences
 #__________________________________________________________________________________________ALIGN
+
     def button2_alignall_clicked(self):
 # --------------------------------------------Others
         # Initiation
         all_seq = []
         self.seq_map = []
+        self.is_alignall = True
 
 # --------------------------------------------Main
         widget_dialogbox_alignall = QDialog()
@@ -1031,6 +1072,23 @@ class protein(QWidget):
         widget_buttons_alignall.addButton(widget_button2_mafft, QDialogButtonBox.ActionRole)
         widget_buttons_alignall.addButton(widget_button3_cancel, QDialogButtonBox.RejectRole)
         layout_dialogbox_alignall.addWidget(widget_buttons_alignall)
+
+        # 3 Radiobutton for PSIPRED (Run online or offline)
+        widget_radiobtns_psipred = QGroupBox('PSIPRED Setting:')
+        layout_radiobtns_psipred = QHBoxLayout()
+        self.widget_psipred_offline = QRadioButton('Run Offline')
+        self.widget_psipred_offline.setChecked(True)
+        self.widget_psipred_online = QRadioButton('Run Online')
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_offline)
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_online)
+        widget_radiobtns_psipred.setLayout(layout_radiobtns_psipred)
+        layout_dialogbox_alignall.addWidget(widget_radiobtns_psipred)
+
+#        if self.widget_psipred_online.isChecked():
+        self.qlineedit_email = QLineEdit()
+        self.qlineedit_email.setPlaceholderText('Please enter your email')
+        self.qlineedit_email.setVisible(False)                                      # defaule: not visible
+        layout_dialogbox_alignall.addWidget(self.qlineedit_email)
 
 # --------------------------------------------Action
         for group_idx, group in enumerate(self.groups):
@@ -1056,6 +1114,8 @@ class protein(QWidget):
         widget_button3_cancel.clicked.connect(widget_dialogbox_alignall.reject)                # cancel
         widget_button2_mafft.clicked.connect(lambda _=None: (widget_dialogbox_alignall.accept(), self.run_alignment(all_seq, None, None, widget_button2_mafft, return_only=False, seq_map=self.seq_map)))
         widget_button1_clustalo.clicked.connect(lambda _=None: (widget_dialogbox_alignall.accept(), self.run_alignment(all_seq, None, None, widget_button1_clustalo, return_only=False, seq_map=self.seq_map)))
+        self.widget_psipred_offline.toggled.connect(self.toggle_email_field)
+        self.widget_psipred_online.toggled.connect(self.toggle_email_field)
 
 # --------------------------------------------Others
         widget_dialogbox_alignall.exec()
@@ -1256,10 +1316,16 @@ class protein(QWidget):
                     f.write(f">global_consensus\n{global_consensus.replace('-', '')}\n")
                     fasta_file = f.name
 
+                with open(fasta_file, 'r') as debug_f:
+                    print("FASTA contents:\n", debug_f.read())
+
             # -- 7 Connect - DEF Run PSIPRED: Build Secondary Structure
                 base_path = os.path.dirname(os.path.abspath(__file__))
-                psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
+                if self.widget_psipred_offline.isChecked():
+                    psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
+                    self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+                else:
+                    self.prediction_text = self.build_secondary_structure_online(fasta_file)
 
             # -- 8 Connect - DEF Display on GUI (PSIPRED Output)
                 self.draw_secondary_structure_to_gui(self.prediction_text)
@@ -1294,6 +1360,7 @@ class protein(QWidget):
 
             # -- 4 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
                 group_idx = self.groups.index(group)
+                self.is_alignall = False
                 self.color_code_seq(mode="group", group_idx=group_idx)
 
             # -- 5 Connect - DEF Run PSIPRED: Build Secondary Structure
@@ -1303,8 +1370,13 @@ class protein(QWidget):
                         f.write(f">consensus\n{seq}\n")
                         fasta_file = f.name
                     base_path = os.path.dirname(os.path.abspath(__file__))
-                    psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                    self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir, base_path)
+
+                    if self.widget_psipred_offline.isChecked():
+                        psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
+                        self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+                    else:
+                        self.prediction_text = self.build_secondary_structure_online(fasta_file)
+
 
             # -- 6 Connect - DEF Display on GUI (PSIPRED Output)
                     self.draw_secondary_structure_to_gui(self.prediction_text)
@@ -1408,7 +1480,7 @@ class protein(QWidget):
 
         # 2 Label
         label_consensus = QLabel('')
-        label_consensus.setObjectName('perc_conservation')
+        label_consensus.setObjectName('percent_conservation')
         label_consensus.setFixedSize(120,20)
         layout_consensus.addWidget(label_consensus, alignment=Qt.AlignLeft)
         layout_consensus.addSpacing(5)  
@@ -1420,7 +1492,7 @@ class protein(QWidget):
         summary = AlignInfo.SummaryInfo(alignment)
         if threshold is None:
             threshold = getattr(self, 'consensus_threshold', 1.0)
-        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
         consensus_str = str(consensus)
 
         for letter in consensus_str:
@@ -1488,7 +1560,7 @@ class protein(QWidget):
         summary = AlignInfo.SummaryInfo(alignment)
         if threshold is None:
             threshold = 1.0
-        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
 
         for letter in str(consensus):
             lbl = QLabel(letter)
@@ -1551,8 +1623,6 @@ class protein(QWidget):
                             color = similarity_to_color(score)
                             lbl.setProperty('bg_color', color)
                             lbl.setStyleSheet(f'background-color: {color};')
-
-
 
 
 
@@ -1641,7 +1711,7 @@ class protein(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def build_secondary_structure(self, fasta_file, psipred_dir, base_path):
+    def build_secondary_structure_offline(self, fasta_file, psipred_dir, base_path):
 # . . .  CLEAR GUI . . .
         # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
         if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
@@ -1707,8 +1777,173 @@ class protein(QWidget):
         return self.prediction_text
 
 
+#_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
+#________________________________________________________________________________________PSIPRED
+
+    def build_secondary_structure_online(self, fasta_file):
+        print('online')
+
+        with open(fasta_file, 'r') as fasta:
+            lines = fasta.readlines()
+        filtered_lines = [line for line in lines if not line.strip().startswith('>')]
+        with open(fasta_file, 'w') as fasta:
+            fasta.writelines(filtered_lines)
+        with open(fasta_file, 'r') as fasta:
+            print(fasta.read())
+
+        # 1 Request from server
+        user_email = self.qlineedit_email.text()
+        if not user_email or '@' not in user_email:
+            QMessageBox.warning(self, "Missing Email", "Please enter a valid email address to run PSIPRED online.")
+            return
+
+        fasta_file_name = os.path.basename(fasta_file)
+        url = 'https://bioinf.cs.ucl.ac.uk/psipred/api/submission.json'
+
+        with open(fasta_file, 'rb') as fasta:
+            payload = {'input_data': (fasta_file_name, fasta)}      # (name for server to recognize as, open(inputfile, ..))
+            data = {'job': 'psipred', 'submission_name': fasta_file_name, 'email': user_email}
+            print('PSIPRED: Sending Request')
+            r = requests.post(url, data=data, files=payload)
+
+            # Error trap
+            print("POST Code:", r.status_code)
+            print("POST response:", repr(r.text))
+            if r.status_code != 200 and r.status_code != 201:
+                raise Exception("PSIPRED submission failed: " + r.text)
+
+            response_data = json.loads(r.text)
+
+        # 2 Get from server
+        while True:
+            print('before requesting r')
+            result_url = "https://bioinf.cs.ucl.ac.uk/psipred/api/submission/" + response_data['UUID']
+            r = requests.get(result_url, headers={"Accept":"application/json"})
+            print('after requesting r')
+
+            if not r.text.strip():
+                print("Empty response received from server.")
+                print("Status code:", r.status_code)
+                raise Exception("Server returned empty response while polling for results.")
+
+            result_data = json.loads(r.text)
+            print(result_data)
+            if "Complete" in result_data["state"]:
+                print(r.text)
+                break
+            else:
+                time.sleep(30)
+
+        # 3 Download horiz file from result
+        horiz_path = None
+        for path in result_data.get("data_path", []):
+            if path.endswith(".horiz"):
+                horiz_path = path
+                break
+        if not horiz_path:
+            raise ValueError("PSIPRED online: No .horiz file found in result data.")
+            
+        horiz_url = "https://bioinf.cs.ucl.ac.uk/psipred/api/submissions/" + horiz_path
+        r = requests.get(horiz_url)
+        self.prediction_text = r.text
+        return self.prediction_text
+
+
+
+
 #_______________________________________________________________________________________________16 PSIPRED: DISPLAY ON GUI
 #________________________________________________________________________________________PSIPRED
+
+    def todel_draw_secondary_structure_to_gui(self, prediction_text):
+# --------------------------------------------Main
+        self.widget_horizontal = QWidget()
+        layout_horizontal = QHBoxLayout()
+        layout_horizontal.setContentsMargins(0,0,0,0)
+        layout_horizontal.addSpacing(0)
+        self.widget_horizontal.setLayout(layout_horizontal)
+        self.layout_protein_l4_2ndarystructure.addWidget(self.widget_horizontal, alignment=Qt.AlignLeft)
+
+# --------------------------------------------Sub-elements
+        # ---1 Labels (Spacing)
+        invisible_checkbox = QCheckBox()
+        invisible_checkbox.setEnabled(False)
+        invisible_checkbox.setStyleSheet('background: transparent; border: none;')
+        layout_horizontal.addWidget(invisible_checkbox)
+   
+        invisible_label = QLabel('')
+        invisible_label.setFixedSize(118,20)
+        layout_horizontal.addWidget(invisible_label, alignment=Qt.AlignLeft)
+
+# --------------------------------------------Action
+        # ---1 Parse prediction text: get clean AA and SS
+        aa_clean, pred_clean = '', ''  # ungapped AA and SS
+        for line in prediction_text.splitlines():
+            if 'AA' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    aa_clean += parts[1]
+            elif 'Pred' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    pred_clean += parts[1]
+
+        # ---2 Retrieve aligned sequence from the widget (global consensus with gaps)
+        aligned_seq = self.groups[0]['consensus_seq']  # Assumes first group is reference/global
+
+        # ---3 Reinsert gaps into secondary structure
+        def reinsert_gaps(aligned_seq, structure):
+            result = []
+            i = 0
+            for c in aligned_seq:
+                if c == '-':
+                    result.append('-')
+                else:
+                    result.append(structure[i])
+                    i += 1
+            return ''.join(result)
+
+        pred_aligned = reinsert_gaps(aligned_seq, pred_clean)
+
+        # ---2 Turn C, E, H into symbols: ---, Arrow, Box
+        width_per_residue = 0.15                                            # Width per base: 15 pixels
+        fig_width = len(aligned_seq) * width_per_residue                             # Figure width
+        fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
+        i=0
+        while i < len(pred_aligned):
+            ss = pred_aligned[i]                                                    # Secondary structure at pos i
+            start = i                                                       # Start at pos i
+            while i < len(pred_aligned) and pred_aligned[i] == ss:
+                i += 1
+            end = i
+
+            if ss == 'H':
+                rect = Rectangle((start, 0.1), end - start, 0.8, linewidth=1, edgecolor='red', facecolor='red', alpha=0.4)  # (x,y), width, height, border thickness, border color, fill color, semi-transparent      
+                ax.add_patch(rect)                                                                                          # add rect to plot
+            elif ss == 'E':
+                arrow = FancyArrow(start, 0.5, end - start - 0.2, 0, width=0.3, length_includes_head=True, head_width=0.5, head_length=0.3, color='blue') # x,y,x-length, y-change, ...
+                ax.add_patch(arrow)
+            else:
+                ax.plot([start, end], [0.5, 0.5], color='gray', linewidth=1.2)
+
+        # ---3 Create Plot Figure
+        ax.set_xlim(0, len(aligned_seq))
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        plt.tight_layout(pad=0)
+        buffer = BytesIO()                                                  # Save to buffer (FOR DISPLAY)
+        fig.savefig(buffer, format='png', transparent=True, bbox_inches='tight', pad_inches=0)
+        plt.close(fig)
+
+        # ---4 Convert to QPixmap and Display on GUI
+        pixmap = QPixmap()
+        pixmap.loadFromData(buffer.getvalue())
+        label = QLabel()
+        label.setPixmap(pixmap)
+        layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
+
+
+
+
 
     def draw_secondary_structure_to_gui(self, prediction_text):
 # --------------------------------------------Main

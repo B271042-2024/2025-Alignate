@@ -1,6 +1,6 @@
 import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, uuid
-from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QPen, QMouseEvent
-from PySide6.QtWidgets import QToolButton, QStyleOptionSlider, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QGroupBox, QRadioButton, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
 from PySide6.QtCore import QSize, Qt, QPoint
 from Bio import SeqIO, AlignIO
 from Bio.Align import MultipleSeqAlignment, AlignInfo
@@ -38,6 +38,8 @@ class codon(QWidget):
         self.seq_rows = []                                              # SEQUENCE ROWS BY GROUP
         self.groups = []                                                # SEQUENCE DETAILS DICT
         self.widget_toggles = []                                        # FOR MENU2_HIDE TOGGLES
+        self.is_alignall = False
+        self.seq_map = None
 
         # QC System
 #        if shutil.which('tcsh') is None:
@@ -284,7 +286,11 @@ class codon(QWidget):
         if checked:
             self.slider_threshold()
         else:
-            self.color_code_seq(seq_map=self.seq_map)
+            if hasattr(self, 'seq_map') and self.seq_map:
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 #_______________________________________________________________________________________________3-2 DEF: Slider
@@ -324,7 +330,11 @@ class codon(QWidget):
                             lbl.setStyleSheet('color: lightgray;')
 
         else:
-            self.color_code_seq(seq_map=self.seq_map)
+            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 #_______________________________________________________________________________________________4 DEF: Menu - Save Project
@@ -629,7 +639,6 @@ class codon(QWidget):
                         self.add_sequences_toGUI(group, layout, name, seq)
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'Could not load file:\n{e}')
-            self.widget_codon_14_group_l1_seq_dialoginput.hide()
 
 # --------------------------------------------Others
         self.widget_codon_14_group_l1_seq_dialoginput.hide()
@@ -721,6 +730,23 @@ class codon(QWidget):
         layout_buttons_align.addWidget(widget_button3_cancel)
         layout_dialogbox_align.addWidget(widget_buttons_align)
 
+        # 3 Radiobutton for PSIPRED (Run online or offline)
+        widget_radiobtns_psipred = QGroupBox('PSIPRED Setting:')
+        layout_radiobtns_psipred = QHBoxLayout()
+        self.widget_psipred_offline = QRadioButton('Run Offline')
+        self.widget_psipred_offline.setChecked(True)
+        self.widget_psipred_online = QRadioButton('Run Online')
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_offline)
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_online)
+        widget_radiobtns_psipred.setLayout(layout_radiobtns_psipred)
+        layout_dialogbox_align.addWidget(widget_radiobtns_psipred)
+
+#        if self.widget_psipred_online.isChecked():
+        self.qlineedit_email = QLineEdit()
+        self.qlineedit_email.setPlaceholderText('Please enter your email')
+        self.qlineedit_email.setVisible(False)                                      # defaule: not visible
+        layout_dialogbox_align.addWidget(self.qlineedit_email)
+
 # --------------------------------------------Connect
         # 1 if the group sequence layout is correct, extract group
         group = None
@@ -732,9 +758,21 @@ class codon(QWidget):
         widget_button3_cancel.clicked.connect(widget_dialogbox_align.reject)
         widget_button1_clustalo.clicked.connect(lambda _=None: (widget_dialogbox_align.accept(), self.run_alignment([(entry['seq_header'].text().strip(), ''.join(label.text() for label in entry['seq_letters']).strip()) for entry in group['widget_seq']], group, layout, widget_button1_clustalo)))
         widget_button2_mafft.clicked.connect(lambda _=None: (widget_dialogbox_align.accept(), self.run_alignment([(entry['seq_header'].text().strip(), ''.join(label.text() for label in entry['seq_letters']).strip()) for entry in group['widget_seq']], group, layout, widget_button2_mafft)))
+        self.widget_psipred_offline.toggled.connect(self.toggle_email_field)
+        self.widget_psipred_online.toggled.connect(self.toggle_email_field)
 
 # --------------------------------------------Others
         widget_dialogbox_align.exec()
+
+
+#_______________________________________________________________________________________________8-2 DEF: Line 1 - Align sequences
+#__________________________________________________________________________________________ALIGN
+
+    def toggle_email_field(self):
+        if self.widget_psipred_online.isChecked():
+            self.qlineedit_email.setVisible(True)
+        else:
+            self.qlineedit_email.setVisible(False)
 
 
 #_______________________________________________________________________________________________9 DEF: 1 Align all sequences
@@ -744,6 +782,7 @@ class codon(QWidget):
         # Initiation
         all_seq = []
         self.seq_map = []
+        self.is_alignall = True
 
 # --------------------------------------------Main
         widget_dialogbox_alignall = QDialog()
@@ -766,6 +805,23 @@ class codon(QWidget):
         widget_buttons_alignall.addButton(widget_button2_mafft, QDialogButtonBox.ActionRole)
         widget_buttons_alignall.addButton(widget_button3_cancel, QDialogButtonBox.RejectRole)
         layout_dialogbox_alignall.addWidget(widget_buttons_alignall)
+
+        # 3 Radiobutton for PSIPRED (Run online or offline)
+        widget_radiobtns_psipred = QGroupBox('PSIPRED Setting:')
+        layout_radiobtns_psipred = QHBoxLayout()
+        self.widget_psipred_offline = QRadioButton('Run Offline')
+        self.widget_psipred_offline.setChecked(True)
+        self.widget_psipred_online = QRadioButton('Run Online')
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_offline)
+        layout_radiobtns_psipred.addWidget(self.widget_psipred_online)
+        widget_radiobtns_psipred.setLayout(layout_radiobtns_psipred)
+        layout_dialogbox_alignall.addWidget(widget_radiobtns_psipred)
+
+#        if self.widget_psipred_online.isChecked():
+        self.qlineedit_email = QLineEdit()
+        self.qlineedit_email.setPlaceholderText('Please enter your email')
+        self.qlineedit_email.setVisible(False)                                      # defaule: not visible
+        layout_dialogbox_alignall.addWidget(self.qlineedit_email)
 
 # --------------------------------------------Action
         for group_idx, group in enumerate(self.groups):
@@ -791,6 +847,8 @@ class codon(QWidget):
         widget_button3_cancel.clicked.connect(widget_dialogbox_alignall.reject)                # cancel
         widget_button2_mafft.clicked.connect(lambda _=None: (widget_dialogbox_alignall.accept(), self.run_alignment(all_seq, None, None, widget_button2_mafft, return_only=False, seq_map=self.seq_map)))
         widget_button1_clustalo.clicked.connect(lambda _=None: (widget_dialogbox_alignall.accept(), self.run_alignment(all_seq, None, None, widget_button1_clustalo, return_only=False, seq_map=self.seq_map)))
+        self.widget_psipred_offline.toggled.connect(self.toggle_email_field)
+        self.widget_psipred_online.toggled.connect(self.toggle_email_field)
 
 # --------------------------------------------Others
         widget_dialogbox_alignall.exec()
@@ -856,20 +914,29 @@ class codon(QWidget):
             return
         
         # Write FASTA file for alignment (Feed in sequences)
-        temp_fasta = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta')
-        aa_output_file = temp_fasta.name.replace('.fasta', '_aa.fasta')
-        aligned_aa_output_file = temp_fasta.name.replace('.fasta', '_aa.aln')
-        output_file = temp_fasta.name.replace('.fasta', '.aln')
+        # Unique ID for this alignment session
+        uid = uuid.uuid4().hex[:12]
+
+        # Define output paths
+        temp_dir = os.path.join(self.base_path, 'tmp_files')
+        os.makedirs(temp_dir, exist_ok=True)
+
+        basename = f"consensus_{uid}"
+        temp_fasta = os.path.join(temp_dir, f"{basename}.fasta")
+        aa_output_file = os.path.join(temp_dir, f"{basename}_aa.fasta")
+        aligned_aa_output_file = os.path.join(temp_dir, f"{basename}_aa.aln")
+        output_file = os.path.join(temp_dir, f"{basename}.aln")
         
-        for name, seq in sequences:
-            if not name or not seq:
-                QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
-                return
-            if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
-                QMessageBox.warning(self, 'Error', 'Invalid characters found in sequence: {seq}. **Special characters are not allowed.')
-                return
-            temp_fasta.write(f'>{name}\n{seq}\n')
-        temp_fasta.close()
+        with open(temp_fasta, 'w') as fasta_out:
+            for name, seq in sequences:
+                if not name or not seq:
+                    QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
+                    return
+                if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
+                    QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **Special characters are not allowed.')
+                    return
+                fasta_out.write(f'>{name}\n{seq}\n')
+
 
 # --------------------------------------------Main
         self.widget_progress = QDialog(self)
@@ -900,9 +967,9 @@ class codon(QWidget):
 
 # -------1 Translate codon sequences using biopython (output_tmp_files)
         translated_records = []
-        for record in SeqIO.parse(temp_fasta.name, "fasta"):
-            aa_seq = record.seq.translate(to_stop=True)
-            translated_record = SeqRecord(aa_seq, id=record.id, description="translated")
+        for record in SeqIO.parse(temp_fasta, "fasta"):
+            aa_seq = record.seq.translate(to_stop=False)
+            translated_record = SeqRecord(aa_seq, id=record.id, description="")
             translated_records.append(translated_record)
         SeqIO.write(translated_records, aa_output_file, "fasta")
 
@@ -926,10 +993,6 @@ class codon(QWidget):
         except Exception as e:
             QMessageBox.critical(self, f'{button_aln.text()} error', str(e))
             return
-#        finally:
-#            for path in [temp_fasta.name, aa_output_file]:
-#                if os.path.exists(path):
-#                    os.remove(path)
 
 # -------3 Run Alignment: Codon Sequences via tranalign
         tranalign_path = self.get_tranalign_path()
@@ -939,13 +1002,10 @@ class codon(QWidget):
 
         try:
             with open(output_file, 'w') as out:
-                subprocess.run([tranalign_path, '-bsequence' , aligned_aa_output_file, '-asequence', temp_fasta.name, '-outseq',  output_file], check=True, stdout=out)
+                subprocess.run([tranalign_path, '-bsequence' , aligned_aa_output_file, '-asequence', temp_fasta, '-outseq',  output_file], check=True, stdout=out)
         except Exception as e:
             QMessageBox.critical(self, "Tranalign alignment failed.", str(e))
             return
-
-
-
 # ------4 Parse file and get aligned sequences
         for record in SeqIO.parse(output_file, 'fasta'):
             aligned_seq.append((record.id, str(record.seq)))                # extract name and seq for aligned sequences
@@ -959,6 +1019,13 @@ class codon(QWidget):
         if return_only:                                                     # ***** to amend *****  Possibly can delete                                             
             return aligned_seq
         
+
+## remove files
+#        for path in [temp_fasta.name, aa_output_file, output_file, aligned_aa_output_file]:
+#            if os.path.exists(path):
+#                os.remove(path)
+
+
 
 # ------5 Other actions (split by fxn: 1 Alignall & 2 Align)
 
@@ -995,7 +1062,7 @@ class codon(QWidget):
                     self.widget_progress.reject()
                     return
 #           ------------------------------- Connect: Widget Progress 4 -------------------------------
-                self.get_consensus_aln(group, seq_map, threshold=None)
+                self.get_consensus_aln(group, seq_map, threshold=None, aa_aln_file=aligned_aa_output_file)
 
             # -- 4 not DEF: Calculate %Base conservation
             # 1 get reference consensus
@@ -1037,18 +1104,18 @@ class codon(QWidget):
                     fasta_file = f.name
 
             # -- 7 Connect - DEF Run PSIPRED: Build Secondary Structure
-                self.base_path = os.path.dirname(os.path.abspath(__file__))
-                psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
-                self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir)
+                if self.widget_psipred_offline.isChecked():
+                    psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
+                    self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir)
+                else:
+                    self.prediction_text = self.build_secondary_structure_online(fasta_file)
+
 
             # -- 8 Connect - DEF Display on GUI (PSIPRED Output)
                 self.draw_secondary_structure_to_gui(self.prediction_text)
 
             # -- 9 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
                 self.compute_region_conservation(self.prediction_text)
-
-# --------------------------------------------Connect
-            self.slider_threshold()
 
 
         # ---2 Align
@@ -1074,40 +1141,37 @@ class codon(QWidget):
 
             # -- 3 Connect - DEF: Get and Display Consensus in each group
                 print(f"Consensus string: {seq}")
-                self.get_consensus_aln(group, threshold=None)
+                self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
+                consensus_str, aa_consensus = self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
+
 
             # -- 4 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
                 group_idx = self.groups.index(group)
+                self.is_alignall = False
                 self.color_code_seq(mode="group", group_idx=group_idx)
 
             # -- 5 Connect - DEF Run PSIPRED: Build Secondary Structure
-                if 'consensus_seq' in group:
-                    seq = group['consensus_seq'].replace('-', '')
-#                    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta') as f:
-#                        f.write(f">consensus\n{seq}\n")
-#                        fasta_file = f.name
+#                if 'consensus_seq' in group:
+#                    seq = group['consensus_seq'].replace('-', '')
+                if aa_consensus:
+                    seq = aa_consensus
                     self.out_folder = os.path.join(self.base_path, 'tmp_files')
                     fasta_file = os.path.join(self.out_folder, f"consensus_{uuid.uuid4().hex}.fasta")
                     with open(fasta_file, 'w') as f:
                         f.write(f">consensus\n{seq}\n")
 
-
-
-
-                        if not os.path.exists(fasta_file):
-                            QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {fasta_file}')
-                            return
-                        elif os.path.getsize(fasta_file) == 0:
-                            QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {fasta_file}')
-                            return
-
-
-                    psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
-                    try:
-                        self.prediction_text = self.build_secondary_structure(fasta_file, psipred_dir)
-                    except Exception as e:
-                        QMessageBox.warning(self, 'Error', f'PSIPRED failed:\n{str(e)}')
+                    if not os.path.exists(fasta_file):
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {fasta_file}')
                         return
+                    elif os.path.getsize(fasta_file) == 0:
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {fasta_file}')
+                        return
+
+                    if self.widget_psipred_offline.isChecked():
+                        psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
+                        self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir)
+                    else:
+                        self.prediction_text = self.build_secondary_structure_online(fasta_file)
 
             # -- 6 Connect - DEF Display on GUI (PSIPRED Output)
                     self.draw_secondary_structure_to_gui(self.prediction_text)
@@ -1118,6 +1182,8 @@ class codon(QWidget):
 # --------------------------------------------Others
         self.widget_progress.close()
 
+# --------------------------------------------Connect
+        self.slider_threshold()
 
 
 #_______________________________________________________________________________________________11 Add sequences to GUI (Unaligned & Aligned)
@@ -1177,7 +1243,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________12-1 Get & Display Consensus (by Group)
 #_______________________________________________________________________________________________
 
-    def get_consensus_aln(self, group, seq_map=None, threshold=None):
+    def get_consensus_aln(self, group, seq_map=None, threshold=None, aa_aln_file=None):
 # . . .  CLEAR GUI . . .
         layout = group['layout_seq']
         if layout is None:
@@ -1234,8 +1300,54 @@ class codon(QWidget):
 # --------------------------------------------Connect
         group['consensus_seq'] = consensus_str
 
+# --------------------------------------------Optional: Build Amino Acid Consensus (if aligned file is passed)
+        aa_consensus = None  # Default to None for safe return
+        if aa_aln_file and os.path.exists(aa_aln_file) and os.path.getsize(aa_aln_file) > 0:
+            try:
+                aa_alignment = AlignIO.read(aa_aln_file, 'fasta')
+                aa_consensus = ''
+                for col in zip(*[record.seq for record in aa_alignment]):
+                    counts = Counter(col)
+                    most_common = counts.most_common(1)[0][0]
+                    aa_consensus += most_common
+                group['aa_consensus'] = aa_consensus.replace('-', '')
+
+                # --------------------------------------------Main_Protein Consensus
+                widget_consensus_protein = QWidget()
+                widget_consensus_protein.setObjectName('consensus_protein_row')
+                layout_consensus_protein = QHBoxLayout()
+                layout_consensus_protein.setContentsMargins(5, 0, 0, 0)
+                layout_consensus_protein.setSpacing(0)
+                widget_consensus_protein.setLayout(layout_consensus_protein)
+                layout.addWidget(widget_consensus_protein, alignment=Qt.AlignLeft)
+
+                # Sub-elements
+                invisible_checkbox_protein = QCheckBox()
+                invisible_checkbox_protein.setEnabled(False)
+                invisible_checkbox_protein.setStyleSheet('background: transparent; border: none;')
+                layout_consensus_protein.addWidget(invisible_checkbox_protein)
+
+                label_consensus_protein = QLabel('')
+                label_consensus_protein.setFixedSize(120, 20)
+                layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
+                layout_consensus_protein.addSpacing(5)
+
+                for aa in aa_consensus:
+                    lbl = QLabel(aa)
+                    lbl.setFixedSize(15, 20)
+                    lbl.setAlignment(Qt.AlignCenter)
+                    lbl.setStyleSheet('color:darkblue;')
+                    layout_consensus_protein.addWidget(lbl)
+
+                group['consensus_seq_codon_protein'] = aa_consensus
+
+            except Exception as e:
+                print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
+
+
 # --------------------------------------------Others
-        return consensus_str
+        return consensus_str, aa_consensus if aa_consensus else ""
+
 
 
 #_______________________________________________________________________________________________12-1 Get & Display Global Consensus
@@ -1439,7 +1551,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def build_secondary_structure(self, fasta_file, psipred_dir):
+    def build_secondary_structure_offline(self, fasta_file, psipred_dir):
 # . . .  CLEAR GUI . . .
         # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
         if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
@@ -1455,6 +1567,8 @@ class codon(QWidget):
         os.makedirs(self.out_folder, exist_ok=True)                                              # 
         horiz_file = f"{self.out_folder}/{base}.horiz"
 
+        print("Looking for HORIZ file at:", horiz_file)
+
         # ---2 Run PSIPRED
         # with PSI-BLAST
         try:
@@ -1463,7 +1577,6 @@ class codon(QWidget):
                 self.widget_progress.reject()
                 return
 #           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            self.base_path = os.path.dirname(os.path.abspath(__file__))
             shell_tcsh = os.path.join(self.base_path, 'external_tools', 'cygwin', 'bin', 'tcsh.exe')
             runpsipred = os.path.join(psipred_dir, 'BLAST+', 'runpsipredplus')
             blastdb_path = os.path.join(psipred_dir, "BLAST+", "blastdb")
@@ -1493,7 +1606,7 @@ class codon(QWidget):
                 runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
                 subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.out_folder)
                 print("Run runpsipred_single")
-            except subprocess.CalledProcessError as e:
+            except (subprocess.CalledProcessError, FileNotFoundError, OSError) as e:
                 print("Both runpsipred and runpsipred_single failed.")
                 raise e                
 
@@ -1502,6 +1615,78 @@ class codon(QWidget):
             raise FileNotFoundError(f"Expected output file {horiz_file} not found!")
         with open(horiz_file, "r") as f:
             self.prediction_text = f.read()
+        return self.prediction_text
+
+
+#_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
+#________________________________________________________________________________________PSIPRED
+
+    def build_secondary_structure_online(self, fasta_file):
+        print('online')
+
+        with open(fasta_file, 'r') as fasta:
+            lines = fasta.readlines()
+        filtered_lines = [line for line in lines if not line.strip().startswith('>')]
+        with open(fasta_file, 'w') as fasta:
+            fasta.writelines(filtered_lines)
+        with open(fasta_file, 'r') as fasta:
+            print(fasta.read())
+
+        # 1 Request from server
+        user_email = self.qlineedit_email.text()
+        if not user_email or '@' not in user_email:
+            QMessageBox.warning(self, "Missing Email", "Please enter a valid email address to run PSIPRED online.")
+            return
+
+        fasta_file_name = os.path.basename(fasta_file)
+        url = 'https://bioinf.cs.ucl.ac.uk/psipred/api/submission.json'
+
+        with open(fasta_file, 'rb') as fasta:
+            payload = {'input_data': (fasta_file_name, fasta)}      # (name for server to recognize as, open(inputfile, ..))
+            data = {'job': 'psipred', 'submission_name': fasta_file_name, 'email': user_email}
+            print('PSIPRED: Sending Request')
+            r = requests.post(url, data=data, files=payload)
+
+            # Error trap
+            print("POST Code:", r.status_code)
+            print("POST response:", repr(r.text))
+            if r.status_code != 200 and r.status_code != 201:
+                raise Exception("PSIPRED submission failed: " + r.text)
+
+            response_data = json.loads(r.text)
+
+        # 2 Get from server
+        while True:
+            print('before requesting r')
+            result_url = "https://bioinf.cs.ucl.ac.uk/psipred/api/submission/" + response_data['UUID']
+            r = requests.get(result_url, headers={"Accept":"application/json"})
+            print('after requesting r')
+
+            if not r.text.strip():
+                print("Empty response received from server.")
+                print("Status code:", r.status_code)
+                raise Exception("Server returned empty response while polling for results.")
+
+            result_data = json.loads(r.text)
+            print(result_data)
+            if "Complete" in result_data["state"]:
+                print(r.text)
+                break
+            else:
+                time.sleep(30)
+
+        # 3 Download horiz file from result
+        horiz_path = None
+        for path in result_data.get("data_path", []):
+            if path.endswith(".horiz"):
+                horiz_path = path
+                break
+        if not horiz_path:
+            raise ValueError("PSIPRED online: No .horiz file found in result data.")
+            
+        horiz_url = "https://bioinf.cs.ucl.ac.uk/psipred/api/submissions/" + horiz_path
+        r = requests.get(horiz_url)
+        self.prediction_text = r.text
         return self.prediction_text
 
 
