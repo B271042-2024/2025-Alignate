@@ -9,6 +9,7 @@ pip install -r requirements.txt
 LINUX
 1. to run: ./run.sh
 2. to install required python libraries if required (listed in requirements.txt)
+python -m venv pypackages
 source pypackages/bin/activate
 pip install PySide6
 pip install biopython
