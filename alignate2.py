@@ -935,8 +935,17 @@ class codon(QWidget):
                 if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
                     QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **Special characters are not allowed.')
                     return
-                fasta_out.write(f'>{name}\n{seq}\n')
+                if '|' in name:
+                    clean_id = name.split('|')[-1].split()[0]       # [-1] begin from the end
+                    fasta_out.write(f'>{clean_id}\n{seq}\n')
+                else:
+                    fasta_out.write(f'>{name}\n{seq}\n')
 
+        print('before: check temp_fasta file')
+        with open(temp_fasta, 'r') as f:
+            lines = f.readlines()
+            print(lines)
+        print('after: check temp_fasta file')
 
 # --------------------------------------------Main
         self.widget_progress = QDialog(self)
@@ -968,10 +977,20 @@ class codon(QWidget):
 # -------1 Translate codon sequences using biopython (output_tmp_files)
         translated_records = []
         for record in SeqIO.parse(temp_fasta, "fasta"):
-            aa_seq = record.seq.translate(to_stop=False)
-            translated_record = SeqRecord(aa_seq, id=record.id, description="")
+            aa_seq = record.seq.translate(to_stop=True)
+            if '|' in record.id:
+                clean_id = record.id.split('|')[-1].split()[0]                  # [-1] begin from the end
+                translated_record = SeqRecord(aa_seq, id=clean_id, description="")
+            else:
+                translated_record = SeqRecord(aa_seq, id=record.id, description="")
             translated_records.append(translated_record)
         SeqIO.write(translated_records, aa_output_file, "fasta")
+
+        print('before: check aa output file')
+        with open(aa_output_file, 'r') as f:
+            lines = f.readlines()
+            print(lines)
+        print('after: check aa output file')
 
 # -------2 Run Alignment: AA Sequences via mafft or clustalO
         try:
@@ -994,6 +1013,18 @@ class codon(QWidget):
             QMessageBox.critical(self, f'{button_aln.text()} error', str(e))
             return
 
+
+
+        print('before: check aligned aa output file')
+        with open(aligned_aa_output_file, 'r') as aligned_aa_file:
+            lines = aligned_aa_file.readlines()
+            print(lines)
+        print('after: check aligned aa output file')
+
+
+
+
+
 # -------3 Run Alignment: Codon Sequences via tranalign
         tranalign_path = self.get_tranalign_path()
         if not os.path.exists(aligned_aa_output_file) or os.path.getsize(aligned_aa_output_file) == 0:
@@ -1009,6 +1040,10 @@ class codon(QWidget):
 # ------4 Parse file and get aligned sequences
         for record in SeqIO.parse(output_file, 'fasta'):
             aligned_seq.append((record.id, str(record.seq)))                # extract name and seq for aligned sequences
+
+        print('transalign before')
+        print(aligned_seq)
+        print('transalign after')
 
 #           ------------------------------- Connect: Widget Progress 2 -------------------------------
         if self.cancelled:
@@ -1062,7 +1097,10 @@ class codon(QWidget):
                     self.widget_progress.reject()
                     return
 #           ------------------------------- Connect: Widget Progress 4 -------------------------------
-                self.get_consensus_aln(group, seq_map, threshold=None, aa_aln_file=aligned_aa_output_file)
+                consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
+
+
+
 
             # -- 4 not DEF: Calculate %Base conservation
             # 1 get reference consensus
@@ -1088,6 +1126,8 @@ class codon(QWidget):
                         if label:
                             label.setText(str_percent_conservation)
 
+
+
             # -- 5 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
             self.color_code_seq(seq_map=self.seq_map, mode="all")
 
@@ -1103,6 +1143,39 @@ class codon(QWidget):
                     f.write(f">global_consensus\n{global_consensus.replace('-', '')}\n")
                     fasta_file = f.name
 
+
+
+
+
+            # -- 4 Connect - DEF Run PSIPRED: Build Secondary Structure
+                if protein_consensus_str:
+                    self.out_folder = os.path.join(self.base_path, 'tmp_files')
+                    p_consensus_file = os.path.join(self.out_folder, f"consensus_{uuid.uuid4().hex}.fasta")
+                    with open(p_consensus_file, 'w') as f:
+                        f.write(f">consensus\n{protein_consensus_str}\n")
+
+                    if not os.path.exists(p_consensus_file):
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {p_consensus_file}')
+                        return
+                    elif os.path.getsize(p_consensus_file) == 0:
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {p_consensus_file}')
+                        return
+
+                    if self.widget_psipred_offline.isChecked():
+                        psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
+                        self.prediction_text = self.build_secondary_structure_offline(p_consensus_file, psipred_dir)
+                    else:
+                        self.prediction_text = self.build_secondary_structure_online(p_consensus_file)
+
+
+
+
+
+
+
+
+
+
             # -- 7 Connect - DEF Run PSIPRED: Build Secondary Structure
                 if self.widget_psipred_offline.isChecked():
                     psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
@@ -1111,11 +1184,30 @@ class codon(QWidget):
                     self.prediction_text = self.build_secondary_structure_online(fasta_file)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
             # -- 8 Connect - DEF Display on GUI (PSIPRED Output)
                 self.draw_secondary_structure_to_gui(self.prediction_text)
 
             # -- 9 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
                 self.compute_region_conservation(self.prediction_text)
+
+
+
+
+
+
 
 
         # ---2 Align
@@ -1137,47 +1229,52 @@ class codon(QWidget):
                         self.widget_progress.reject()
                         return
 #           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                    self.add_sequences_toGUI(group, layout, name, seq)
+            # 1 Connect - DEF Add aligned seq on GUI
+                    self.add_sequences_toGUI(group, layout, name, seq)                  
 
-            # -- 3 Connect - DEF: Get and Display Consensus in each group
-                print(f"Consensus string: {seq}")
-                self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
-                consensus_str, aa_consensus = self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
+            # 2 Connect - DEF Add codon_consensus then, aa_consensus onto GUI
+                consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
 
-
-            # -- 4 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
+            # -- 3 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
                 group_idx = self.groups.index(group)
                 self.is_alignall = False
                 self.color_code_seq(mode="group", group_idx=group_idx)
 
-            # -- 5 Connect - DEF Run PSIPRED: Build Secondary Structure
-#                if 'consensus_seq' in group:
-#                    seq = group['consensus_seq'].replace('-', '')
-                if aa_consensus:
-                    seq = aa_consensus
+            # -- 4 Connect - DEF Run PSIPRED: Build Secondary Structure
+                if protein_consensus_str:
                     self.out_folder = os.path.join(self.base_path, 'tmp_files')
-                    fasta_file = os.path.join(self.out_folder, f"consensus_{uuid.uuid4().hex}.fasta")
-                    with open(fasta_file, 'w') as f:
-                        f.write(f">consensus\n{seq}\n")
+                    p_consensus_file = os.path.join(self.out_folder, f"consensus_{uuid.uuid4().hex}.fasta")
+                    with open(p_consensus_file, 'w') as f:
+                        f.write(f">consensus\n{protein_consensus_str}\n")
 
-                    if not os.path.exists(fasta_file):
-                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {fasta_file}')
+                    if not os.path.exists(p_consensus_file):
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {p_consensus_file}')
                         return
-                    elif os.path.getsize(fasta_file) == 0:
-                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {fasta_file}')
+                    elif os.path.getsize(p_consensus_file) == 0:
+                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {p_consensus_file}')
                         return
 
                     if self.widget_psipred_offline.isChecked():
                         psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
-                        self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir)
+                        self.prediction_text = self.build_secondary_structure_offline(p_consensus_file, psipred_dir)
                     else:
-                        self.prediction_text = self.build_secondary_structure_online(fasta_file)
+                        self.prediction_text = self.build_secondary_structure_online(p_consensus_file)
 
-            # -- 6 Connect - DEF Display on GUI (PSIPRED Output)
+            # -- 5 Connect - DEF Display on GUI (PSIPRED Output)
                     self.draw_secondary_structure_to_gui(self.prediction_text)
                 else:
                     QMessageBox.warning(self, 'Missing value', 'Consensus Sequences not found. Please contact Alignate.')
                     return
+
+
+
+
+
+
+
+
+
+
 
 # --------------------------------------------Others
         self.widget_progress.close()
@@ -1300,17 +1397,20 @@ class codon(QWidget):
 # --------------------------------------------Connect
         group['consensus_seq'] = consensus_str
 
-# --------------------------------------------Optional: Build Amino Acid Consensus (if aligned file is passed)
-        aa_consensus = None  # Default to None for safe return
+# --------------------------------------------
+# --------------------------------------------Amino Acid Consensus
+
+        protein_consensus_str = None  # Default to None for safe return
         if aa_aln_file and os.path.exists(aa_aln_file) and os.path.getsize(aa_aln_file) > 0:
             try:
                 aa_alignment = AlignIO.read(aa_aln_file, 'fasta')
-                aa_consensus = ''
-                for col in zip(*[record.seq for record in aa_alignment]):
-                    counts = Counter(col)
-                    most_common = counts.most_common(1)[0][0]
-                    aa_consensus += most_common
-                group['aa_consensus'] = aa_consensus.replace('-', '')
+                summary = AlignInfo.SummaryInfo(aa_alignment)
+                if threshold is None:
+                    threshold = getattr(self, 'consensus_threshold', 1.0)
+                protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
+                protein_consensus_str = str(protein_consensus)
+
+                print(protein_consensus_str)
 
                 # --------------------------------------------Main_Protein Consensus
                 widget_consensus_protein = QWidget()
@@ -1332,21 +1432,20 @@ class codon(QWidget):
                 layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
                 layout_consensus_protein.addSpacing(5)
 
-                for aa in aa_consensus:
+                for aa in protein_consensus_str:
                     lbl = QLabel(aa)
                     lbl.setFixedSize(15, 20)
                     lbl.setAlignment(Qt.AlignCenter)
                     lbl.setStyleSheet('color:darkblue;')
                     layout_consensus_protein.addWidget(lbl)
 
-                group['consensus_seq_codon_protein'] = aa_consensus
+                group['consensus_seq_codon_protein'] = protein_consensus_str
 
             except Exception as e:
                 print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
 
-
 # --------------------------------------------Others
-        return consensus_str, aa_consensus if aa_consensus else ""
+        return consensus_str, protein_consensus_str
 
 
 
@@ -1409,6 +1508,67 @@ class codon(QWidget):
             lbl.setAlignment(Qt.AlignCenter)
             lbl.setStyleSheet('color:gray;')
             layout_global.addWidget(lbl)
+
+
+# --------------------------------------------
+# --------------------------------------------Amino Acid Consensus
+
+        protein_consensus_str = None  # Default to None for safe return
+        if aa_aln_file and os.path.exists(aa_aln_file) and os.path.getsize(aa_aln_file) > 0:
+            try:
+                aa_alignment = AlignIO.read(aa_aln_file, 'fasta')
+                summary = AlignInfo.SummaryInfo(aa_alignment)
+                if threshold is None:
+                    threshold = getattr(self, 'consensus_threshold', 1.0)
+                protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
+                protein_consensus_str = str(protein_consensus)
+
+                print(protein_consensus_str)
+
+                # --------------------------------------------Main_Protein Consensus
+                widget_consensus_protein = QWidget()
+                widget_consensus_protein.setObjectName('consensus_protein_row')
+                layout_consensus_protein = QHBoxLayout()
+                layout_consensus_protein.setContentsMargins(5, 0, 0, 0)
+                layout_consensus_protein.setSpacing(0)
+                widget_consensus_protein.setLayout(layout_consensus_protein)
+                layout.addWidget(widget_consensus_protein, alignment=Qt.AlignLeft)
+
+                # Sub-elements
+                invisible_checkbox_protein = QCheckBox()
+                invisible_checkbox_protein.setEnabled(False)
+                invisible_checkbox_protein.setStyleSheet('background: transparent; border: none;')
+                layout_consensus_protein.addWidget(invisible_checkbox_protein)
+
+                label_consensus_protein = QLabel('')
+                label_consensus_protein.setFixedSize(120, 20)
+                layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
+                layout_consensus_protein.addSpacing(5)
+
+                for aa in protein_consensus_str:
+                    lbl = QLabel(aa)
+                    lbl.setFixedSize(15, 20)
+                    lbl.setAlignment(Qt.AlignCenter)
+                    lbl.setStyleSheet('color:darkblue;')
+                    layout_consensus_protein.addWidget(lbl)
+
+                group['consensus_seq_codon_protein'] = protein_consensus_str
+
+            except Exception as e:
+                print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # --------------------------------------------Others
         return str(consensus)
