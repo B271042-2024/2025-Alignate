@@ -1,6 +1,6 @@
 import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, requests, time
-from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QPen, QMouseEvent
-from PySide6.QtWidgets import QToolButton, QStyleOptionSlider, QGroupBox, QRadioButton, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
+from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QPen, QMouseEvent, QAction
+from PySide6.QtWidgets import QGroupBox, QRadioButton, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
 from PySide6.QtCore import QSize, Qt, QPoint, QTimer
 from Bio import SeqIO, AlignIO
 from Bio.Align import MultipleSeqAlignment, AlignInfo
@@ -142,6 +142,7 @@ class main(QMainWindow):
         self.stack.addWidget(self.window_about)
         self.stack.addWidget(self.window_protein)
         self.stack.addWidget(self.window_codon)
+        self.active_window = self.window_protein                        # set default: window_protein
 
         toolbar_spacer = QLabel()
         toolbar_spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -154,27 +155,51 @@ class main(QMainWindow):
 
 # --------------------------------------------Connect   (triggered)
         # ---Menu
-        menu1_load.triggered.connect(self.window_protein.load_project)
-        menu1_save.triggered.connect(self.window_protein.save_project)
-        menu2_all.triggered.connect(self.window_protein.view_show_all)
-        menu2_hide.triggered.connect(self.window_protein.view_hide_toggles)
-        menu2_consensus.triggered.connect(lambda: self.window_protein.apply_new_consensus_threshold())      
+#        menu1_load.triggered.connect(self.window_protein.load_project, self.window_codon.load_project)
+#        menu1_save.triggered.connect(self.window_protein.save_project, self.window_codon.save_project)
+#        menu2_all.triggered.connect(self.window_protein.view_show_all, self.window_codon.view_show_all)
+#        menu2_hide.triggered.connect(self.window_protein.view_hide_toggles, self.window_codon.view_hide_toggles)
+#        menu2_consensus.triggered.connect(lambda: self.window_protein.apply_new_consensus_threshold(), self.window_codon.apply_new_consensus_threshold())      
 
-        # ---Toolbar
-        toolbar.addAction('About').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_about))
+        menu1_load.triggered.connect(lambda: self.active_window.load_project())
+        menu1_save.triggered.connect(lambda: self.active_window.save_project())
+        menu2_all.triggered.connect(lambda: self.active_window.view_show_all())
+        menu2_hide.triggered.connect(lambda: self.active_window.view_hide_toggles())
+        menu2_consensus.triggered.connect(lambda: self.active_window.apply_new_consensus_threshold())
+
+        self.action_about = QAction('About', self)
+        self.action_about.setCheckable(True)
+        self.action_protein = QAction('Protein', self)
+        self.action_protein.setCheckable(True)
+        self.action_codon = QAction('Codon', self)
+        self.action_codon.setCheckable(True)
+
+        toolbar.addAction(self.action_about)
         toolbar.addSeparator()
-        toolbar.addAction('Protein').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_protein))
+        toolbar.addAction(self.action_protein)
         toolbar.addSeparator()
-        toolbar.addAction('Codon').triggered.connect(lambda: self.stack.setCurrentWidget(self.window_codon))
-        toolbar.addSeparator()
+        toolbar.addAction(self.action_codon)
         toolbar.addWidget(toolbar_spacer)
         toolbar.addWidget(widget_search_seq)
+
+        self.action_about.triggered.connect(lambda: self.switch_page(self.window_about, self.action_about))
+        self.action_protein.triggered.connect(lambda: self.switch_page(self.window_protein, self.action_protein))
+        self.action_codon.triggered.connect(lambda: self.switch_page(self.window_codon, self.action_codon))
 
         def active_search_seq():                                                            # dynamically switch between protein & codon
             current_widget = self.stack.currentWidget()
             if hasattr(current_widget, 'search_sequences'):
                 current_widget.search_sequences(widget_search_seq.text())
         widget_search_seq.textChanged.connect(active_search_seq)
+
+
+    def switch_page(self, widget, active_action):
+        self.stack.setCurrentWidget(widget)
+        self.active_window = widget
+        for action in [self.action_about, self.action_protein, self.action_codon]:
+            action.setChecked(action == active_action)
+
+
 
 
 
@@ -420,7 +445,7 @@ class protein(QWidget):
                         # Map match back to gapped sequence and highlight
                         for j in range(len(search)):
                             align_idx = pos_map[i + j]
-                            label_row[align_idx].setStyleSheet("background: blue;")
+                            label_row[align_idx].setStyleSheet("background: #FFA500;")
 
 
 #_______________________________________________________________________________________________3-1 DEF: MENU2 VIEW
@@ -452,15 +477,15 @@ class protein(QWidget):
         layout.addWidget(label)
 
         # ---2 slider
-        slider = QSlider(Qt.Horizontal)
-        slider.setRange(0,100)
-        slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
-        layout.addWidget(slider)
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setRange(0,100)
+        self.slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
+        layout.addWidget(self.slider)
 
         # ---3 threshold value
-        value_label = QLabel(f"{slider.value()/100:.1f}")                   # :=start formatting, .1=1 decimal pts, f=fixed
+        value_label = QLabel(f"{self.slider.value()/100:.1f}")                   # :=start formatting, .1=1 decimal pts, f=fixed
         layout.addWidget(value_label)
-        slider.valueChanged.connect(lambda v: value_label.setText(f"{v/100:.1f}"))
+        self.slider.valueChanged.connect(lambda v: value_label.setText(f"{v/100:.1f}"))
 
         # ---4 buttons
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -470,7 +495,7 @@ class protein(QWidget):
 
 # --------------------------------------------Connect
         if dialog.exec() == QDialog.Accepted:                               # execution
-            threshold = slider.value() / 100.0
+            threshold = self.slider.value() / 100.0
             self.consensus_threshold = threshold
             return threshold
         return None
@@ -1254,9 +1279,14 @@ class protein(QWidget):
 
 # --------------------------------------------Others
         # Initiation
-        self.cancelled = False                  # To cancel when analysis is running   
+        self.cancelled = False                  # To cancel when analysis is running
         aligned_seq = []
         self.is_searchseq = False               # Retain the color after alignment in letters
+
+        # If no group is set as a reference
+        any_checked = any(group['checkbox_setrefgroup'].isChecked() for group in self.groups)
+        if not any_checked and self.groups:
+            self.groups[0]['checkbox_setrefgroup'].setChecked(True)
 
         # QC 1: No. of sequences need to be > 2
         if len(sequences) < 2:
@@ -1432,11 +1462,6 @@ class protein(QWidget):
 
             # -- 9 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
                 self.compute_region_conservation(self.prediction_text)
-
-
-
-
-
 
 
         # ---2 Align

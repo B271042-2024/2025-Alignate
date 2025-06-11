@@ -1,4 +1,4 @@
-import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, uuid
+import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, uuid, requests, time
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGroupBox, QRadioButton, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
 from PySide6.QtCore import QSize, Qt, QPoint
@@ -147,7 +147,7 @@ class codon(QWidget):
 # --------------------------------------------Connect
         self.button1_addgroup.clicked.connect(self.button1_addgroup_clicked)
         self.button2_alignall.clicked.connect(self.button2_alignall_clicked)
-  
+        self.widget_toggles.append(self.widget_codon_buttons)
 
 #_______________________________________________________________________________________________MAIN DEF___
 #_______________________________________________________________________________________________1 DEF: QC System TCSH
@@ -160,6 +160,58 @@ class codon(QWidget):
         msg.setText("Warning: Missing 'tcsh' shell. \nSome features like PSIPRED will not work. Please install using sudo apt install.")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.show()
+
+
+#_______________________________________________________________________________________________2 DEF: Search Sequence
+#_______________________________________________________________________________________________
+
+    def search_sequences(self, widget_search_seq):
+        # 1 Define the target sequence
+        search = widget_search_seq.strip().upper()
+
+        if not search:                                                                              # if search is empty
+            if self.is_searchseq:                                                                   # self.is_searchseq = True
+               for group in self.groups:
+                    for entry in group['widget_seq']:
+                        for lbl in entry['seq_letters']:
+                            bg_color = lbl.property("bg_color")
+                            if bg_color is None:
+                                bg_color = ""
+                            lbl.setStyleSheet(f'background-color: {bg_color};')
+            else:
+                for group in self.groups:
+                    for entry1 in group['widget_seq']:
+                        for label in entry1['seq_letters']:
+                            label.setStyleSheet("")  # clear search color
+                self.is_searchseq = False
+            return
+        
+        self.is_searchseq = True                                                                   # if not empty, self.is_searchseq = True
+
+        for group in self.groups:
+            for entry1 in group['widget_seq']:
+                aligned_seq = ''.join(entry1['seq']).upper()
+                label_row = entry1['seq_letters']
+
+                # Reset previous highlights
+                for label in label_row:
+                    label.setStyleSheet("")
+
+                # Remove gaps for logical match comparison, but keep index map
+                non_gap_seq = ""
+                pos_map = []  # index in aligned_seq → index in non_gap_seq
+                for idx, char in enumerate(aligned_seq):
+                    if char != "-":
+                        non_gap_seq += char
+                        pos_map.append(idx)
+
+                # Search match in non-gap sequence
+                for i in range(len(non_gap_seq) - len(search) + 1):
+                    if non_gap_seq[i:i + len(search)] == search:
+                        # Map match back to gapped sequence and highlight
+                        for j in range(len(search)):
+                            align_idx = pos_map[i + j]
+                            label_row[align_idx].setStyleSheet("background: #FFA500;")
 
 
 #_______________________________________________________________________________________________2-1 DEF: MENU2 VIEW
@@ -191,15 +243,15 @@ class codon(QWidget):
         layout.addWidget(label)
 
         # ---2 slider
-        slider = QSlider(Qt.Horizontal)
-        slider.setRange(0,100)
-        slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
-        layout.addWidget(slider)
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setRange(0,100)
+        self.slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
+        layout.addWidget(self.slider)
 
         # ---3 threshold value
-        value_label = QLabel(f"{slider.value()/100:.1f}")                   # :=start formatting, .1=1 decimal pts, f=fixed
+        value_label = QLabel(f"{self.slider.value()/100:.1f}")                   # :=start formatting, .1=1 decimal pts, f=fixed
         layout.addWidget(value_label)
-        slider.valueChanged.connect(lambda v: value_label.setText(f"{v/100:.1f}"))
+        self.slider.valueChanged.connect(lambda v: value_label.setText(f"{v/100:.1f}"))
 
         # ---4 buttons
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -209,7 +261,7 @@ class codon(QWidget):
 
 # --------------------------------------------Connect
         if dialog.exec() == QDialog.Accepted:                               # execution
-            threshold = slider.value() / 100.0
+            threshold = self.slider.value() / 100.0
             self.consensus_threshold = threshold
             return threshold
         return None
@@ -277,7 +329,6 @@ class codon(QWidget):
         # ---5 DEF: Update %conservation by region
         if hasattr(self, 'prediction_text'):
             self.compute_region_conservation(self.prediction_text)
-
 
 #_______________________________________________________________________________________________3-1 DEF: Line 1 - Slider + Slider Checkbox
 #_______________________________________________________________________________________________ (Called in DEF: init)
@@ -514,6 +565,7 @@ class codon(QWidget):
 
 # --------------------------------------------Connect
         self.groups.append(group)
+        lineedit_groupname.textChanged.connect(lambda text: group.update({'name': text}))
         self.widget_toggles.append(widget_codon_l4_group_l1_line1)
         button2_removegroup.clicked.connect(lambda _=None, w=self.widget_codon_l4_group_l1: self.button2_removegroup_clicked(w))
         button3_addseq.clicked.connect(lambda _=None, layout=layout_codon_l4_group_l1_seq: self.button3_addseq_clicked(layout))
@@ -908,6 +960,11 @@ class codon(QWidget):
         self.cancelled = False                  # To cancel when analysis is running   
         aligned_seq = []
 
+        # If no group is set as a reference
+        any_checked = any(group['checkbox_setrefgroup'].isChecked() for group in self.groups)
+        if not any_checked and self.groups:
+            self.groups[0]['checkbox_setrefgroup'].setChecked(True)
+
         # QC 1: No. of sequences need to be > 2
         if len(sequences) < 2:
             QMessageBox.warning(self, 'Error', 'Need at least 2 sequences for alignment.')
@@ -933,7 +990,7 @@ class codon(QWidget):
                     QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
                     return
                 if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
-                    QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **Special characters are not allowed.')
+                    QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **For codon sequences only. Special characters are not allowed.')
                     return
                 if '|' in name:
                     clean_id = name.split('|')[-1].split()[0]       # [-1] begin from the end
@@ -1055,13 +1112,6 @@ class codon(QWidget):
             return aligned_seq
         
 
-## remove files
-#        for path in [temp_fasta.name, aa_output_file, output_file, aligned_aa_output_file]:
-#            if os.path.exists(path):
-#                os.remove(path)
-
-
-
 # ------5 Other actions (split by fxn: 1 Alignall & 2 Align)
 
         # ---1 Alignall
@@ -1099,9 +1149,6 @@ class codon(QWidget):
 #           ------------------------------- Connect: Widget Progress 4 -------------------------------
                 consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, aa_aln_file=aligned_aa_output_file)
 
-
-
-
             # -- 4 not DEF: Calculate %Base conservation
             # 1 get reference consensus
             ref_consensus = None
@@ -1126,88 +1173,42 @@ class codon(QWidget):
                         if label:
                             label.setText(str_percent_conservation)
 
-
-
             # -- 5 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
             self.color_code_seq(seq_map=self.seq_map, mode="all")
 
+
+            # run global consensus to get both global consensus for codon and protein
             # -- 6 Connect - DEF Get & Display on GUI (Global Consensus)
-            global_consensus = self.get_global_consensus()
-            if global_consensus:
+            global_p_consensus_str = self.get_global_consensus(aa_aln_file=aligned_aa_output_file)
+            if global_p_consensus_str:
 #           ------------------------------- Connect: Widget Progress 5 -------------------------------
                 if self.cancelled:
                     self.widget_progress.reject()
                     return
 #           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta') as f:
-                    f.write(f">global_consensus\n{global_consensus.replace('-', '')}\n")
-                    fasta_file = f.name
+                self.out_folder = os.path.join(self.base_path, 'tmp_files')
+                global_p_consensus_file = os.path.join(self.out_folder, f"globalconsensus_{uuid.uuid4().hex}.fasta")
+                with open(global_p_consensus_file, 'w') as f:
+                    f.write(f">globalconsensus\n{global_p_consensus_str}\n")
 
+                if not os.path.exists(global_p_consensus_file):
+                    QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {global_p_consensus_file}')
+                    return
+                elif os.path.getsize(global_p_consensus_file) == 0:
+                    QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {global_p_consensus_file}')
+                    return
 
-
-
-
-            # -- 4 Connect - DEF Run PSIPRED: Build Secondary Structure
-                if protein_consensus_str:
-                    self.out_folder = os.path.join(self.base_path, 'tmp_files')
-                    p_consensus_file = os.path.join(self.out_folder, f"consensus_{uuid.uuid4().hex}.fasta")
-                    with open(p_consensus_file, 'w') as f:
-                        f.write(f">consensus\n{protein_consensus_str}\n")
-
-                    if not os.path.exists(p_consensus_file):
-                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {p_consensus_file}')
-                        return
-                    elif os.path.getsize(p_consensus_file) == 0:
-                        QMessageBox.critical(self, 'Error', f'Consensus FASTA file is empty: {p_consensus_file}')
-                        return
-
-                    if self.widget_psipred_offline.isChecked():
-                        psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
-                        self.prediction_text = self.build_secondary_structure_offline(p_consensus_file, psipred_dir)
-                    else:
-                        self.prediction_text = self.build_secondary_structure_online(p_consensus_file)
-
-
-
-
-
-
-
-
-
-
-            # -- 7 Connect - DEF Run PSIPRED: Build Secondary Structure
                 if self.widget_psipred_offline.isChecked():
                     psipred_dir = os.path.join(self.base_path, 'external_tools', 'psipred')
-                    self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir)
+                    self.prediction_text = self.build_secondary_structure_offline(global_p_consensus_file, psipred_dir)
                 else:
-                    self.prediction_text = self.build_secondary_structure_online(fasta_file)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    self.prediction_text = self.build_secondary_structure_online(global_p_consensus_file)
 
             # -- 8 Connect - DEF Display on GUI (PSIPRED Output)
                 self.draw_secondary_structure_to_gui(self.prediction_text)
 
             # -- 9 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
                 self.compute_region_conservation(self.prediction_text)
-
-
-
-
-
-
 
 
         # ---2 Align
@@ -1267,14 +1268,10 @@ class codon(QWidget):
                     return
 
 
-
-
-
-
-
-
-
-
+## remove files
+        for path in [temp_fasta, aa_output_file, output_file, aligned_aa_output_file]:
+            if os.path.exists(path):
+                os.remove(path)
 
 # --------------------------------------------Others
         self.widget_progress.close()
@@ -1372,7 +1369,7 @@ class codon(QWidget):
 
         # 2 Label
         label_consensus = QLabel('')
-        label_consensus.setObjectName('perc_conservation')
+        label_consensus.setObjectName('percent_conservation')
         label_consensus.setFixedSize(120,20)
         layout_consensus.addWidget(label_consensus, alignment=Qt.AlignLeft)
         layout_consensus.addSpacing(5)  
@@ -1393,6 +1390,10 @@ class codon(QWidget):
             lbl.setAlignment(Qt.AlignCenter)
             lbl.setStyleSheet('color:gray;')
             layout_consensus.addWidget(lbl)
+
+        print('before: consensus')
+        print(consensus_str)
+        print('after: consensus')
 
 # --------------------------------------------Connect
         group['consensus_seq'] = consensus_str
@@ -1434,9 +1435,9 @@ class codon(QWidget):
 
                 for aa in protein_consensus_str:
                     lbl = QLabel(aa)
-                    lbl.setFixedSize(15, 20)
+                    lbl.setFixedSize(45, 20)
                     lbl.setAlignment(Qt.AlignCenter)
-                    lbl.setStyleSheet('color:darkblue;')
+                    lbl.setStyleSheet('color:#FFA500;')
                     layout_consensus_protein.addWidget(lbl)
 
                 group['consensus_seq_codon_protein'] = protein_consensus_str
@@ -1452,7 +1453,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________12-1 Get & Display Global Consensus
 #_______________________________________________________________________________________________
 
-    def get_global_consensus(self, threshold=None):
+    def get_global_consensus(self, threshold=None, aa_aln_file=None):
 # . . .  CLEAR GUI . . .
         if hasattr(self, 'widget_global') and self.widget_global is not None:
             self.layout_codon_l3.removeWidget(self.widget_global)
@@ -1461,11 +1462,13 @@ class codon(QWidget):
             self.widget_global = None
 
 # --------------------------------------------Main
+
         self.widget_global = QWidget()
         layout_global = QHBoxLayout()
         layout_global.setContentsMargins(5,0,0,0)
         layout_global.setSpacing(0)
         self.widget_global.setLayout(layout_global)
+        self.layout_codon_l3.addStretch(1)
         self.layout_codon_l3.addWidget(self.widget_global, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Sub-elements
@@ -1513,7 +1516,7 @@ class codon(QWidget):
 # --------------------------------------------
 # --------------------------------------------Amino Acid Consensus
 
-        protein_consensus_str = None  # Default to None for safe return
+        global_p_consensus_str = None  # Default to None for safe return
         if aa_aln_file and os.path.exists(aa_aln_file) and os.path.getsize(aa_aln_file) > 0:
             try:
                 aa_alignment = AlignIO.read(aa_aln_file, 'fasta')
@@ -1521,9 +1524,11 @@ class codon(QWidget):
                 if threshold is None:
                     threshold = getattr(self, 'consensus_threshold', 1.0)
                 protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
-                protein_consensus_str = str(protein_consensus)
+                global_p_consensus_str = str(protein_consensus)
 
-                print(protein_consensus_str)
+                print('before: global_p_consensus_str')
+                print(global_p_consensus_str)
+                print('after: global_p_consensus_str')
 
                 # --------------------------------------------Main_Protein Consensus
                 widget_consensus_protein = QWidget()
@@ -1532,46 +1537,35 @@ class codon(QWidget):
                 layout_consensus_protein.setContentsMargins(5, 0, 0, 0)
                 layout_consensus_protein.setSpacing(0)
                 widget_consensus_protein.setLayout(layout_consensus_protein)
-                layout.addWidget(widget_consensus_protein, alignment=Qt.AlignLeft)
+                self.layout_codon_l3.addWidget(widget_consensus_protein, alignment=Qt.AlignLeft)
 
                 # Sub-elements
                 invisible_checkbox_protein = QCheckBox()
                 invisible_checkbox_protein.setEnabled(False)
                 invisible_checkbox_protein.setStyleSheet('background: transparent; border: none;')
                 layout_consensus_protein.addWidget(invisible_checkbox_protein)
+                layout_consensus_protein.addSpacing(5)
 
-                label_consensus_protein = QLabel('')
+                label_consensus_protein = QLabel('Protein Consensus')
                 label_consensus_protein.setFixedSize(120, 20)
                 layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
                 layout_consensus_protein.addSpacing(5)
 
-                for aa in protein_consensus_str:
+                for aa in global_p_consensus_str:
                     lbl = QLabel(aa)
-                    lbl.setFixedSize(15, 20)
+                    lbl.setFixedSize(45, 20)
                     lbl.setAlignment(Qt.AlignCenter)
-                    lbl.setStyleSheet('color:darkblue;')
+                    lbl.setStyleSheet('color:#FFA500;')
                     layout_consensus_protein.addWidget(lbl)
 
-                group['consensus_seq_codon_protein'] = protein_consensus_str
+#                group['consensus_seq_codon_protein'] = protein_consensus_str
 
             except Exception as e:
                 print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # --------------------------------------------Others
-        return str(consensus)
+        return global_p_consensus_str
 
 
 #_______________________________________________________________________________________________13 Color Code Aligned Sequences
@@ -1723,7 +1717,6 @@ class codon(QWidget):
 # --------------------------------------------Action
         # ---1 Set files
         base = os.path.splitext(os.path.basename(fasta_file))[0]                            # Extract FASTA Filename
-#        self.out_folder = os.path.join(self.base_path, 'tmp_files')                                   # Set output folder
         os.makedirs(self.out_folder, exist_ok=True)                                              # 
         horiz_file = f"{self.out_folder}/{base}.horiz"
 
@@ -1887,7 +1880,7 @@ class codon(QWidget):
                     pred += parts[1]
 
         # ---2 Turn C, E, H into symbols: ---, Arrow, Box
-        width_per_residue = 0.15                                            # Width per base: 15 pixels
+        width_per_residue = 0.15 * 3                                            # Width per base: 15 pixels
         fig_width = len(aa) * width_per_residue                             # Figure width
         fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
         i=0
@@ -1954,38 +1947,38 @@ class codon(QWidget):
             if not target_cons:
                 continue
 
-        # ---4 Parse horiz_rile: Prediction Text
-        aa, pred = '', ''
-        for line in prediction_text.splitlines():
-            if 'AA:' in line:
-                parts = line.strip().split()
-                if len(parts) > 1:
-                    aa += parts[1]                                                  # extract the seq after 'AA:' (AA Seq)
-            elif 'Pred:' in line:
-                parts = line.strip().split()
-                if len(parts) > 1:
-                    pred += parts[1]  
+            # ---4 Parse horiz_rile: Prediction Text
+            aa, pred = '', ''
+            for line in prediction_text.splitlines():
+                if 'AA:' in line:
+                    parts = line.strip().split()
+                    if len(parts) > 1:
+                        aa += parts[1]                                                  # extract the seq after 'AA:' (AA Seq)
+                elif 'Pred:' in line:
+                    parts = line.strip().split()
+                    if len(parts) > 1:
+                        pred += parts[1]  
 
-        # ---5 Collect data
-        regions = []
-        current_type = None
-        start = None
-        for i, ss in enumerate(pred):
-            if ss in ['H', 'E']:
-                if current_type != ss:                                              # If H/E but different from previous one
-                    if current_type and start is not None:                          #
-                        regions.append((current_type, start, i - 1))                # Save the previous region from start to i-1
-                    current_type = ss                                               #
-                    start = i
-                # only add when it is H/E and different from the previous stored ss. If they are similar, keep looping (i++)
-            else:                                                                   # If Coil, terminate the current region
-                if current_type:                                                    #
-                    regions.append((current_type, start, i - 1))                    #
-                    current_type = None                                             # SS restarts
-                    start = None                                                    # Start index restarts
+            # ---5 Collect data
+            regions = []
+            current_type = None
+            start = None
+            for i, ss in enumerate(pred):
+                if ss in ['H', 'E']:
+                    if current_type != ss:                                              # If H/E but different from previous one
+                        if current_type and start is not None:                          #
+                            regions.append((current_type, start, i - 1))                # Save the previous region from start to i-1
+                        current_type = ss                                               #
+                        start = i
+                    # only add when it is H/E and different from the previous stored ss. If they are similar, keep looping (i++)
+                else:                                                                   # If Coil, terminate the current region
+                    if current_type:                                                    #
+                        regions.append((current_type, start, i - 1))                    #
+                        current_type = None                                             # SS restarts
+                        start = None                                                    # Start index restarts
 
-        if current_type and start is not None:                                      # For the last base
-            regions.append((current_type, start, len(pred) - 1))                    # e.g. ('H', 3, 10) = Helix from pos 3 to 10
+            if current_type and start is not None:                                      # For the last base
+                regions.append((current_type, start, len(pred) - 1))                    # e.g. ('H', 3, 10) = Helix from pos 3 to 10
 
 # --------------------------------------------Main
             widget_result = QWidget()
@@ -2007,25 +2000,26 @@ class codon(QWidget):
             total_cols = len(ref_cons)
             labels = [QLabel('') for _ in range(total_cols)]
             for lbl in labels:
-                lbl.setFixedSize(15, 20)
+                lbl.setFixedSize(45, 20)
                 lbl.setAlignment(Qt.AlignCenter)
                 layout_result.addWidget(lbl)
 
         # ---7 Fill labels only at the midpoint of each region
             for ss_type, start, end in regions:
-                target_cons = group.get('consensus_seq')
+                codon_start = start * 3
+                codon_end = (end  + 1) * 3 - 1
                 match_count = sum(
-                    1 for i in range(start, end + 1)
+                    1 for i in range(codon_start, codon_end + 1)
                     if i < len(target_cons) and i < len(ref_cons) and target_cons[i] == ref_cons[i]
                 )
-                total = end - start + 1
+                total = codon_end - codon_start + 1
                 percent = (match_count / total) * 100 if total else 0
                 mid = (start + end) // 2
                 if mid < len(labels):
                     labels[mid].setText(f"{int(percent)}")
-                    labels[mid].setStyleSheet("color: gray; font-size: 8px; padding: 0px;")
+                    labels[mid].setStyleSheet("color: grey; font-size: 8px; padding: 0px;")
                     labels[mid].setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
-                    labels[mid].setAlignment(Qt.AlignCenter)
+                    labels[mid].setAlignment(Qt.AlignCenter)                                                # consensus_str (codon)
 
 # --------------------------------------------Main
             widget_result.setLayout(layout_result)
