@@ -15,3 +15,16 @@ pip install PySide6
 pip install biopython
 pip install matplotlib
 # then run ./run.sh
+
+
+
+
+
+# Packaging sofware
+pyinstaller alignate.py --add-data "external_tools/psipred:psipred"
+# Have to run pyinstaller separately for each platform
+## Eg. linux:
+( please confirm if alignate.py or run.sh/run.bat ) pyinstaller alignate.py --onefile \
+  --add-data "external_tools/clustalo_linux/clustalo:external_tools/clustalo" \
+  --add-data "external_tools/mafft_linux/mafft:external_tools/mafft" \
+  --add-data "external_tools/psipred:external_tools/psipred"
