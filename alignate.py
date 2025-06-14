@@ -1,4 +1,4 @@
-import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, requests, time, copy
+import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, requests, time, copy, uuid
 from PySide6.QtGui import QIcon, QPixmap, QFont, QPainter, QPen, QMouseEvent, QAction, QKeySequence, QShortcut
 from PySide6.QtWidgets import QGroupBox, QRadioButton, QStackedWidget, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
 from PySide6.QtCore import QSize, Qt, QPoint, QTimer
@@ -1483,7 +1483,8 @@ class protein(QWidget):
                 base_path = os.path.dirname(os.path.abspath(__file__))
                 if self.widget_psipred_offline.isChecked():
                     psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                    self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+#                    self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+                    self.prediction_text = self.build_secondary_structure_offline(psipred_dir, base_path)
                 else:
                     self.prediction_text = self.build_secondary_structure_online(fasta_file)
 
@@ -1533,7 +1534,8 @@ class protein(QWidget):
 
                     if self.widget_psipred_offline.isChecked():
                         psipred_dir = os.path.join(base_path, 'external_tools', 'psipred')
-                        self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+#                        self.prediction_text = self.build_secondary_structure_offline(fasta_file, psipred_dir, base_path)
+                        self.prediction_text = self.build_secondary_structure_offline(psipred_dir, base_path)
                     else:
                         self.prediction_text = self.build_secondary_structure_online(fasta_file)
 
@@ -1880,7 +1882,86 @@ class protein(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def build_secondary_structure_offline(self, fasta_file, psipred_dir, base_path):
+    def build_secondary_structure_offline(self, psipred_dir, base_path):
+# . . .  CLEAR GUI . . .
+        # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
+        if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
+            self.layout_protein_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
+            self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
+            self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
+            self.widget_horizontal = None                                                   # no widget global
+
+# --------------------------------------------Action
+        # ---1 Set files
+
+        # ---1-1 Set fasta file
+        uid = uuid.uuid4().hex[:12]
+        out_folder = os.path.join(base_path, 'tmp_files')                                   # Set output folder
+        os.makedirs(out_folder, exist_ok=True)
+        horiz_file = f"{out_folder}/{uid}_refseq.horiz"
+
+
+# -------------------------- for aligned reference sequence ---------------------------
+        refseq = self.groups[0]['widget_seq'][0]['seq']
+        fasta_file = os.path.join(out_folder, f'{uid}_refseq.fasta')
+        with open(fasta_file, 'w') as fasta:
+            fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+# -------------------------- for aligned reference sequence ---------------------------
+
+
+        # ---2 Run PSIPRED
+        # with PSI-BLAST
+        try:
+#           ------------------------------- Connect: Widget Progress 5 -------------------------------
+            if self.cancelled:
+                self.widget_progress.reject()
+                return
+#           ------------------------------- Connect: Widget Progress 5 -------------------------------
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            shell_tcsh = os.path.join(base_path, 'external_tools', 'cygwin', 'bin', 'tcsh.exe')
+            runpsipred = os.path.join(psipred_dir, 'BLAST+', 'runpsipredplus')
+            blastdb_path = os.path.join(psipred_dir, "BLAST+", "blastdb")
+            env = os.environ.copy()
+            env["BLASTDB"] = blastdb_path
+            system = platform.system()
+
+            if system == 'Windows':
+                subprocess.run([shell_tcsh, runpsipred, fasta_file], check=True, env=env, cwd=out_folder)
+                print("Run runpsipredplus + PSI-BLAST")
+            elif system == 'Linux' or system == 'Darwin':
+                if shutil.which('tcsh') is None:
+                    self.show_tcsh_warning()
+                    return
+                else:
+                    subprocess.run([runpsipred, fasta_file], check=True, env=env, cwd=out_folder)
+
+        # without PSI-BLAST
+        except subprocess.CalledProcessError as e:
+            print('Run runpsipred_single instead...')
+            try:
+#           ------------------------------- Connect: Widget Progress 5 -------------------------------
+                if self.cancelled:
+                    self.widget_progress.reject()
+                    return
+#           ------------------------------- Connect: Widget Progress 5 -------------------------------
+                runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
+                subprocess.run([runpsipred_single, fasta_file], check=True, cwd=out_folder)
+                print("Run runpsipred_single")
+            except subprocess.CalledProcessError as e:
+                print("Both runpsipred and runpsipred_single failed.")
+                raise e                
+
+        # ---3 Extract data from output: horiz file
+        if not os.path.exists(horiz_file):
+            raise FileNotFoundError(f"Expected output file {horiz_file} not found!")
+        with open(horiz_file, "r") as f:
+            self.prediction_text = f.read()
+        return self.prediction_text
+
+
+
+
+    def todelbuild_secondary_structure_offline(self, fasta_file, psipred_dir, base_path):
 # . . .  CLEAR GUI . . .
         # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
         if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
@@ -1944,6 +2025,10 @@ class protein(QWidget):
         with open(horiz_file, "r") as f:
             self.prediction_text = f.read()
         return self.prediction_text
+
+
+
+
 
 
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
@@ -2054,6 +2139,103 @@ class protein(QWidget):
                 if len(parts) > 1:
                     pred += parts[1]
 
+
+
+# -------------------------- for aligned reference sequence ---------------------------
+        # 1 get aligned aa - find where it is
+        refseq = self.groups[0]['widget_seq'][0]['seq']
+        # 2 if -, check aa b4 & after
+        final_pred = []
+        pred_idx = 0
+        for letter in refseq:
+            if letter == '-':
+                final_pred.append('C')
+            else:
+                final_pred.append(pred[pred_idx])
+                pred_idx += 1
+
+        print('refseq starts 2')
+        print(refseq)
+        print('refseq ends 2')
+        print('final pred start')
+        print(''.join(final_pred))
+        print('final_pred ends')
+ # -------------------------- for aligned reference sequence ---------------------------
+
+
+        # ---2 Turn C, E, H into symbols: ---, Arrow, Box
+        width_per_residue = 0.15                                            # Width per base: 15 pixels
+        fig_width = len(final_pred) * width_per_residue                             # Figure width
+        fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
+        i=0
+        while i < len(pred):
+            ss = final_pred[i]                                                    # Secondary structure at pos i
+            start = i                                                       # Start at pos i
+            while i < len(final_pred) and final_pred[i] == ss:
+                i += 1
+            end = i
+
+            if ss == 'H':
+                rect = Rectangle((start, 0.1), end - start, 0.8, linewidth=1, edgecolor='red', facecolor='red', alpha=0.4)  # (x,y), width, height, border thickness, border color, fill color, semi-transparent      
+                ax.add_patch(rect)                                                                                          # add rect to plot
+            elif ss == 'E':
+                arrow = FancyArrow(start, 0.5, end - start - 0.2, 0, width=0.3, length_includes_head=True, head_width=0.5, head_length=0.3, color='blue') # x,y,x-length, y-change, ...
+                ax.add_patch(arrow)
+            else:
+                ax.plot([start, end], [0.5, 0.5], color='gray', linewidth=1.2)
+
+
+        # ---3 Create Plot Figure
+        ax.set_xlim(0, len(aa))
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        plt.tight_layout(pad=0)
+        buffer = BytesIO()                                                  # Save to buffer (FOR DISPLAY)
+        fig.savefig(buffer, format='png', transparent=True, bbox_inches='tight', pad_inches=0)
+        plt.close(fig)
+
+        # ---4 Convert to QPixmap and Display on GUI
+        pixmap = QPixmap()
+        pixmap.loadFromData(buffer.getvalue())
+        label = QLabel()
+        label.setPixmap(pixmap)
+        layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
+
+
+    def todeldraw_secondary_structure_to_gui(self, prediction_text):
+        
+# --------------------------------------------Main
+        self.widget_horizontal = QWidget()
+        layout_horizontal = QHBoxLayout()
+        layout_horizontal.setContentsMargins(0,0,0,0)
+        layout_horizontal.addSpacing(0)
+        self.widget_horizontal.setLayout(layout_horizontal)
+        self.layout_protein_l4_2ndarystructure.addWidget(self.widget_horizontal, alignment=Qt.AlignLeft)
+
+# --------------------------------------------Sub-elements
+        # ---1 Labels (Spacing)
+        invisible_checkbox = QCheckBox()
+        invisible_checkbox.setEnabled(False)
+        invisible_checkbox.setStyleSheet('background: transparent; border: none;')
+        layout_horizontal.addWidget(invisible_checkbox)
+   
+        invisible_label = QLabel('')
+        invisible_label.setFixedSize(118,20)
+        layout_horizontal.addWidget(invisible_label, alignment=Qt.AlignLeft)
+
+# --------------------------------------------Action
+        # ---1 Parse horiz_rile: Prediction Text
+        aa, pred = '', ''                                                   # Base, Secondary structure
+        for line in prediction_text.splitlines():
+            if 'AA' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    aa+= parts[1]
+            elif 'Pred' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    pred += parts[1]
+
         # ---2 Turn C, E, H into symbols: ---, Arrow, Box
         width_per_residue = 0.15                                            # Width per base: 15 pixels
         fig_width = len(aa) * width_per_residue                             # Figure width
@@ -2090,6 +2272,8 @@ class protein(QWidget):
         label = QLabel()
         label.setPixmap(pixmap)
         layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
+
+
 
 #_______________________________________________________________________________________________16 PSIPRED: COMPUTE REGION %CONSERVATIVE
 #________________________________________________________________________________________PSIPRED
