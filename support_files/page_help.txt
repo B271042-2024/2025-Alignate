@@ -1,0 +1,147 @@
+<pre>
+<b>Introduction</b>
+This software was designed to assist protein analysis for polymorphisms, allowing users to focus on group-based comparisons. It accepts FASTA format of both protein and codon sequences, aligns, predicts secondary structure and calculates their conservation percentage.
+
+
+<b>Installation</b>
+1. GitHub page - https://github.com/B271042-2024/2025-Alignate.
+2. README file is provided for guidance on required package installations.
+3. This software is Linux compatible. To use on Windows, please install Windows Subsystem for Linux (WSL).
+4. Additional requirements:
+	- tcsh shell			[to install on Linux/wsl: sudo apt install tcsh]
+	- python			[to install on Linux/wsl: sudo apt-get install python(version?)]
+
+
+<b>How to run on Linux/WSL</b>
+./run.sh
+
+
+<b>Supported formats</b>
+Input	: .fasta, .fa, .txt, input text	(only FASTA format). Max length is 1000 bases.
+Output	: .alignate, .fa, .txt, .png, .pdf
+
+
+<b>Usage workflow</b>
+<b><i>Protein</i></b>
+1. Add Group by pressing button '+Group'. To remove, please press button '-Group'.
+2. Add amino acid sequences by pressing button '+'. To remove, please tick the relevant checkboxes in rows containing sequences and press button '-'.
+3. To compare sequences between groups, add more groups and sequences.
+4. Select reference group by ticking the box. Default is the first group. Secondary structure is built using the first sequence from reference group.
+5. Begin analysing sequences:
+	a. Two modes:
+		- To analyze one group, press button 'Align' in the respective group.
+		- To analyze all groups together, press button 'Align all' at the top of the page.
+	b. Analysis includes:
+		- Sequence alignment
+			- Two modes:
+				a) ClustalO v1.2.2 	(parameters: default)
+				b) MAFFT v7.526		(parameters: --anysymbol, --genafpair,--maxiterate 10000)
+		- Consensus generation (Default threshold is 0.5)
+			- Global consensus sequences
+				- Positioned at the bottom of the page.
+			- Group consensus sequences
+				- Positioned in each group, below sequences
+		- Color % conservation in each column by using the percentage of the most common base. Color: Purple (highly conserved) to white
+		- Calculate conservation percentage by using group consensus. All are done against reference group.
+			- Overall conservation percentage of each group.
+				- %Conservation is positioned in each group, in consensus row.
+			- Conservation percentage of each group in secondary structure (alpha helix and beta sheet ONLY).
+				- %Conservation is positioned in each group, below consensus row.
+		- Secondary structure prediction via PSIPRED V4
+			- Two modes:
+				- Default: PSIPRED with BLAST+
+				- If not found, PSIPRED single will be used (No BLAST+)
+			- Run Online or offline
+
+<b><i>Codon</i></b>
+1. Add Group by pressing button '+Group'. To remove, please press button '-Group'.
+2. Add codon sequences by pressing button '+'. To remove, please tick the relevant checkboxes in rows containing sequences and press button '-'.
+3. To compare sequences between groups, add more groups and sequences.
+4. Select reference group by ticking the box. Default is the first group. Secondary structure is built using the first sequence from reference group.
+5. Begin analysing sequences:
+	a. Two modes:
+		- To analyze one group, press button 'Align' in the respective group.
+		- To analyze all groups together, press button 'Align all' at the top of the page.
+	b. Analysis includes:
+		- Translation of codon sequences into amino acid sequences
+		- Sequence alignment
+			- Alignment of amino acid sequences. Two modes:
+				a) ClustalO v1.2.2 	(parameters: default)
+				b) MAFFT v7.526		(parameters: --anysymbol, --genafpair,--maxiterate 10000)
+			- Alignment of codon sequences using tranAlign
+				a) This mode aligns codon sequences based on the aligned amino acid sequences to retain the properties of amino acid sequences.
+		- Consensus generation
+			- Global consensus sequences
+				a) Codon consensus
+					- Positioned at the bottom of the page
+				b) Amino acid consensus
+					- Positioned below codon consensus at the bottom of the page (color: orange)
+			- Group consensus sequences
+				a) Codon consensus
+					- Positioned in each group, below sequences
+				b) Amino acid consensus
+					- Positioned in each group, below codon consensus (color: orange)
+		- Color % conservation in each column by using the percentage of the most common base. Color: Purple (highly conserved) to white
+		- Calculate conservation percentage by using group consensus. All are done against reference group.
+			- Overall conservation percentage of each group.
+				- %Conservation is positioned in each group, in consensus row.
+			- Conservation percentage of each group in secondary structure (alpha helix and beta sheet ONLY).
+				- %Conservation is positioned in each group, below consensus row.
+		- Secondary structure prediction via PSIPRED V4
+			- Two modes:
+				- Default: PSIPRED with BLAST+
+				- If not found, PSIPRED single will be used (No BLAST+)
+			- Run Online or offline
+
+
+<b>Additional Features</b>
+1. Ruler shows the position of each amino acid
+2. Drawing pad
+	a. Right-click: to draw
+	b. Left-click: to erase
+3. Slider can be used to show and hide columns based on conservation percentage.
+	a. Range: 0 (left-most) to 100% (right-most)
+	b. Notes:
+		- This function is supplemental to column colors. Most often will show one purple shade at a time based on %conservation of each column, set on the slider.
+	c. How to use:
+		- Tick to activate slider.
+		- Move the slider and only specific columns with similar %conservation will show at a time.
+		- e.g. Tick: 50%. This will show columns having 50% similar elements.
+4. Custom conservation percentage by selecting specific area
+	a. Mark the first and last position on the ruler. A window will pop up to ask for confirmation.
+	b. %Conservation will be positioned in each group, in the last row.
+5. Adjust consensus threshold
+	a. Default
+6. Word search
+	a. Fill in the search bar with relevant keywords on top of the page
+	b. Matched words will be highlighted in orange.
+
+
+<b>Biological relevance</b>
+1. The first sequence in the reference group is used to predict secondary structure. This makes the data more biologically relevant compared to building using consensus sequences.
+2. %Conservation against reference group is done using consensus sequences.
+
+
+
+<i>Please contact Alignate Team for any enquiries at s2704130@ed.ac.uk</i>
+Created on 15/06/2025.
+
+
+
+
+
+
+
+
+
+
+TO-DO
+** Prolly remove all other than Linux
+** Prolly remove this for ss prediction - Online or offline mode **try to make it work
+** See if psipred single works
+** Fix the alignment for %Conservation by ss
+** Fix the max seq length to 1000
+### - NEED TO INSTALL SOFTWARES & PYTHON DEPENDENCIES FROM .gitignore - ###
+### -  POSSIBLY DELETE ALL FOR MAC & WINDOWS SINCE PSIPRED DON'T WORK - ###
+
+</pre>
