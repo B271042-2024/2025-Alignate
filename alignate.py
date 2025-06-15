@@ -121,16 +121,15 @@ class main(QMainWindow):
         menu1_load = menu1.addAction('Load Project')
         menu1_save = menu1.addAction('Save Project')
         menu1_saveas = menu1.addMenu('Save as')
-        menu1_saveas_aln = menu1_saveas.addAction('.aln')           # ***** to amend 1 ***** connect           
+        menu1_saveas_aln = menu1_saveas.addAction('.fa')           # ***** to amend 1 ***** connect           
         menu1_saveas_txt = menu1_saveas.addAction('.txt')           # ***** to amend 2 ***** connect
         menu1_saveas_png = menu1_saveas.addAction('.png')           # ***** to amend 3 ***** connect
-        menu1_saveas_jpg = menu1_saveas.addAction('.jpg')           # ***** to amend 4 ***** connect
         menu1_saveas_pdf = menu1_saveas.addAction('.pdf')           # ***** to amend 5 ***** connect
         menu2 = menu.addMenu('View')
         menu2_all = menu2.addAction('All')
         menu2_hide = menu2.addAction('Hide toggles')
-        menu2_consensus = menu2.addAction('Consensus mode (DEFAULT: 1)')
-        menu3 = menu.addMenu('Help')
+        menu2_consensus = menu2.addAction('Consensus mode (DEFAULT: 0.5)')
+        menu3 = menu.addAction('Help')
 
         # ---Toolbar
         self.stack = QStackedWidget()
@@ -160,6 +159,8 @@ class main(QMainWindow):
         menu2_all.triggered.connect(lambda: self.active_window.view_show_all())
         menu2_hide.triggered.connect(lambda: self.active_window.view_hide_toggles())
         menu2_consensus.triggered.connect(lambda: self.active_window.apply_new_consensus_threshold())
+        menu3.triggered.connect(self.show_widget_help)
+
 
         self.action_about = QAction('About', self)
         self.action_about.setCheckable(True)
@@ -191,12 +192,19 @@ class main(QMainWindow):
         tmp_folder = os.path.join(os.path.dirname(__file__), 'tmp_files')
         os.makedirs(tmp_folder, exist_ok=True)
 
+
+#_______________________________________________________________________________________________1
+#_______________________________________________________________________________________________
+
     def switch_page(self, widget, active_action):
         self.stack.setCurrentWidget(widget)
         self.active_window = widget
         for action in [self.action_about, self.action_protein, self.action_codon]:
             action.setChecked(action == active_action)
 
+
+#_______________________________________________________________________________________________2
+#_______________________________________________________________________________________________
 
     def closeEvent(self, event):                                                            # delete files in tmp_files when software is closed
         tmp_folder = os.path.join(os.path.dirname(__file__), 'tmp_files')
@@ -212,6 +220,40 @@ class main(QMainWindow):
         event.accept()
 
 
+#_______________________________________________________________________________________________3
+#_______________________________________________________________________________________________
+
+
+    def show_widget_help(self):
+        dialog_help = QDialog(self)
+        dialog_help.setWindowTitle('Help')
+        dialog_help.resize(1200, 600)
+        dialog_help.move(50,200)
+        layout_help = QVBoxLayout()
+        dialog_help.setLayout(layout_help)
+
+        dialog_help_l2 = QScrollArea()
+        dialog_help_l2.setWidgetResizable(True)
+        dialog_help_l2.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        dialog_help_l2.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        layout_help.addWidget(dialog_help_l2)
+        
+        dialog_help_l3 = QWidget()
+        layout_help2 = QVBoxLayout()
+        dialog_help_l3.setLayout(layout_help2)
+        dialog_help_l2.setWidget(dialog_help_l3)
+
+        base_path = os.path.abspath(__file__)
+        folder_help = os.path.join(os.path.dirname(base_path), 'support_files')
+        file_help = os.path.join(folder_help, 'page_help.txt')
+        with open(file_help, 'r') as hf:
+            lines = hf.readlines()
+            label_help = QLabel('\n'.join(lines))
+            label_help.setTextFormat(Qt.TextFormat.RichText)                # Enable HTML format
+            label_help.setWordWrap(True)
+            layout_help2.addWidget(label_help)
+
+        dialog_help.exec()
 
 
 #_______________________________________________________________________________________________
@@ -364,6 +406,7 @@ class protein(QWidget):
         self.checkboxslider = QCheckBox()
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
+        labelslider = QLabel('Tick to activate show/hide columns based on %conservation')
         # # Add widgets to parent widget
         self.widget_protein_buttons = QWidget()
         self.layout_protein_buttons = QHBoxLayout()
@@ -373,6 +416,7 @@ class protein(QWidget):
         self.layout_protein_buttons.addWidget(self.button2_alignall, alignment=Qt.AlignLeft)
         self.layout_protein_buttons.addWidget(self.slidercon, alignment=Qt.AlignLeft)
         self.layout_protein_buttons.addWidget(self.checkboxslider, alignment=Qt.AlignLeft)
+        self.layout_protein_buttons.addWidget(labelslider, alignment=Qt.AlignLeft)
         self.layout_protein_buttons.addStretch(1)
         self.layout_protein_l4.addWidget(self.widget_protein_buttons, alignment=Qt.AlignTop)
 
@@ -492,7 +536,7 @@ class protein(QWidget):
         # ---2 slider
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0,100)
-        self.slider.setValue(int(getattr(self, 'consensus_threshold', 1.0) * 100))
+        self.slider.setValue(int(getattr(self, 'consensus_threshold', 0.5) * 100))
         layout.addWidget(self.slider)
 
         # ---3 threshold value
@@ -596,9 +640,6 @@ class protein(QWidget):
 #_______________________________________________________________________________________________ (Called in DEF: run_alignment)
 
     def slider_threshold(self):
-        
-
-
         if self.checkboxslider.isChecked():
             threshold = self.slidercon.value()
             lower = threshold - 5.5
@@ -1655,8 +1696,8 @@ class protein(QWidget):
         alignment = MultipleSeqAlignment(records)
         summary = AlignInfo.SummaryInfo(alignment)
         if threshold is None:
-            threshold = getattr(self, 'consensus_threshold', 1.0)
-        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
+            threshold = getattr(self, 'consensus_threshold', 0.5)
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
         consensus_str = str(consensus)
 
 
@@ -1728,8 +1769,8 @@ class protein(QWidget):
         alignment = MultipleSeqAlignment(all_records)
         summary = AlignInfo.SummaryInfo(alignment)
         if threshold is None:
-            threshold = 1.0
-        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
+            threshold = 0.5
+        consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
 
         for letter in str(consensus):
             lbl = QLabel(letter)
@@ -1902,11 +1943,18 @@ class protein(QWidget):
 
 
 # -------------------------- for aligned reference sequence ---------------------------
-        refseq = self.groups[0]['widget_seq'][0]['seq']
-        fasta_file = os.path.join(out_folder, f'{uid}_refseq.fasta')
-        with open(fasta_file, 'w') as fasta:
-            fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():   
+                refseq = group['widget_seq'][0]['seq']
+                #refseq = self.groups[0]['widget_seq'][0]['seq']
+                fasta_file = os.path.join(out_folder, f'{uid}_refseq.fasta')
+                with open(fasta_file, 'w') as fasta:
+                    fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
 # -------------------------- for aligned reference sequence ---------------------------
+
+        with open(fasta_file, 'r') as f:
+            lines = f.readlines()
+            print(f'refseq: {lines}')
 
 
         # ---2 Run PSIPRED
@@ -2139,11 +2187,17 @@ class protein(QWidget):
                 if len(parts) > 1:
                     pred += parts[1]
 
-
-
 # -------------------------- for aligned reference sequence ---------------------------
+
+        refseq = None
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refseq = group['widget_seq'][0]['seq']
+
+        print('refseq 2 - draw on gui: ', refseq)
+
         # 1 get aligned aa - find where it is
-        refseq = self.groups[0]['widget_seq'][0]['seq']
+#        refseq = self.groups[0]['widget_seq'][0]['seq']
         # 2 if -, check aa b4 & after
         final_pred = []
         pred_idx = 0

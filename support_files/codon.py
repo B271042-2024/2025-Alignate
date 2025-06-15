@@ -118,6 +118,7 @@ class codon(QWidget):
         self.checkboxslider = QCheckBox()
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
+        labelslider = QLabel('Tick to activate show/hide columns based on %conservation')
         # # Add widgets to parent widget
         self.widget_codon_buttons = QWidget()
         self.layout_codon_buttons = QHBoxLayout()
@@ -127,6 +128,7 @@ class codon(QWidget):
         self.layout_codon_buttons.addWidget(self.button2_alignall, alignment=Qt.AlignLeft)
         self.layout_codon_buttons.addWidget(self.slidercon, alignment=Qt.AlignLeft)
         self.layout_codon_buttons.addWidget(self.checkboxslider, alignment=Qt.AlignLeft)
+        self.layout_codon_buttons.addWidget(labelslider, alignment=Qt.AlignLeft)
         self.layout_codon_buttons.addStretch(1)
         self.layout_codon_l4.addWidget(self.widget_codon_buttons, alignment=Qt.AlignTop)
 
@@ -1510,7 +1512,7 @@ class codon(QWidget):
                 summary = AlignInfo.SummaryInfo(aa_alignment)
                 if threshold is None:
                     threshold = getattr(self, 'consensus_threshold', 0.5)
-                protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='N')
+                protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
                 global_p_consensus_str = str(protein_consensus)
 
                 # --------------------------------------------Main_Protein Consensus
@@ -1708,28 +1710,40 @@ class codon(QWidget):
 
 
 # -------------------------- for aligned reference sequence ---------------------------
-        # 1 get ref aa
-        refaa_header = None
-        refaa_protein = []
-        with open(alignedaa_file, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                line = line.strip()
-                if line.startswith('>'):
-                    if refaa_header is not None:
-                        break
-                    else:
-                        refaa_header = line
-                else:
-                    if refaa_header is not None:
-                        refaa_protein.append(line)
-        refaa_protein = ''.join(refaa_protein)
-        
-        with open(fasta_file, 'w') as fasta:
-            fasta.write(f'{refaa_header}\n{refaa_protein}\n')                               # write to fasta file
+
+        refcodon = ""                               # ""=empty string, None=no value, nothing, missing
+        refaa = ""
+        # 1 Get ref codon seq
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refcodon = group['widget_seq'][0]['seq']
+                print('refcodon starts ---')
+                print(refcodon)
+                print('refcodon ends ---')
+
+        # 2 Translate to aa seq
+        codons = [refcodon[i:i+3] for i in range(0, len(refcodon), 3)]
+        for codon in codons:
+            if len(codon) < 3 or '-' in codon or 'N' in codon.upper():
+                refaa += 'X'  # Ambiguous or incomplete
+            else:
+                try:
+                    aa = Seq(codon).translate()
+                    refaa += str(aa)
+                except:
+                    refaa += 'X'
+
+        # 3 Write to fasta_file
+        with open(fasta_file, 'w') as f:
+            f.write(f'>refaa\n{refaa}\n')
+
+        with open(fasta_file, 'r') as fread:
+            lines = fread.readlines()
+            print('fasta file: aa seq start ---')
+            print(lines)
+            print('fasta file: aa seq end ---')
+
 # -------------------------- for aligned reference sequence ---------------------------
-
-
         # ---2 Run PSIPRED
         # with PSI-BLAST
         try:
@@ -1960,39 +1974,13 @@ class codon(QWidget):
                     pred += parts[1]
 
 
-
 # -------------------------- for aligned reference sequence ---------------------------
-
-# -------------------------- for aligned reference sequence ---------------------------
-
-        alignedaa_file = self.aligned_aa_output_file
-        base = os.path.splitext(os.path.basename(alignedaa_file))[0]                        # extract FASTA Filename                                     
-        fasta_file = f"{self.out_folder}/{base}.fasta"
-
-        # 1 get ref aa
-        refaa_header = None
-        refaa_protein = []
-        with open(alignedaa_file, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                line = line.strip()
-                if line.startswith('>'):
-                    if refaa_header is not None:
-                        break
-                    else:
-                        refaa_header = line
-                else:
-                    if refaa_header is not None:
-                        refaa_protein.append(line)
-        refaa_protein = ''.join(refaa_protein)
-        
-        with open(fasta_file, 'w') as fasta:
-            fasta.write(f'{refaa_header}\n{refaa_protein}\n')                               # write to fasta file
-# -------------------------- for aligned reference sequence ---------------------------
-
-
         # 1 get aligned aa - find where it is
-        refseq = self.groups[0]['widget_seq'][0]['seq']
+        refseq = ""
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refseq = group['widget_seq'][0]['seq']
+
         # 2 if -, check aa b4 & after
         final_pred = []
         pred_idx = 0
