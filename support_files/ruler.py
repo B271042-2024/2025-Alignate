@@ -37,10 +37,8 @@ class ClickableLabel(QLabel):
 
 class ruler(QWidget):
     def __init__(self, parent_context, parent=None):
-#    def __init__(self, context, parent=None):
         super().__init__(parent)
 
-#        self.context = context
         self.context = parent_context
 
         # call fxn 1: build the ruler
@@ -72,7 +70,7 @@ class ruler(QWidget):
 
         # 3 add label
         invisible_label = QLabel('')
-        invisible_label.setFixedSize(115,20)
+        invisible_label.setFixedSize(117,20)
         layout_ruler_main.addWidget(invisible_label, alignment=Qt.AlignLeft)
 
         # 4 add ruler

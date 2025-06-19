@@ -74,7 +74,7 @@ class codon(QWidget):
 # --------------------------------------------Sub-elements
         # ---Ruler (In Layer 3)
         self.ruler = ruler(parent_context=self)                                        # CONNECT TO FILE 1: ruler.py
-        self.layout_codon_l3.addWidget(self.ruler)
+        self.layout_codon_l3.addWidget(self.ruler, alignment=Qt.AlignLeft)
 
         # ---Layer 4
         self.widget_codon_l4 = QWidget()
@@ -503,9 +503,12 @@ class codon(QWidget):
             }"""
         )
         self.layout_codon_l4_group_l1 = QVBoxLayout()
-        self.layout_codon_l4_group_l1.setContentsMargins(0,2,0,2)                                               
+        self.layout_codon_l4_group_l1.setContentsMargins(0,2,0,2)
+        self.layout_codon_l4_group_l1.setSpacing(0)                                               
         self.widget_codon_l4_group_l1.setLayout(self.layout_codon_l4_group_l1)
         self.layout_codon_l4.addWidget(self.widget_codon_l4_group_l1)
+
+
 
 # --------------------------------------------Sub-elements
         # ---1 LINE 1 (BUTTONS)
@@ -546,7 +549,7 @@ class codon(QWidget):
         layout_codon_l4_group_l1_line1.addWidget(button5_align, alignment=Qt.AlignLeft)
         layout_codon_l4_group_l1_line1.addWidget(checkbox1_setrefgroup, alignment=Qt.AlignLeft)
         layout_codon_l4_group_l1_line1.addWidget(label2_setrefgroup, alignment=Qt.AlignLeft)
-        layout_codon_l4_group_l1_line1.addStretch(1)                      # to left-align all elements
+        layout_codon_l4_group_l1_line1.addStretch(0)                      # to left-align all elements
         
         # ---2 LINE 2 (SEQUENCES)
         # MAIN WIDGET: SEQUENCES
@@ -1268,7 +1271,6 @@ class codon(QWidget):
 # --------------------------------------------Connect
         self.slider_threshold()
 
-
 #_______________________________________________________________________________________________11 Add sequences to GUI (Unaligned & Aligned)
 #_______________________________________________________________________________________________
 
@@ -1420,13 +1422,14 @@ class codon(QWidget):
         layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
         layout_consensus_protein.addSpacing(5)
 
-        for aa in protein_consensus_str:
+        for aa in protein_consensus_str.strip():
             lbl = QLabel(aa)
             lbl.setFixedSize(45, 20)
             lbl.setAlignment(Qt.AlignCenter)
             lbl.setStyleSheet('color:#FFA500;')
             layout_consensus_protein.addWidget(lbl)
             group['consensus_seq_codon_protein'] = protein_consensus_str
+            print(aa)
 
 # --------------------------------------------Others
         return consensus_str, protein_consensus_str
@@ -1452,12 +1455,13 @@ class codon(QWidget):
 
 
 # --------------------------------------------Main
+
         self.widget_global = QWidget()
         layout_global = QHBoxLayout()
         layout_global.setContentsMargins(5,0,0,0)
         layout_global.setSpacing(0)
         self.widget_global.setLayout(layout_global)
-        self.layout_codon_l3.addStretch(1)
+#        self.layout_codon_l3.addStretch(1)
         self.layout_codon_l3.addWidget(self.widget_global, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Sub-elements
@@ -1516,10 +1520,11 @@ class codon(QWidget):
                 global_p_consensus_str = str(protein_consensus)
 
                 # --------------------------------------------Main_Protein Consensus
-                self.widget_global_protein = QWidget()
-                self.widget_global_protein.setObjectName('widget_global_protein')
+
+                self.widget_global_protein = QWidget()  
+                self.widget_global_protein.setObjectName('widget_global_protein')    
                 layout_global_protein = QHBoxLayout()
-                layout_global_protein.setContentsMargins(5, 0, 0, 0)
+                layout_global_protein.setContentsMargins(5,0,0,0)
                 layout_global_protein.setSpacing(0)
                 self.widget_global_protein.setLayout(layout_global_protein)
                 self.layout_codon_l3.addWidget(self.widget_global_protein, alignment=Qt.AlignLeft)
@@ -1537,20 +1542,19 @@ class codon(QWidget):
                 layout_global_protein.addSpacing(5)
 
                 for aa in global_p_consensus_str:
-                    lbl = QLabel(aa)
-                    lbl.setFixedSize(45, 20)
-                    lbl.setAlignment(Qt.AlignCenter)
-                    lbl.setStyleSheet('color:#FFA500;')
-                    layout_global_protein.addWidget(lbl)
-
-#                group['consensus_seq_codon_protein'] = protein_consensus_str
+                    if aa != "":
+                        lbl = QLabel(aa)
+                        lbl.setFixedSize(45, 20)
+                        lbl.setAlignment(Qt.AlignCenter)
+                        lbl.setStyleSheet('color:#FFA500;')
+                        layout_global_protein.addWidget(lbl)
 
             except Exception as e:
                 print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
 
-
 # --------------------------------------------Others
         return global_p_consensus_str
+
 
 
 #_______________________________________________________________________________________________13 Color Code Aligned Sequences
@@ -1796,78 +1800,6 @@ class codon(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def todelbuild_secondary_structure_offline(self, fasta_file, psipred_dir):
-# . . .  CLEAR GUI . . .
-        # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
-        if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
-            self.layout_codon_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
-            self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
-            self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
-            self.widget_horizontal = None                                                   # no widget global
-
-# --------------------------------------------Action
-        # ---1 Set files
-        base = os.path.splitext(os.path.basename(fasta_file))[0]                            # Extract FASTA Filename
-        os.makedirs(self.out_folder, exist_ok=True)                                              # 
-        horiz_file = f"{self.out_folder}/{base}.horiz"
-
-        print("Looking for HORIZ file at:", horiz_file)
-
-        # ---2 Run PSIPRED
-        # with PSI-BLAST
-        try:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            if self.cancelled:
-                self.widget_progress.reject()
-                return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            shell_tcsh = os.path.join(self.base_path, 'external_tools', 'cygwin', 'bin', 'tcsh.exe')
-            runpsipred = os.path.join(psipred_dir, 'BLAST+', 'runpsipredplus')
-            blastdb_path = os.path.join(psipred_dir, "BLAST+", "blastdb")
-            env = os.environ.copy()
-            env["BLASTDB"] = blastdb_path
-            system = platform.system()
-
-            if system == 'Windows':
-                subprocess.run([shell_tcsh, runpsipred, fasta_file], check=True, env=env, cwd=self.out_folder)
-                print("Run runpsipredplus + PSI-BLAST")
-            elif system == 'Linux' or system == 'Darwin':
-                if shutil.which('tcsh') is None:
-                    self.show_tcsh_warning()
-                    return
-                else:
-                    subprocess.run([runpsipred, fasta_file], check=True, env=env, cwd=self.out_folder)
-
-        # without PSI-BLAST
-        except subprocess.CalledProcessError as e:
-            print('Run runpsipred_single instead...')
-            try:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                if self.cancelled:
-                    self.widget_progress.reject()
-                    return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
-                subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.out_folder)
-                print("Run runpsipred_single")
-            except (subprocess.CalledProcessError, FileNotFoundError, OSError) as e:
-                print("Both runpsipred and runpsipred_single failed.")
-                raise e                
-
-        # ---3 Extract data from output: horiz file
-        if not os.path.exists(horiz_file):
-            raise FileNotFoundError(f"Expected output file {horiz_file} not found!")
-        with open(horiz_file, "r") as f:
-            self.prediction_text = f.read()
-        return self.prediction_text
-
-
-
-
-
-#_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
-#________________________________________________________________________________________PSIPRED
-
     def build_secondary_structure_online(self, fasta_file):
         print('online')
 
@@ -1957,7 +1889,7 @@ class codon(QWidget):
         layout_horizontal.addWidget(invisible_checkbox)
    
         invisible_label = QLabel('')
-        invisible_label.setFixedSize(118,20)
+        invisible_label.setFixedSize(117,20)
         layout_horizontal.addWidget(invisible_label, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Action
@@ -2027,7 +1959,7 @@ class codon(QWidget):
                 ax.plot([start, end], [0.5, 0.5], color='gray', linewidth=1.2)
 
         # ---3 Create Plot Figure
-        ax.set_xlim(0, len(aa))
+        ax.set_xlim(0, len(final_pred))
         ax.set_ylim(0, 1)
         ax.axis('off')
         plt.tight_layout(pad=0)

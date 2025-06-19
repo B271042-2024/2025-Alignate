@@ -139,9 +139,9 @@ TO-DO
 ** Prolly remove all other than Linux
 ** Prolly remove this for ss prediction - Online or offline mode **try to make it work
 ** See if psipred single works
-** Fix the alignment for %Conservation by ss
 ** Fix the max seq length to 1000
 ### - NEED TO INSTALL SOFTWARES & PYTHON DEPENDENCIES FROM .gitignore - ###
 ### -  POSSIBLY DELETE ALL FOR MAC & WINDOWS SINCE PSIPRED DON'T WORK - ###
+** seqname w special characters - replace w _ (from inputtext n file dou)
 
 </pre>
