@@ -1,7 +1,7 @@
 import sys, re, subprocess, tempfile, os, shutil, json, zipfile, tempfile, platform, uuid, requests, time
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QGroupBox, QRadioButton, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
-from PySide6.QtCore import QSize, Qt, QPoint
+from PySide6.QtWidgets import QToolTip, QGroupBox, QRadioButton, QProgressBar, QFileDialog, QMessageBox, QDialog, QTextEdit, QDialogButtonBox, QLayout, QScrollArea, QSizePolicy, QApplication, QMainWindow, QWidget, QCheckBox, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QSlider
+from PySide6.QtCore import QSize, Qt, QPoint, Signal, QThread
 from Bio import SeqIO, AlignIO
 from Bio.Align import MultipleSeqAlignment, AlignInfo
 from Bio.SeqRecord import SeqRecord
@@ -18,11 +18,169 @@ from support_files.ruler import ruler, ClickableLabel
 
 
 
+
+
+class AlignmentWorker(QThread):
+    finished = Signal(list)
+    error = Signal(str)
+    aligned_aa_signal = Signal(str)
+
+    def __init__(self, sequences, button_aln, parent=None):
+        super().__init__(parent)
+        self.sequences = sequences
+        self.button_aln = button_aln
+        self.output_file = None
+
+    def run(self):
+        aligned_seq = []
+
+        # Write FASTA file for alignment (Feed in sequences)
+        uid = uuid.uuid4().hex[:12]
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
+        temp_dir = os.path.join(self.base_path, 'tmp_files')
+        os.makedirs(temp_dir, exist_ok=True)
+
+        basename = f"consensus_{uid}"
+        temp_fasta = os.path.join(temp_dir, f"{basename}.fasta")
+        aa_output_file = os.path.join(temp_dir, f"{basename}_aa.fasta")
+        self.aligned_aa_output_file = os.path.join(temp_dir, f"{basename}_aa.aln")
+        output_file = os.path.join(temp_dir, f"{basename}.aln")
+        
+        with open(temp_fasta, 'w') as fasta_out:
+            for name, seq in self.sequences:
+                if not name or not seq:
+                    QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
+                    return
+                if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
+                    QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **For codon sequences only. Special characters are not allowed.')
+                    return
+                if '|' in name:
+                    clean_id = name.split('|')[-1].split()[0]       # [-1] begin from the end
+                    fasta_out.write(f'>{clean_id}\n{seq}\n')
+                else:
+                    fasta_out.write(f'>{name}\n{seq}\n')
+
+# -------1 Translate codon sequences using biopython (output_tmp_files)
+        translated_records = []
+        for record in SeqIO.parse(temp_fasta, "fasta"):
+            aa_seq = record.seq.translate(to_stop=True)
+            if '|' in record.id:
+                clean_id = record.id.split('|')[-1].split()[0]                  # [-1] begin from the end
+                translated_record = SeqRecord(aa_seq, id=clean_id, description="")
+            else:
+                translated_record = SeqRecord(aa_seq, id=record.id, description="")
+            translated_records.append(translated_record)
+        SeqIO.write(translated_records, aa_output_file, "fasta")
+
+# -------2 Run Alignment: AA Sequences via mafft or clustalO
+        try:
+            # MAFFT 
+            if self.button_aln.text() == 'MAFFT':
+                mafft_path = "./external_tools/mafft_linux/mafft"
+                with open(self.aligned_aa_output_file, 'w') as out:
+                    subprocess.run([mafft_path, '--anysymbol', '--genafpair', '--maxiterate', '10000', aa_output_file], check=True, stdout=out)
+            # ClustalO
+            elif self.button_aln.text() == 'ClustalO':
+                clustalo_path = "./external_tools/clustalo_linux/clustalo"
+                with open(self.aligned_aa_output_file, 'w') as out:
+                    subprocess.run([clustalo_path, '-i', aa_output_file, '-o', self.aligned_aa_output_file, '--dealign', '--force'], check=True, stdout=out)
+            # Neither
+            else:
+                QMessageBox.warning(self, 'Error', 'Error: Failed to select alignment method. Please contact Alignate.')
+                return
+        except Exception as e:
+            QMessageBox.critical(self, f'{self.button_aln.text()} error', str(e))
+            return
+
+
+# -------3 Run Alignment: Codon Sequences via tranalign
+        tranalign_path = "./external_tools/tranalign/bin/tranalign"
+        if not os.path.exists(self.aligned_aa_output_file) or os.path.getsize(self.aligned_aa_output_file) == 0:
+            QMessageBox.warning(self, "Error", "Aligned amino acid output is missing or empty.")
+            return
+
+        try:
+            with open(output_file, 'w') as out:
+                subprocess.run([tranalign_path, '-bsequence' , self.aligned_aa_output_file, '-asequence', temp_fasta, '-outseq',  output_file], check=True, stdout=out)
+        except Exception as e:
+            QMessageBox.critical(self, "Tranalign alignment failed.", str(e))
+            return
+# ------4 Parse file and get aligned sequences
+        for record in SeqIO.parse(output_file, 'fasta'):
+            aligned_seq.append((record.id, str(record.seq)))                # extract name and seq for aligned sequences
+
+        # emit signals
+        self.aligned_aa_signal.emit(self.aligned_aa_output_file)
+        self.finished.emit(aligned_seq)
+
+
+
+
+class AlignmentDialog(QDialog):
+    def __init__(self, sequences, button_aln, callback_fn,
+                 group=None, layout=None, output_file=None, return_only=False, seq_map=None,
+                 parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Processing...")
+        self.setModal(True)
+        self.layout = QVBoxLayout(self)
+
+        self.callback_fn = callback_fn
+        self.group = group
+        self.layout_param = layout
+        self.output_file = output_file
+        self.return_only = return_only
+        self.seq_map = seq_map
+        self.sequences = sequences
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 0)
+        self.layout.addWidget(self.progress_bar)
+
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.clicked.connect(self.reject)
+        self.layout.addWidget(self.cancel_button)
+
+        self.worker = AlignmentWorker(sequences, button_aln)
+        self.worker.aligned_aa_signal.connect(self.receive_aa_aligned_file)
+        self.worker.finished.connect(self.on_finished)
+        self.worker.error.connect(self.show_error)
+        self.worker.start()
+
+    def receive_aa_aligned_file(self, aa_path: str):
+        self.aa_aligned_path = aa_path
+
+    def on_finished(self, aligned):
+        print("[DEBUG] Alignment complete, closing dialog.")
+        self.accept()
+        try:
+            self.callback_fn(
+                sequences=self.sequences,
+                aligned_seq=aligned,
+                group=self.group,
+                layout=self.layout_param,
+                button_aln=None,  # already used, optional here
+                output_file=self.aa_aligned_path,
+                return_only=self.return_only,
+                seq_map=self.seq_map
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Callback Error", str(e))
+
+    def show_error(self, message):
+        QMessageBox.critical(self, "Alignment Error", message)
+        self.reject()
+
+
+
+
+
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________2 CLASS: Toolbar - codon
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________
+
 
 
 
@@ -40,11 +198,7 @@ class codon(QWidget):
         self.widget_toggles = []                                        # FOR MENU2_HIDE TOGGLES
         self.is_alignall = False
         self.seq_map = None
-
-        # QC System
-#        if shutil.which('tcsh') is None:
-#            self.show_tcsh_warning()
-
+        self.similarity_color = 'darkmagenta'
 
 # --------------------------------------------Main
         # ---Layer 1
@@ -86,6 +240,7 @@ class codon(QWidget):
 
         # ---Drawing Canvas (In Layer 4)
         self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
+        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
         self.canvas.setFixedHeight(40)
         self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.layout_codon_l4.addWidget(self.canvas)
@@ -95,6 +250,7 @@ class codon(QWidget):
         # # 1 Button 1
         self.button1_addgroup = QPushButton('+Group')
         self.button1_addgroup.setFixedSize(QSize(60,28))
+        self.button1_addgroup.setToolTip('Click to add more group(s).')
         self.button1_addgroup.setStyleSheet(
             """QPushButton {background-color: #00008B; color: white; font-weight: bold;}
             QPushButton:hover {background-color: #6495ED; color: white;}"""
@@ -102,12 +258,14 @@ class codon(QWidget):
         # # 2 Button 2
         self.button2_alignall = QPushButton('Align all')
         self.button2_alignall.setFixedSize(QSize(60,28))
+        self.button2_alignall.setToolTip(f'Click to align all sequences.\nPlease ensure that the reference group is correctly selected.')
         self.button2_alignall.setStyleSheet(
             """QPushButton {background-color: #00008B; color: white; font-weight: bold;}
             QPushButton:hover {background-color: #6495ED; color: white;}"""     
         )
         # # 3 Slider
         self.slidercon = QSlider(Qt.Horizontal)
+        self.slidercon.setToolTip(f'Show %Conservation for each residue position: \nTick the right checkbox and move slider.')
         self.slidercon.setValue(100)
         self.slidercon.setMinimum(10)
         self.slidercon.setMaximum(100)
@@ -116,9 +274,10 @@ class codon(QWidget):
         self.slidercon.setFixedSize(120,20)
         self.slidercon.valueChanged.connect(self.slider_threshold)
         self.checkboxslider = QCheckBox()
+        self.checkboxslider.setToolTip('Tick to activate slider.')
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
-        labelslider = QLabel('Tick to activate show/hide columns based on %conservation')
+        labelslider = QLabel('Show only residue positions with selected %Conservation')
         # # Add widgets to parent widget
         self.widget_codon_buttons = QWidget()
         self.layout_codon_buttons = QHBoxLayout()
@@ -164,7 +323,19 @@ class codon(QWidget):
         msg.show()
 
 
-#_______________________________________________________________________________________________2 DEF: Search Sequence
+#_______________________________________________________________________________________________2 DEF: Set color for alignment
+#_______________________________________________________________________________________________
+
+    def set_similarity_color(self, color):
+        self.similarity_color = color
+        # Reapply coloring based on current alignment mode
+        if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+            self.color_code_seq(seq_map=self.seq_map, mode="all")
+        else:
+            for idx, group in enumerate(self.groups):
+                self.color_code_seq(mode="group", group_idx=idx)
+
+#_______________________________________________________________________________________________3 DEF: Search Sequence
 #_______________________________________________________________________________________________
 
     def search_sequences(self, widget_search_seq):
@@ -529,14 +700,19 @@ class codon(QWidget):
 
         lineedit_groupname = QLineEdit('Group'+str(groupno))
         lineedit_groupname.setFixedWidth(120)
+        lineedit_groupname.setToolTip('Suggestion: Use scientific name!')
         button2_removegroup = QPushButton('-Group')
         button2_removegroup.setFixedWidth(60)
+        button2_removegroup.setToolTip('Click to remove group.')
         button3_addseq = QPushButton('+')
         button3_addseq.setFixedWidth(30)
+        button3_addseq.setToolTip('Click to add sequence(s) to this group.')
         button4_removeseq = QPushButton('-')
         button4_removeseq.setFixedWidth(30)
+        button4_removeseq.setToolTip('Tick the row(s) below to mark for deletion and click to remove.')
         button5_align = QPushButton('Align')
         button5_align.setFixedWidth(60)
+        button5_align.setToolTip('Click to align sequences in this group only.')
         button5_align.setStyleSheet("""
             QPushButton {background-color: #00008B; color: white; font-weight: bold;}
             QPushButton:hover {background-color: #6495ED; color: white;}""")
@@ -928,59 +1104,19 @@ class codon(QWidget):
         widget_dialogbox_alignall.exec()
 
 
-#_______________________________________________________________________________________________10-1 DEF: Set path for MAFFT
-#__________________________________________________________________________________________ALIGN
-
-    def get_mafft_path(self):
-        if sys.platform.startswith('win'):                                                  # win
-            return os.path.join(self.base_path, 'external_tools', 'mafft_win64', 'mafft.bat')
-        elif sys.platform.startswith('darwin'):                                             # macOS
-            return os.path.join(self.base_path, 'external_tools', 'mafft_mac', 'mafft')
-        elif sys.platform.startswith('linux'):                                              # linux
-            return os.path.join(self.base_path, 'external_tools', 'mafft_linux', 'mafft')
-        else:
-            raise RuntimeError('Unsupported OS')
-
-
-#_______________________________________________________________________________________________10-2 DEF: Set path for ClustalO
-#__________________________________________________________________________________________ALIGN
-
-    def get_clustalo_path(self):
-        if sys.platform.startswith('win'):
-            return os.path.join(self.base_path, 'external_tools', 'clustalo_win64', 'clustalo.exe')
-        elif sys.platform.startswith('darwin'):                                 
-            return os.path.join(self.base_path, 'external_tools', 'clustalo_mac', 'clustalo')
-        elif sys.platform.startswith('linux'):
-            return os.path.join(self.base_path, 'external_tools', 'clustalo_linux', 'clustalo')
-        else:
-            raise RuntimeError('Unsupported OS')
-
-
-#_______________________________________________________________________________________________10-3 DEF: Set path for TranAlign
-#__________________________________________________________________________________________ALIGN
-
-
-    def get_tranalign_path(self):
-        if sys.platform.startswith('win'):
-            QMessageBox.warning(self, 'Error', 'I need to find out.,')
-            return
-        elif sys.platform.startswith('darwin'):
-            QMessageBox.warning(self, 'Error', 'I need to find out')
-            return
-        elif sys.platform.startswith('linux'):
-            return os.path.join(self.base_path, 'external_tools', 'tranalign', 'bin', 'tranalign')
-        else:
-            raise RuntimeError('Unsupported OS')
-
 
 #_______________________________________________________________________________________________10-4 DEF: Run Alignment > etc.
 #_______________________________________________________________________________________________
 
     def run_alignment(self, sequences, group=None, layout=None, button_aln=None, output_file=None, return_only=False, seq_map=None):
-# --------------------------------------------Others
+    
+        print('sequences')
+        print(sequences)
+        print('---')
+
+    # --------------------------------------------Others
         # Initiation
-        self.cancelled = False                  # To cancel when analysis is running   
-        aligned_seq = []
+        self.is_searchseq = False               # Retain the color after alignment in letter
 
         # If no group is set as a reference
         any_checked = any(group['checkbox_setrefgroup'].isChecked() for group in self.groups)
@@ -991,123 +1127,25 @@ class codon(QWidget):
         if len(sequences) < 2:
             QMessageBox.warning(self, 'Error', 'Need at least 2 sequences for alignment.')
             return
-        
-        # Write FASTA file for alignment (Feed in sequences)
-        # Unique ID for this alignment session
-        uid = uuid.uuid4().hex[:12]
-
-        # Define output paths
-        temp_dir = os.path.join(self.base_path, 'tmp_files')
-        os.makedirs(temp_dir, exist_ok=True)
-
-        basename = f"consensus_{uid}"
-        temp_fasta = os.path.join(temp_dir, f"{basename}.fasta")
-        aa_output_file = os.path.join(temp_dir, f"{basename}_aa.fasta")
-        self.aligned_aa_output_file = os.path.join(temp_dir, f"{basename}_aa.aln")
-        output_file = os.path.join(temp_dir, f"{basename}.aln")
-        
-        with open(temp_fasta, 'w') as fasta_out:
-            for name, seq in sequences:
-                if not name or not seq:
-                    QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
-                    return
-                if not re.match(r'^[ACGTURYSWKMBDHVN\-]+$', seq.upper()):
-                    QMessageBox.warning(self, 'Error', f'Invalid characters found in sequence: {seq}. **For codon sequences only. Special characters are not allowed.')
-                    return
-                if '|' in name:
-                    clean_id = name.split('|')[-1].split()[0]       # [-1] begin from the end
-                    fasta_out.write(f'>{clean_id}\n{seq}\n')
-                else:
-                    fasta_out.write(f'>{name}\n{seq}\n')
-
-# --------------------------------------------Main
-        self.widget_progress = QDialog(self)
-        self.widget_progress.move(500,500)
-        self.widget_progress.setModal(True)
-        self.widget_progress.setWindowTitle('Processing...')
-        self.layout_progress = QVBoxLayout()
-        self.widget_progress.setLayout(self.layout_progress)
-
-# --------------------------------------------Sub-elements
-        # 1 Progress Bar
-        progress_bar = QProgressBar()
-        progress_bar.setRange(0,0)
-        self.layout_progress.addWidget(progress_bar)
-        # 2 Button
-        self.button_cancel = QPushButton('Cancel')
-        self.button_cancel.setFixedWidth(60)
-        self.layout_progress.addWidget(self.button_cancel)
-
-# --------------------------------------------Connect
-        # Button
-        self.button_cancel.clicked.connect(lambda: [setattr(self, 'cancelled', True), self.widget_progress.reject()])
-#           ------------------------------- Connect: Widget Progress 1 -------------------------------
-        self.widget_progress.show()
-        QApplication.processEvents()                  # make it real time
-#           ------------------------------- Connect: Widget Progress 1 -------------------------------
 
 # --------------------------------------------Actions
-
-# -------1 Translate codon sequences using biopython (output_tmp_files)
-        translated_records = []
-        for record in SeqIO.parse(temp_fasta, "fasta"):
-            aa_seq = record.seq.translate(to_stop=True)
-            if '|' in record.id:
-                clean_id = record.id.split('|')[-1].split()[0]                  # [-1] begin from the end
-                translated_record = SeqRecord(aa_seq, id=clean_id, description="")
-            else:
-                translated_record = SeqRecord(aa_seq, id=record.id, description="")
-            translated_records.append(translated_record)
-        SeqIO.write(translated_records, aa_output_file, "fasta")
-
-# -------2 Run Alignment: AA Sequences via mafft or clustalO
-        try:
-            # MAFFT 
-            if button_aln.text() == 'MAFFT':
-                mafft_path = self.get_mafft_path()
-                with open(self.aligned_aa_output_file, 'w') as out:
-                    subprocess.run([mafft_path, '--anysymbol', '--genafpair', '--maxiterate', '10000', aa_output_file], check=True, stdout=out)
-            # ClustalO
-            elif button_aln.text() == 'ClustalO':
-                clustalo_path = self.get_clustalo_path()
-                with open(self.aligned_aa_output_file, 'w') as out:
-                    subprocess.run([clustalo_path, '-i', aa_output_file, '-o', self.aligned_aa_output_file, '--dealign', '--force'], check=True, stdout=out)
-            # Neither
-            else:
-                QMessageBox.warning(self, 'Error', 'Error: Failed to select alignment method. Please contact Alignate.')
-                return
-        except Exception as e:
-            QMessageBox.critical(self, f'{button_aln.text()} error', str(e))
-            return
+# ------1 Run Alignment: MAFFT/ClustlO
+        dlg = AlignmentDialog(
+            sequences, button_aln, self.continue_run_alignment,
+            group=group, layout=layout,
+            output_file=output_file, return_only=return_only, seq_map=seq_map
+        )
+        dlg.exec()    
 
 
-# -------3 Run Alignment: Codon Sequences via tranalign
-        tranalign_path = self.get_tranalign_path()
-        if not os.path.exists(self.aligned_aa_output_file) or os.path.getsize(self.aligned_aa_output_file) == 0:
-            QMessageBox.warning(self, "Error", "Aligned amino acid output is missing or empty.")
-            return
 
-        try:
-            with open(output_file, 'w') as out:
-                subprocess.run([tranalign_path, '-bsequence' , self.aligned_aa_output_file, '-asequence', temp_fasta, '-outseq',  output_file], check=True, stdout=out)
-        except Exception as e:
-            QMessageBox.critical(self, "Tranalign alignment failed.", str(e))
-            return
-# ------4 Parse file and get aligned sequences
-        for record in SeqIO.parse(output_file, 'fasta'):
-            aligned_seq.append((record.id, str(record.seq)))                # extract name and seq for aligned sequences
+    def continue_run_alignment(self, sequences, aligned_seq, group=None, layout=None, button_aln=None, output_file=None, return_only=False, seq_map=None):
 
-#           ------------------------------- Connect: Widget Progress 2 -------------------------------
-        if self.cancelled:
-            self.widget_progress.reject()
-            return
-#           ------------------------------- Connect: Widget Progress 2 -------------------------------
+        print('aligned_seq')
+        print(aligned_seq)
+        print('---')
 
-        if return_only:                                                     # ***** to amend *****  Possibly can delete                                             
-            return aligned_seq
-    
-
-# ------5 Other actions (split by fxn: 1 Alignall & 2 Align)
+        self.aligned_aa_output_file = output_file
 
         # ---1 Alignall
         if seq_map:                                                         # created in def button2_alignall_clicked(self)
@@ -1123,12 +1161,7 @@ class codon(QWidget):
                 group['consensus_seq'] = None                               # REMOVE FROM DICT: consensus sequence 
 
             # -- 2 Connect - DEF: to add sequences to GUI
-            for (group_idx, __), (aligned_name, aligned_seq) in zip(seq_map, aligned_seq):
-#           ------------------------------- Connect: Widget Progress 3 -------------------------------
-                if self.cancelled:
-                    self.widget_progress.reject()
-                    return
-#           ------------------------------- Connect: Widget Progress 3 -------------------------------        
+            for (group_idx, __), (aligned_name, aligned_seq) in zip(seq_map, aligned_seq):       
                 group = self.groups[group_idx]                              # get each group
                 layout = group['layout_seq']                                # get sequence layout
                 if layout is None:
@@ -1137,12 +1170,6 @@ class codon(QWidget):
 
             # -- 3 Connect - DEF: Get and Display Consensus in each group
             for group in self.groups:
-#           ------------------------------- Connect: Widget Progress 4 -------------------------------
-                if self.cancelled:
-                    self.widget_progress.reject()
-                    return
-
-#           ------------------------------- Connect: Widget Progress 4 -------------------------------
                 consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, button_aln=button_aln, sequences=sequences)
 
             # -- 4 not DEF: Calculate %Base conservation
@@ -1177,11 +1204,6 @@ class codon(QWidget):
             # -- 6 Connect - DEF Get & Display on GUI (Global Consensus)
             global_p_consensus_str = self.get_global_consensus(aa_aln_file=self.aligned_aa_output_file)
             if global_p_consensus_str:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                if self.cancelled:
-                    self.widget_progress.reject()
-                    return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
                 self.out_folder = os.path.join(self.base_path, 'tmp_files')
                 global_p_consensus_file = os.path.join(self.out_folder, f"globalconsensus_{uuid.uuid4().hex}.fasta")
                 with open(global_p_consensus_file, 'w') as f:
@@ -1202,10 +1224,11 @@ class codon(QWidget):
                     self.prediction_text = self.build_secondary_structure_online(global_p_consensus_file)
 
             # -- 8 Connect - DEF Display on GUI (PSIPRED Output)
-                self.draw_secondary_structure_to_gui(self.prediction_text)
+                region_conservation = self.compute_region_conservation(self.prediction_text)
+                self.draw_secondary_structure_to_gui(self.prediction_text, region_conservation)
 
             # -- 9 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
-                self.compute_region_conservation(self.prediction_text)
+                #self.compute_region_conservation(self.prediction_text)
 
 
         # ---2 Align
@@ -1222,11 +1245,6 @@ class codon(QWidget):
             if group is not None:                                                       # group is defined from def: button5_align_clicked
                 group['widget_seq'].clear()                                             # REMOVE FROM DICT
                 for name, seq in aligned_seq:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                    if self.cancelled:
-                        self.widget_progress.reject()
-                        return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
             # 1 Connect - DEF Add aligned seq on GUI
                     self.add_sequences_toGUI(group, layout, name, seq)                  
 
@@ -1265,9 +1283,6 @@ class codon(QWidget):
                     QMessageBox.warning(self, 'Missing value', 'Consensus Sequences not found. Please contact Alignate.')
                     return
 
-# --------------------------------------------Others
-        self.widget_progress.close()
-
 # --------------------------------------------Connect
         self.slider_threshold()
 
@@ -1299,11 +1314,6 @@ class codon(QWidget):
         # 3 Sequence
         seq_letters = []
         for letter in seq:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            if self.cancelled:
-                self.widget_progress.reject()
-                return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
             seq_letter = QLabel(letter)
             seq_letter.setFixedSize(15,20)
             seq_letter.setAlignment(Qt.AlignCenter)
@@ -1481,11 +1491,6 @@ class codon(QWidget):
 # --------------------------------------------Action
         all_records = []
         for group in self.groups:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            if self.cancelled:
-                self.widget_progress.reject()
-                return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
             for entry in group['widget_seq']:
                 name = entry['seq_header'].text().strip()
                 seq = ''.join(label.text() for label in entry['seq_letters']).strip()
@@ -1572,7 +1577,7 @@ class codon(QWidget):
             return similarity        
 
         def similarity_to_color(score):
-            return mcolors.to_hex(mcolors.LinearSegmentedColormap.from_list('custom', ['white', '#5b005b'])(score))
+            return mcolors.to_hex(mcolors.LinearSegmentedColormap.from_list('custom', ['white', self.similarity_color])(score))
 
 # --------------------------------------------Main
         # ---1 Alignall
@@ -1751,11 +1756,6 @@ class codon(QWidget):
         # ---2 Run PSIPRED
         # with PSI-BLAST
         try:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-            if self.cancelled:
-                self.widget_progress.reject()
-                return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
             shell_tcsh = os.path.join(self.base_path, 'external_tools', 'cygwin', 'bin', 'tcsh.exe')
             runpsipred = os.path.join(psipred_dir, 'BLAST+', 'runpsipredplus')
             blastdb_path = os.path.join(psipred_dir, "BLAST+", "blastdb")
@@ -1777,11 +1777,6 @@ class codon(QWidget):
         except subprocess.CalledProcessError as e:
             print('Run runpsipred_single instead...')
             try:
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
-                if self.cancelled:
-                    self.widget_progress.reject()
-                    return
-#           ------------------------------- Connect: Widget Progress 5 -------------------------------
                 runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
                 subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.out_folder)
                 print("Run runpsipred_single")
@@ -1872,7 +1867,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________16 PSIPRED: DISPLAY ON GUI
 #________________________________________________________________________________________PSIPRED
 
-    def draw_secondary_structure_to_gui(self, prediction_text):
+    def todeldraw_secondary_structure_to_gui(self, prediction_text):
 # --------------------------------------------Main
         self.widget_horizontal = QWidget()
         layout_horizontal = QHBoxLayout()
@@ -1942,7 +1937,8 @@ class codon(QWidget):
         fig_width = len(final_pred) * width_per_residue                             # Figure width
         fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
         i=0
-        while i < len(pred):
+        troubleshoot = []
+        while i < len(final_pred):
             ss = final_pred[i]                                                    # Secondary structure at pos i
             start = i                                                       # Start at pos i
             while i < len(final_pred) and final_pred[i] == ss:
@@ -1951,12 +1947,19 @@ class codon(QWidget):
 
             if ss == 'H':
                 rect = Rectangle((start, 0.1), end - start, 0.8, linewidth=1, edgecolor='red', facecolor='red', alpha=0.4)  # (x,y), width, height, border thickness, border color, fill color, semi-transparent      
-                ax.add_patch(rect)                                                                                          # add rect to plot
+                ax.add_patch(rect)   
+                troubleshoot.append(f'H: {start}, {end}')                                                                                                       # add rect to plot
             elif ss == 'E':
                 arrow = FancyArrow(start, 0.5, end - start - 0.2, 0, width=0.3, length_includes_head=True, head_width=0.5, head_length=0.3, color='blue') # x,y,x-length, y-change, ...
                 ax.add_patch(arrow)
+                troubleshoot.append(f'E: {start}, {end}')                
             else:
                 ax.plot([start, end], [0.5, 0.5], color='gray', linewidth=1.2)
+                troubleshoot.append(f'C: {start}, {end}')
+
+        print('troubleshoo:')
+        print(troubleshoot)
+        print('troubleshoo end')
 
         # ---3 Create Plot Figure
         ax.set_xlim(0, len(final_pred))
@@ -1977,7 +1980,7 @@ class codon(QWidget):
 
 
 
-    def todeldraw_secondary_structure_to_gui(self, prediction_text):
+    def draw_secondary_structure_to_gui(self, prediction_text, region_conservation=None):
 # --------------------------------------------Main
         self.widget_horizontal = QWidget()
         layout_horizontal = QHBoxLayout()
@@ -1994,7 +1997,7 @@ class codon(QWidget):
         layout_horizontal.addWidget(invisible_checkbox)
    
         invisible_label = QLabel('')
-        invisible_label.setFixedSize(118,20)
+        invisible_label.setFixedSize(117,20)
         layout_horizontal.addWidget(invisible_label, alignment=Qt.AlignLeft)
 
 # --------------------------------------------Action
@@ -2010,29 +2013,69 @@ class codon(QWidget):
                 if len(parts) > 1:
                     pred += parts[1]
 
+
+# -------------------------- for aligned reference sequence ---------------------------
+        # 1 get aligned aa - find where it is
+        refseq = ""
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refseq = group['widget_seq'][0]['seq']
+
+        # 2 if -, check aa b4 & after
+        final_pred = []
+        pred_idx = 0
+        for i in range(0, len(refseq), 3):
+            codon = refseq[i:i+3]
+            if codon == '---':
+                final_pred.append('C')  # fallback for gapped codon
+            else:
+                if pred_idx < len(pred):
+                    final_pred.append(pred[pred_idx])
+                    pred_idx += 1
+                else:
+                    final_pred.append('C')  # fallback if pred string runs out
+
+        print('refseq starts 2')
+        print(refseq)
+        print('refseq ends 2')
+        print('final pred start')
+        print(''.join(final_pred))
+        print('final_pred ends')
+ # -------------------------- for aligned reference sequence ---------------------------
+
+
+
         # ---2 Turn C, E, H into symbols: ---, Arrow, Box
         width_per_residue = 0.15 * 3                                            # Width per base: 15 pixels
-        fig_width = len(aa) * width_per_residue                             # Figure width
+        fig_width = len(final_pred) * width_per_residue                             # Figure width
         fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
         i=0
-        while i < len(pred):
-            ss = pred[i]                                                    # Secondary structure at pos i
+        troubleshoot = []
+        while i < len(final_pred):
+            ss = final_pred[i]                                                    # Secondary structure at pos i
             start = i                                                       # Start at pos i
-            while i < len(pred) and pred[i] == ss:
+            while i < len(final_pred) and final_pred[i] == ss:
                 i += 1
             end = i
 
             if ss == 'H':
                 rect = Rectangle((start, 0.1), end - start, 0.8, linewidth=1, edgecolor='red', facecolor='red', alpha=0.4)  # (x,y), width, height, border thickness, border color, fill color, semi-transparent      
-                ax.add_patch(rect)                                                                                          # add rect to plot
+                ax.add_patch(rect)   
+                troubleshoot.append(f'H: {start}, {end}')                                                                                                       # add rect to plot
             elif ss == 'E':
                 arrow = FancyArrow(start, 0.5, end - start - 0.2, 0, width=0.3, length_includes_head=True, head_width=0.5, head_length=0.3, color='blue') # x,y,x-length, y-change, ...
                 ax.add_patch(arrow)
+                troubleshoot.append(f'E: {start}, {end}')                
             else:
                 ax.plot([start, end], [0.5, 0.5], color='gray', linewidth=1.2)
+                troubleshoot.append(f'C: {start}, {end}')
+
+        print('troubleshoo:')
+        print(troubleshoot)
+        print('troubleshoo end')
 
         # ---3 Create Plot Figure
-        ax.set_xlim(0, len(aa))
+        ax.set_xlim(0, len(final_pred))
         ax.set_ylim(0, 1)
         ax.axis('off')
         plt.tight_layout(pad=0)
@@ -2043,14 +2086,166 @@ class codon(QWidget):
         # ---4 Convert to QPixmap and Display on GUI
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.getvalue())
-        label = QLabel()
-        label.setPixmap(pixmap)
+        label = StructureLabel(pixmap, "\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
+#        label = QLabel()
+#        label.setPixmap(pixmap)
         layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
+
 
 
 
 #_______________________________________________________________________________________________16 PSIPRED: COMPUTE REGION %CONSERVATIVE
 #________________________________________________________________________________________PSIPRED
+
+    def todelcompute_region_conservation(self, prediction_text):
+# --------------------------------------------Action
+        # ---1 Get Reference Consensus Sequence
+        ref_cons = None
+        target_cons = None
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                ref_cons = group.get('consensus_seq')
+                break
+        if not ref_cons:
+            return
+
+# . . .  CLEAR GUI . . .
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                continue
+            layout = group['layout_seq']
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if widget and widget.objectName() == "conservation_block":
+                    layout.removeWidget(widget)
+                    widget.deleteLater()
+
+        # ---3 Get Target Consensus Sequence
+            target_cons = group.get('consensus_seq')
+            if not target_cons:
+                continue
+
+            # ---4 Parse horiz_rile: Prediction Text
+        aa, pred = '', ''
+        for line in prediction_text.splitlines():
+            if 'AA:' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    aa += parts[1]                                                  # extract the seq after 'AA:' (AA Seq)
+            elif 'Pred:' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    pred += parts[1]  
+
+
+
+# -------------------------- for aligned reference sequence ---------------------------
+        # 1 get aligned aa - find where it is
+        refseq = None
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refseq = group['widget_seq'][0]['seq']
+
+        print('refseq:')
+        print(refseq)
+        print('---')
+
+       # 2 if -, check aa b4 & after
+        final_pred = []
+        pred_idx = 0
+        for i in range(0, len(refseq), 3):
+            codon = refseq[i:i+3]
+            if codon == '---':
+                final_pred.append('C')  # fallback for gapped codon
+            else:
+                if pred_idx < len(pred):
+                    final_pred.append(pred[pred_idx])
+                    pred_idx += 1
+                else:
+                    final_pred.append('C')  # fallback if pred string runs out
+
+
+        print('ref_cons', len(ref_cons))
+        print('refseq:', len(refseq))
+        print(final_pred)
+        print('final_pred:', len(final_pred))
+
+
+# -------------------------- end: for aligned reference sequence ---------------------------
+            # ---5 Collect data
+        regions = []
+        current_type = None
+        start = None
+        for i, ss in enumerate(final_pred):
+            if ss in ['H', 'E']:
+                if current_type != ss:                                              # If H/E but different from previous one
+                    if current_type and start is not None:                          #
+                        regions.append((current_type, start, i - 1))                # Save the previous region from start to i-1
+                    current_type = ss                                               #
+                    start = i
+                # only add when it is H/E and different from the previous stored ss. If they are similar, keep looping (i++)
+            else:                                                                   # If Coil, terminate the current region
+                if current_type:                                                    #
+                    regions.append((current_type, start, i - 1))                    #
+                    current_type = None                                             # SS restarts
+                    start = None                                                    # Start index restarts
+
+        if current_type and start is not None:                                      # For the last base
+            regions.append((current_type, start, len(final_pred) - 1))                    # e.g. ('H', 3, 10) = Helix from pos 3 to 10
+
+# --------------------------------------------Main
+        widget_result = QWidget()
+        widget_result.setObjectName("conservation_block")
+        layout_result = QHBoxLayout()
+        layout_result.setContentsMargins(5, 0, 0, 0)
+        layout_result.setSpacing(0)
+        invisible_checkbox = QCheckBox()
+        invisible_checkbox.setEnabled(False)
+        invisible_checkbox.setStyleSheet('background: transparent; border: none;')
+        layout_result.addWidget(invisible_checkbox)
+        lbl_second = QLabel('%Conservation')
+        lbl_second.setObjectName("lbl_second")
+        lbl_second.setFixedSize(120,20)
+        layout_result.addWidget(lbl_second, alignment=Qt.AlignLeft)
+
+# --------------------------------------------Action
+        # ---6 Pre-fill all columns with empty labels
+        total_cols = len(ref_cons)
+        labels = [QLabel('') for _ in range(total_cols)]
+        for lbl in labels:
+            lbl.setFixedSize(45, 20)
+            lbl.setAlignment(Qt.AlignCenter)
+            layout_result.addWidget(lbl)
+
+        # ---7 Fill labels only at the midpoint of each region
+        for ss_type, start, end in regions:
+            codon_start = start * 3
+            codon_end = (end  + 1) * 3 - 1
+            match_count = sum(
+                1 for i in range(codon_start, codon_end + 1)
+                if i < len(target_cons) and i < len(ref_cons) and target_cons[i] == ref_cons[i]
+            )
+            total = codon_end - codon_start + 1
+            percent = (match_count / total) * 100 if total else 0
+            mid = (start + end) // 2
+            if mid < len(labels):
+                labels[mid].setText(f"{int(percent)}")
+                labels[mid].setStyleSheet("color: grey; font-size: 8px; padding: 0px;")
+                labels[mid].setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+                labels[mid].setAlignment(Qt.AlignCenter)                                                # consensus_str (codon)
+
+# --------------------------------------------Main
+        widget_result.setLayout(layout_result)
+        main_widget_result = QWidget()
+        main_layout_result = QHBoxLayout()
+        main_layout_result.setContentsMargins(0,0,0,0)
+        main_layout_result.setSpacing(0)
+        main_widget_result.setLayout(main_layout_result)
+        main_layout_result.addWidget(widget_result, alignment=Qt.AlignLeft)
+        layout.addWidget(main_widget_result)
+
+
+
 
     def compute_region_conservation(self, prediction_text):
 # --------------------------------------------Action
@@ -2081,64 +2276,86 @@ class codon(QWidget):
                 continue
 
             # ---4 Parse horiz_rile: Prediction Text
-            aa, pred = '', ''
-            for line in prediction_text.splitlines():
-                if 'AA:' in line:
-                    parts = line.strip().split()
-                    if len(parts) > 1:
-                        aa += parts[1]                                                  # extract the seq after 'AA:' (AA Seq)
-                elif 'Pred:' in line:
-                    parts = line.strip().split()
-                    if len(parts) > 1:
-                        pred += parts[1]  
+        aa, pred = '', ''
+        for line in prediction_text.splitlines():
+            if 'AA:' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    aa += parts[1]                                                  # extract the seq after 'AA:' (AA Seq)
+            elif 'Pred:' in line:
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    pred += parts[1]  
 
+
+
+# -------------------------- for aligned reference sequence ---------------------------
+        # 1 get aligned aa - find where it is
+        refseq = None
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                refseq = group['widget_seq'][0]['seq']
+
+        print('refseq:')
+        print(refseq)
+        print('---')
+
+       # 2 if -, check aa b4 & after
+        final_pred = []
+        pred_idx = 0
+        for i in range(0, len(refseq), 3):
+            codon = refseq[i:i+3]
+            if codon == '---':
+                final_pred.append('C')  # fallback for gapped codon
+            else:
+                if pred_idx < len(pred):
+                    final_pred.append(pred[pred_idx])
+                    pred_idx += 1
+                else:
+                    final_pred.append('C')  # fallback if pred string runs out
+
+
+        print('ref_cons', len(ref_cons))
+        print('refseq:', len(refseq))
+        print(final_pred)
+        print('final_pred:', len(final_pred))
+
+
+# -------------------------- end: for aligned reference sequence ---------------------------
             # ---5 Collect data
-            regions = []
-            current_type = None
-            start = None
-            for i, ss in enumerate(pred):
-                if ss in ['H', 'E']:
-                    if current_type != ss:                                              # If H/E but different from previous one
-                        if current_type and start is not None:                          #
-                            regions.append((current_type, start, i - 1))                # Save the previous region from start to i-1
-                        current_type = ss                                               #
-                        start = i
-                    # only add when it is H/E and different from the previous stored ss. If they are similar, keep looping (i++)
-                else:                                                                   # If Coil, terminate the current region
-                    if current_type:                                                    #
-                        regions.append((current_type, start, i - 1))                    #
-                        current_type = None                                             # SS restarts
-                        start = None                                                    # Start index restarts
+        regions = []
+        current_type = None
+        start = None
+        for i, ss in enumerate(final_pred):
+            if ss in ['H', 'E']:
+                if current_type != ss:                                              # If H/E but different from previous one
+                    if current_type and start is not None:                          #
+                        regions.append((current_type, start, i - 1))                # Save the previous region from start to i-1
+                    current_type = ss                                               #
+                    start = i
+                # only add when it is H/E and different from the previous stored ss. If they are similar, keep looping (i++)
+            else:                                                                   # If Coil, terminate the current region
+                if current_type:                                                    #
+                    regions.append((current_type, start, i - 1))                    #
+                    current_type = None                                             # SS restarts
+                    start = None                                                    # Start index restarts
 
-            if current_type and start is not None:                                      # For the last base
-                regions.append((current_type, start, len(pred) - 1))                    # e.g. ('H', 3, 10) = Helix from pos 3 to 10
-
-# --------------------------------------------Main
-            widget_result = QWidget()
-            widget_result.setObjectName("conservation_block")
-            layout_result = QHBoxLayout()
-            layout_result.setContentsMargins(5, 0, 0, 0)
-            layout_result.setSpacing(0)
-            invisible_checkbox = QCheckBox()
-            invisible_checkbox.setEnabled(False)
-            invisible_checkbox.setStyleSheet('background: transparent; border: none;')
-            layout_result.addWidget(invisible_checkbox)
-            lbl_second = QLabel('%Conservation')
-            lbl_second.setObjectName("lbl_second")
-            lbl_second.setFixedSize(120,20)
-            layout_result.addWidget(lbl_second, alignment=Qt.AlignLeft)
+        if current_type and start is not None:                                      # For the last base
+            regions.append((current_type, start, len(final_pred) - 1))                    # e.g. ('H', 3, 10) = Helix from pos 3 to 10
 
 # --------------------------------------------Action
-        # ---6 Pre-fill all columns with empty labels
-            total_cols = len(ref_cons)
-            labels = [QLabel('') for _ in range(total_cols)]
-            for lbl in labels:
-                lbl.setFixedSize(45, 20)
-                lbl.setAlignment(Qt.AlignCenter)
-                layout_result.addWidget(lbl)
-
         # ---7 Fill labels only at the midpoint of each region
-            for ss_type, start, end in regions:
+        result = []
+        for ss_type, start, end in regions:
+            entry = {"type": ss_type, "start": start, "end": end, "group_scores": {}}
+            for group in self.groups:
+                group_name = group['lineedit_groupname'].text()
+                if group['checkbox_setrefgroup'].isChecked():
+                    continue
+                target_cons = group.get('consensus_seq')
+                if not target_cons:
+                    continue
+
                 codon_start = start * 3
                 codon_end = (end  + 1) * 3 - 1
                 match_count = sum(
@@ -2147,19 +2364,30 @@ class codon(QWidget):
                 )
                 total = codon_end - codon_start + 1
                 percent = (match_count / total) * 100 if total else 0
-                mid = (start + end) // 2
-                if mid < len(labels):
-                    labels[mid].setText(f"{int(percent)}")
-                    labels[mid].setStyleSheet("color: grey; font-size: 8px; padding: 0px;")
-                    labels[mid].setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
-                    labels[mid].setAlignment(Qt.AlignCenter)                                                # consensus_str (codon)
+                entry['group_scores'][group_name] = percent
+            result.append(entry)
 
-# --------------------------------------------Main
-            widget_result.setLayout(layout_result)
-            main_widget_result = QWidget()
-            main_layout_result = QHBoxLayout()
-            main_layout_result.setContentsMargins(0,0,0,0)
-            main_layout_result.setSpacing(0)
-            main_widget_result.setLayout(main_layout_result)
-            main_layout_result.addWidget(widget_result, alignment=Qt.AlignLeft)
-            layout.addWidget(main_widget_result)
+            print('result')
+            print(result)
+            print('---')
+
+        return result
+
+
+
+
+#_______________________________________________________________________________________________18 PSIPRED: For %Conservation per SS
+#________________________________________________________________________________________PSIPRED
+
+class StructureLabel(QLabel):
+    def __init__(self, pixmap, tooltip_text, parent=None):
+        super().__init__(parent)
+        self.setPixmap(pixmap)
+        self.tooltip_text = tooltip_text
+
+    def enterEvent(self, event):
+        QToolTip.showText(event.globalPosition().toPoint(), self.tooltip_text, self)
+
+    def leaveEvent(self, event):
+        QToolTip.hideText()
+

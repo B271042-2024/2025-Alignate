@@ -47,11 +47,13 @@ Output	: .alignate, .fa, .txt, .png, .pdf
 				- %Conservation is positioned in each group, in consensus row.
 			- Conservation percentage of each group in secondary structure (alpha helix and beta sheet ONLY).
 				- %Conservation is positioned in each group, below consensus row.
-		- Secondary structure prediction via PSIPRED V4
+		- Secondary structure prediction via PSIPRED V4 (H: Helix, E: Strand, C: Coil)
+			- The first sequence in reference sequence is used to build secondary structure (**IMPORTANT)
 			- Two modes:
 				- Default: PSIPRED with BLAST+
 				- If not found, PSIPRED single will be used (No BLAST+)
 			- Run Online or offline
+			- Hover on secondary structure to see %Conservation of each group against the reference group
 
 <b><i>Codon</i></b>
 1. Add Group by pressing button '+Group'. To remove, please press button '-Group'.

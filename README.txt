@@ -18,11 +18,8 @@ INSTALLATION
 
 
 3. Install external tools in external_folder
-clustalo v1.2.2
-mafft v5.246
-psipred v + BLAST+
-tranAlign v
-
+1. psipred v + BLAST+
+2. Place the folder in external_tools/ and rename the psipred folder to psipred
 
 
 TO RUN,

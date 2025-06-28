@@ -75,6 +75,7 @@ class ruler(QWidget):
 
         # 4 add ruler
         widget_ruler = QWidget()
+        widget_ruler.setToolTip('Click to select initial and final positions to show %conservation.')
         self.layout_ruler = QHBoxLayout()
         self.layout_ruler.setContentsMargins(0,0,0,0)
         self.layout_ruler.setSpacing(0)
