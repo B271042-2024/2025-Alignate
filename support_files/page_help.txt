@@ -17,7 +17,7 @@ This software was designed to assist protein analysis for polymorphisms, allowin
 
 
 <b>Supported formats</b>
-Input	: .fasta, .fa, .txt, input text	(only FASTA format). Max length is 1000 bases.
+Input	: .fasta, .fa, .txt, input text	(only FASTA format). Max input sequence length is 900.
 Output	: .alignate, .fa, .txt, .png, .pdf
 
 

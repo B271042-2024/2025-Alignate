@@ -69,13 +69,13 @@ class ruler(QWidget):
         layout_ruler_main.addWidget(invisible_checkbox, alignment=Qt.AlignLeft)
 
         # 3 add label
-        invisible_label = QLabel('')
-        invisible_label.setFixedSize(117,20)
-        layout_ruler_main.addWidget(invisible_label, alignment=Qt.AlignLeft)
+        self.invisible_label = QLabel('')
+        self.invisible_label.setFixedSize(117,20)
+        layout_ruler_main.addWidget(self.invisible_label, alignment=Qt.AlignLeft)
 
         # 4 add ruler
         widget_ruler = QWidget()
-        widget_ruler.setToolTip('Click to select initial and final positions to show %conservation.')
+        widget_ruler.setToolTip('Click to select initial and final positions to show %Conservation.')
         self.layout_ruler = QHBoxLayout()
         self.layout_ruler.setContentsMargins(0,0,0,0)
         self.layout_ruler.setSpacing(0)
@@ -112,7 +112,7 @@ class ruler(QWidget):
             widget_dialog = QDialog(self)
             layout_dialog = QVBoxLayout()
             widget_dialog.setLayout(layout_dialog)
-
+            
             widget_label1 = QLabel("WARNING! Only for aligned sequences.")
             widget_label2 = QLabel("---")
             widget_label3 = QLabel(f"Show '%'conservation for selected position: {pos1}, {pos2}?")
@@ -136,11 +136,8 @@ class ruler(QWidget):
                 self.click_count = 0
                 self.positions.clear()
 
-            print(f'test: {position}')
-
             button_cancel.clicked.connect(widget_dialog.reject)
             button_cancel.clicked.connect(reset_state)
-
             button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
             button_yes.clicked.connect(reset_state)
 
@@ -150,52 +147,4 @@ class ruler(QWidget):
                 label.marked = False
                 label.update()
 
-
-
-    def tedelhandle_clickable(self, position):
-
-        label = self.ruler_labels[position]                                  # 5 red mark
-        label.marked = True                                                  # 6 red mark
-        label.update()                                                       # 7 red mark
-
-        self.click_count += 1
-        self.positions.append(position)
-
-        if self.click_count == 2:
-            # positions
-            pos1, pos2 = self.positions
-            self.click_count = 0
-            self.positions.clear()
-            # create a dialog
-            widget_dialog = QDialog(self)
-            layout_dialog = QVBoxLayout()
-            widget_dialog.setLayout(layout_dialog)
-
-            widget_label = QLabel(f"Show '%'conservation for selected position: {pos1}, {pos2}?")
-            widget_button = QWidget()
-            layout_button = QHBoxLayout()
-            widget_button.setLayout(layout_button)
-            button_yes = QPushButton('Yes')
-            button_cancel = QPushButton('Cancel')
-            layout_button.addWidget(button_yes)
-            layout_button.addWidget(button_cancel)
-
-            layout_dialog.addWidget(widget_label)
-            layout_dialog.addWidget(widget_button)
-
-            count = 0       # clears count
-            print(f'test: {position}')
-
-            button_cancel.clicked.connect(widget_dialog.reject)
-            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
-
-            label = self.ruler_labels[position]                                  # 5 red mark
-            label.marked = True                                                  # 6 red mark
-            label.update()                                                       # 7 red mark
-
-            widget_dialog.exec()
-
-            for label in self.ruler_labels:                                      # 8 red mark
-                label.marked = False
-                label.update()
 

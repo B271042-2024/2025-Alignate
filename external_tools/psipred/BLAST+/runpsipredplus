@@ -24,7 +24,7 @@ set tmproot = psitmp$$$hostid
 
 \cp -f "$1" "$tmproot.fasta"
 
-echo "Running PSI-BLAST with sequence" $1 "..."
+echo "#  Running PSI-BLAST with sequence" $1
 
 "$ncbidir/psiblast" -db "$dbname" -query "$tmproot.fasta" -inclusion_ethresh 0.001 -num_descriptions 5000 -out_pssm "$tmproot.chk" -num_iterations 3 -num_alignments 0 >& "$tmproot.blast"
 
@@ -34,7 +34,7 @@ if ($status != 0) then
     exit $status
 endif
 
-echo "Predicting secondary structure..."
+echo "#  Predicting secondary structure..."
 
 "$execdir/chkparse" "$tmproot.chk" > "$tmproot.mtx"
 
@@ -43,7 +43,7 @@ if ($status != 0) then
     exit $status
 endif
 
-echo Pass1 ...
+#echo Pass1 ...
 
 "$execdir/psipred" "$tmproot.mtx" "$datadir/weights.dat" "$datadir/weights.dat2" "$datadir/weights.dat3" > "$rootname.ss"
 
@@ -52,7 +52,7 @@ if ($status != 0) then
     exit $status
 endif
 
-echo Pass2 ...
+#echo Pass2 ...
 
 "$execdir/psipass2" "$datadir/weights_p2.dat" 1 1.0 1.0 "$rootname.ss2" "$rootname.ss" > "$rootname.horiz"
 
@@ -63,8 +63,8 @@ endif
 
 # Remove temporary files
 
-echo Cleaning up ...
+#echo Cleaning up ...
 #\rm -f $tmproot.* error.log
 
-echo "Final output files: $rootname.ss2 $rootname.horiz"
-echo "Finished."
+echo "#  Final output files: $rootname.ss2 $rootname.horiz"
+#echo "Finished."
