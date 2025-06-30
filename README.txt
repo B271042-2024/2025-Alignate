@@ -24,9 +24,11 @@ INSTALLATION
 2. Install tcsh shell (Only if not exist). Please run,
 % sudo apt install tcsh
 
-3. Install external tools in external_folder
-1. psipred v + BLAST+
-2. Place the folder in external_tools/ and rename the psipred folder to psipred
+3. Install BLAST+ protein database in psipred folder (see https://ftp.ncbi.nlm.nih.gov/blast/db/ for ref)
+% mkdir external_tools/psipred/BLAST+/blastdb
+% cd external_tools/psipred/BLAST+/blastdb
+% wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz		# note: example database. please install accordingly.
+
 
 
 

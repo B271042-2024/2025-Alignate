@@ -1,2 +1,9 @@
-# to download ncbi to download database swissprot
+# 1 to download blast+ executables
 https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+
+
+# 2 to download database (users only download this)
+https://ftp.ncbi.nlm.nih.gov/blast/db/
+
+# e.g.:
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz
