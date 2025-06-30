@@ -116,6 +116,7 @@ class main(QMainWindow):
         self.setWindowTitle('Alignate')
         self.setWindowIcon(QIcon(icon_logo))
         self.resize(1000, 500)                         # resize = initial size of widget (pixels)
+        #self.setStyleSheet('background-color: #F8F8FF;')
 
 # --------------------------------------------Sub-elements
         # ---Menu
@@ -145,9 +146,12 @@ class main(QMainWindow):
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
         self.window_about = about()
+        self.window_about.setStyleSheet('background-color: #F8F8FF')
         self.window_protein = protein()
+        self.window_protein.setStyleSheet('background-color: #F8F8FF')
         base_path = os.path.dirname(os.path.abspath(__file__))
         self.window_codon = codon(base_path=base_path)                   # ***** to amend  ***** 1
+        self.window_codon.setStyleSheet('background-color: #F8F8FF')
         self.stack.addWidget(self.window_about)
         self.stack.addWidget(self.window_protein)
         self.stack.addWidget(self.window_codon)
@@ -158,10 +162,21 @@ class main(QMainWindow):
 
         widget_search_seq = QLineEdit()
         widget_search_seq.setToolTip('!Only Sequence Match. Matches are in orange.')
-        widget_search_seq.setFixedWidth(150)
+        widget_search_seq.setFixedWidth(120)
         widget_search_seq.setPlaceholderText('Search sequence...')
 
         toolbar = self.addToolBar('Main Toolbar')
+
+        #-------
+
+        self.setStyleSheet("""
+            QMainWindow {background-color: #F8F8FF;}
+            QMenuBar::item {background-color: #eeeeee; padding: 4px 10px;}
+            QMenuBar::item:selected {background-color: #87CEFA;}
+            QMenu {background-color: #eeeeee; padding: 4px 1px; border: 1px gray;}
+            QMenu::item {background-color: #eeeeee; padding: 4px 20px;}
+            QMenu::item:selected {background-color: #87CEFA;}
+        """)
 
 # --------------------------------------------Connect   (triggered)
         # ---Menu
@@ -492,11 +507,19 @@ class protein(QWidget):
         self.layout_protein_l3 = QVBoxLayout()
         self.layout_protein_l3.setSpacing(0)
         self.layout_protein_l3.setContentsMargins(5,5,5,5)
+        self.layout_protein_l3.setAlignment(Qt.AlignTop)
         widget_protein_l3.setLayout(self.layout_protein_l3)
          # ---Add widgets to parent widget
         widget_protein_l2.setWidget(widget_protein_l3)
 
 # --------------------------------------------Sub-elements
+        # ---Drawing Canvas (In Layer 3)
+        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
+        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
+        self.canvas.setFixedHeight(40)
+        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.layout_protein_l3.addWidget(self.canvas)
+
         # ---Ruler (In Layer 3)
         self.ruler = ruler(parent_context=self)                                        # CONNECT TO FILE 1: ruler.py
         self.layout_protein_l3.addWidget(self.ruler)
@@ -510,11 +533,11 @@ class protein(QWidget):
         self.layout_protein_l3.addWidget(self.widget_protein_l4, alignment=Qt.AlignTop)
 
         # ---Drawing Canvas (In Layer 4)
-        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
-        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
-        self.canvas.setFixedHeight(40)
-        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.layout_protein_l4.addWidget(self.canvas)
+#        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
+#        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
+#        self.canvas.setFixedHeight(40)
+#        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+#        self.layout_protein_l4.addWidget(self.canvas)
 
         # ---Layer 4 Elements
         # Line 1
@@ -724,7 +747,7 @@ class protein(QWidget):
     def apply_new_consensus_threshold(self):
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
-            layout = group['layout_seq']
+            layout = group['main_layout_seq']
             widget_to_remove = []
             target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
             for i in reversed(range(layout.count())):
@@ -763,7 +786,7 @@ class protein(QWidget):
                 break
         # 2 get group consensus and calculate %conservation
         for group in self.groups:
-            layout = group['layout_seq']                                                   
+            layout = group['main_layout_seq']                                                   
             target_consensus = group.get('consensus_seq')
             if not target_consensus or target_consensus == ref_consensus:
                 continue    # skip the for loop
@@ -1008,19 +1031,35 @@ class protein(QWidget):
 
         # ---2 LINE 2 (SEQUENCES)
         # MAIN WIDGET: SEQUENCES
-        widget_protein_l4_group_l1_seq = QWidget()
-        layout_protein_l4_group_l1_seq = QVBoxLayout()
-        layout_protein_l4_group_l1_seq.setSpacing(0)
-        widget_protein_l4_group_l1_seq.setLayout(layout_protein_l4_group_l1_seq)
-        layout_protein_l4_group_l1_seq.setContentsMargins(5,0,0,0)
-        self.layout_protein_l4_group_l1.addWidget(widget_protein_l4_group_l1_seq)
+        self.widget_protein_l4_group_l1_seq0 = QWidget()
+        self.layout_protein_l4_group_l1_seq0 = QVBoxLayout()
+        self.widget_protein_l4_group_l1_seq0.setFixedHeight(160)
+        self.layout_protein_l4_group_l1_seq0.setSpacing(0)
+        self.widget_protein_l4_group_l1_seq0.setLayout(self.layout_protein_l4_group_l1_seq0)
+        self.layout_protein_l4_group_l1_seq0.setContentsMargins(5,0,0,0)
+        self.layout_protein_l4_group_l1.addWidget(self.widget_protein_l4_group_l1_seq0)
 
+        widget_protein_l4_group_l1_seq1 = QScrollArea()
+        widget_protein_l4_group_l1_seq1.setWidgetResizable(True)
+        widget_protein_l4_group_l1_seq1.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        widget_protein_l4_group_l1_seq1.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.layout_protein_l4_group_l1_seq0.addWidget(widget_protein_l4_group_l1_seq1)
+
+        self.widget_protein_l4_group_l1_seq = QWidget()
+        layout_protein_l4_group_l1_seq = QVBoxLayout()
+        self.widget_protein_l4_group_l1_seq.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        layout_protein_l4_group_l1_seq.setSpacing(0)
+        layout_protein_l4_group_l1_seq.setAlignment(Qt.AlignTop)
+        self.widget_protein_l4_group_l1_seq.setLayout(layout_protein_l4_group_l1_seq)
+        layout_protein_l4_group_l1_seq.setContentsMargins(5,0,0,0)
+        widget_protein_l4_group_l1_seq1.setWidget(self.widget_protein_l4_group_l1_seq)   
 
         # INITIATE DICTIONARY
         group = {
             'widget_group': self.widget_protein_l4_group_l1,        # WIDGET GROUP
             'lineedit_groupname': lineedit_groupname,               # GROUP NAME
             'layout_seq': layout_protein_l4_group_l1_seq,           # LAYOUT SEQUENCE
+            'main_layout_seq': self.layout_protein_l4_group_l1_seq0,# MAIN LAYOUT FOR LAYOUT SEQUENCE
             'widget_seq': [],                                       # WIDGET SEQUENCE
             'checkbox_setrefgroup': checkbox1_setrefgroup,          # CHECKBOX REFERENCE GROUP
         }
@@ -1085,7 +1124,7 @@ class protein(QWidget):
         
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
-            if group['layout_seq'] == layout:
+            if group['main_layout_seq'] == layout:
                 widgets_to_remove = []
                 target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
                 for i in reversed(range(layout.count())):
@@ -1315,11 +1354,20 @@ class protein(QWidget):
             label_filter_seq_dialog.setStyleSheet('font-weight: bold;')
             layout_filter_seq_dialog.addWidget(label_filter_seq_dialog)
 
+            widget_filter_seq_scroll = QScrollArea()
+            widget_filter_seq_scroll.setWidgetResizable(True)
+            widget_filter_seq_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            widget_filter_seq_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            layout_filter_seq_dialog.addWidget(widget_filter_seq_scroll)
+
             # 2 main seq layout (lines of seqs)
             widget_filter_seq_dialog2 = QWidget()
+            widget_filter_seq_dialog2.setStyleSheet('background-color: white;')
             layout_filter_seq_dialog2 = QVBoxLayout()
+            widget_filter_seq_dialog2.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
             widget_filter_seq_dialog2.setLayout(layout_filter_seq_dialog2)
-            layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
+            widget_filter_seq_scroll.setWidget(widget_filter_seq_dialog2)
+#            layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
 
             # 5 fill in each seq layout
             self.filter_checkboxes = []
@@ -1456,11 +1504,20 @@ class protein(QWidget):
                 label_filter_seq_dialog.setStyleSheet('font-weight: bold;')
                 layout_filter_seq_dialog.addWidget(label_filter_seq_dialog)
 
+                widget_filter_seq_scroll = QScrollArea()
+                widget_filter_seq_scroll.setWidgetResizable(True)
+                widget_filter_seq_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                widget_filter_seq_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                layout_filter_seq_dialog.addWidget(widget_filter_seq_scroll)
+
                 # 2 main seq layout (lines of seqs)
                 widget_filter_seq_dialog2 = QWidget()
+                widget_filter_seq_dialog2.setStyleSheet('background-color: white;')
                 layout_filter_seq_dialog2 = QVBoxLayout()
+                widget_filter_seq_dialog2.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
                 widget_filter_seq_dialog2.setLayout(layout_filter_seq_dialog2)
-                layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
+                widget_filter_seq_scroll.setWidget(widget_filter_seq_dialog2)
+    #            layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
 
                 # 4 fill in each seq layout
                 self.filter_checkboxes = []
@@ -1533,7 +1590,7 @@ class protein(QWidget):
         
 # . . .  CLEAR GUI . . .
         for group in self.groups:
-            if group['layout_seq'] == layout:
+            if group['main_layout_seq'] == layout:
                 widgets_to_remove = []
                 target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second']
                 for i in reversed(range(layout.count())):
@@ -1862,7 +1919,7 @@ class protein(QWidget):
                     break
             # 2 get group consensus and calculate %conservation
             for group in self.groups:
-                layout = group['layout_seq']                                                   
+                layout = group['main_layout_seq']                                                   
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
                     continue    # skip the for loop
@@ -1969,7 +2026,6 @@ class protein(QWidget):
 
 
 
-
 #_______________________________________________________________________________________________11 Add sequences to GUI (Unaligned & Aligned)
 #_______________________________________________________________________________________________
 
@@ -2019,7 +2075,6 @@ class protein(QWidget):
         if seq_pixel_length > current_width:
             self.widget_protein_l4.setMinimumWidth(seq_pixel_length)
 
-
 #_______________________________________________________________________________________________12-1 Get & Display Consensus (by Group)
 #_______________________________________________________________________________________________
 
@@ -2028,7 +2083,7 @@ class protein(QWidget):
         print('#  Generating group consensus')
 
 # . . .  CLEAR GUI . . .
-        layout = group['layout_seq']
+        layout = group['main_layout_seq']
         if layout is None:
             return
         for i in reversed(range(layout.count())):
@@ -2112,6 +2167,7 @@ class protein(QWidget):
             self.widget_global.setParent(None)
             self.widget_global.deleteLater()
             self.widget_global = None
+
 
 # --------------------------------------------Main
         self.widget_global = QWidget()
@@ -2250,7 +2306,7 @@ class protein(QWidget):
                 continue
 
         # 4 Remove existing Widget: Custom Display % Conservative
-            layout = group['layout_seq']
+            layout = group['main_layout_seq']
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.objectName() == 'custom_conservation_block':

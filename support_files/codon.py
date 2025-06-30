@@ -234,11 +234,19 @@ class codon(QWidget):
         self.layout_codon_l3 = QVBoxLayout()
         self.layout_codon_l3.setSpacing(0)
         self.layout_codon_l3.setContentsMargins(5,5,5,5)
+        self.layout_codon_l3.setAlignment(Qt.AlignTop)
         widget_codon_l3.setLayout(self.layout_codon_l3)
          # ---Add widgets to parent widget
         widget_codon_l2.setWidget(widget_codon_l3)
 
 # --------------------------------------------Sub-elements
+        # ---Drawing Canvas (In Layer 3)
+        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
+        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
+        self.canvas.setFixedHeight(40)
+        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.layout_codon_l3.addWidget(self.canvas)
+
         # ---Ruler (In Layer 3)
         self.ruler = ruler(parent_context=self)                                        # CONNECT TO FILE 1: ruler.py
         self.layout_codon_l3.addWidget(self.ruler, alignment=Qt.AlignLeft)
@@ -252,11 +260,11 @@ class codon(QWidget):
         self.layout_codon_l3.addWidget(self.widget_codon_l4, alignment=Qt.AlignTop)
 
         # ---Drawing Canvas (In Layer 4)
-        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
-        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
-        self.canvas.setFixedHeight(40)
-        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.layout_codon_l4.addWidget(self.canvas)
+#        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
+#        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
+#        self.canvas.setFixedHeight(40)
+#        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+#        self.layout_codon_l4.addWidget(self.canvas)
 
         # ---Layer 4 Elements
         # Line 1
@@ -465,9 +473,9 @@ class codon(QWidget):
     def apply_new_consensus_threshold(self):
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
-            layout = group['layout_seq']
+            layout = group['main_layout_seq']
             widget_to_remove = []
-            target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_protein_row']
+            target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_codon_row']
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.objectName() in target_names:      # see in parent level
@@ -504,7 +512,7 @@ class codon(QWidget):
                 break
         # 2 get group consensus and calculate %conservation
         for group in self.groups:
-            layout = group['layout_seq']                                                   
+            layout = group['main_layout_seq']                                                   
             target_consensus = group.get('consensus_seq')
             if not target_consensus or target_consensus == ref_consensus:
                 continue    # skip the for loop
@@ -681,6 +689,12 @@ class codon(QWidget):
             self.widget_global.deleteLater()                                    # schedule for deletion to free memory safely
             self.widget_global = None                                           # clear subject
 
+        if hasattr(self, 'widget_global_codon') and self.widget_global_codon is not None:
+            self.layout_codon_l3.removeWidget(self.widget_global_codon)
+            self.widget_global_codon.setParent(None)
+            self.widget_global_codon.deleteLater()
+            self.widget_global_codon = None
+
 # --------------------------------------------Main
         # MAIN WIDGET: GROUP
         self.widget_codon_l4_group_l1 = QWidget()
@@ -748,20 +762,38 @@ class codon(QWidget):
         
         # ---2 LINE 2 (SEQUENCES)
         # MAIN WIDGET: SEQUENCES
-        widget_codon_l4_group_l1_seq = QWidget()
+                # MAIN WIDGET: SEQUENCES
+        self.widget_codon_l4_group_l1_seq0 = QWidget()
+        self.layout_codon_l4_group_l1_seq0 = QVBoxLayout()
+        self.widget_codon_l4_group_l1_seq0.setFixedHeight(160)
+        self.layout_codon_l4_group_l1_seq0.setSpacing(0)
+        self.widget_codon_l4_group_l1_seq0.setLayout(self.layout_codon_l4_group_l1_seq0)
+        self.layout_codon_l4_group_l1_seq0.setContentsMargins(5,0,0,0)
+        self.layout_codon_l4_group_l1.addWidget(self.widget_codon_l4_group_l1_seq0)
+
+        widget_codon_l4_group_l1_seq1 = QScrollArea()
+        widget_codon_l4_group_l1_seq1.setWidgetResizable(True)
+        widget_codon_l4_group_l1_seq1.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        widget_codon_l4_group_l1_seq1.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.layout_codon_l4_group_l1_seq0.addWidget(widget_codon_l4_group_l1_seq1)
+
+        self.widget_codon_l4_group_l1_seq = QWidget()
         layout_codon_l4_group_l1_seq = QVBoxLayout()
-        widget_codon_l4_group_l1_seq.setLayout(layout_codon_l4_group_l1_seq)
+        self.widget_codon_l4_group_l1_seq.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         layout_codon_l4_group_l1_seq.setSpacing(0)
+        layout_codon_l4_group_l1_seq.setAlignment(Qt.AlignTop)
+        self.widget_codon_l4_group_l1_seq.setLayout(layout_codon_l4_group_l1_seq)
         layout_codon_l4_group_l1_seq.setContentsMargins(5,0,0,0)
-        self.layout_codon_l4_group_l1.addWidget(widget_codon_l4_group_l1_seq)
+        widget_codon_l4_group_l1_seq1.setWidget(self.widget_codon_l4_group_l1_seq)   
 
         # INITIATE DICTIONARY
         group = {
-            'widget_group': self.widget_codon_l4_group_l1,        # WIDGET GROUP
+            'widget_group': self.widget_codon_l4_group_l1,          # WIDGET GROUP
             'lineedit_groupname': lineedit_groupname,               # GROUP NAME
-            'layout_seq': layout_codon_l4_group_l1_seq,           # LAYOUT SEQUENCE
+            'main_layout_seq': self.layout_codon_l4_group_l1_seq0,  # MAIN LAYOUT FOR LAYOUT SEQUENCE
+            'layout_seq': layout_codon_l4_group_l1_seq,             # LAYOUT SEQUENCE
             'widget_seq': [],                                       # WIDGET SEQUENCE
-            'checkbox_setrefgroup': checkbox1_setrefgroup          # CHECKBOX REFERENCE GROUP
+            'checkbox_setrefgroup': checkbox1_setrefgroup           # CHECKBOX REFERENCE GROUP
         }
 
 # --------------------------------------------Connect
@@ -798,6 +830,12 @@ class codon(QWidget):
             self.widget_global.deleteLater()                            # schedule for safe deletion by Qt event loop
             self.widget_global = None                                   # no widget global
 
+        if hasattr(self, 'widget_global_codon') and self.widget_global_codon is not None:
+            self.layout_codon_l3.removeWidget(self.widget_global_codon)
+            self.widget_global_codon.setParent(None)
+            self.widget_global_codon.deleteLater()
+            self.widget_global_codon = None
+
         # 2 Remove Widget Group
         widget.setParent(None)
         widget.deleteLater()
@@ -816,9 +854,9 @@ class codon(QWidget):
     def button3_addseq_clicked(self, layout):
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
-            if group['layout_seq'] == layout:
+            if group['main_layout_seq'] == layout:
                 widgets_to_remove = []
-                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_protein_row']
+                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_codon_row']
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
                     if widget and widget.objectName() in target_names:
@@ -840,11 +878,11 @@ class codon(QWidget):
             self.widget_global.deleteLater()
             self.widget_global = None
 
-        if hasattr(self, 'widget_global_protein') and self.widget_global_protein is not None:
-            self.layout_codon_l3.removeWidget(self.widget_global_protein)
-            self.widget_global_protein.setParent(None)
-            self.widget_global_protein.deleteLater()
-            self.widget_global_protein = None
+        if hasattr(self, 'widget_global_codon') and self.widget_global_codon is not None:
+            self.layout_codon_l3.removeWidget(self.widget_global_codon)
+            self.widget_global_codon.setParent(None)
+            self.widget_global_codon.deleteLater()
+            self.widget_global_codon = None
 
 # --------------------------------------------Main
         self.widget_codon_14_group_l1_seq_dialoginput = QDialog(self)
@@ -878,7 +916,7 @@ class codon(QWidget):
 
 
 
-#_______________________________________________________________________________________________6-3 DEF: Line 1 - Add Codon & Protein Files
+#_______________________________________________________________________________________________6-3 DEF: Line 1 - Add Codon & codon Files
 #_______________________________________________________________________________________________
 
     def seqtext_button1file_clicked(self, layout):
@@ -956,12 +994,6 @@ class codon(QWidget):
                 widget_filter_seq_dialog.setLayout(layout_filter_seq_dialog)
                 widget_filter_seq_dialog.setWindowTitle('Filter Partial Sequences')
 
-                # 2 main seq layout (lines of seqs)
-                widget_filter_seq_dialog2 = QWidget()
-                layout_filter_seq_dialog2 = QVBoxLayout()
-                widget_filter_seq_dialog2.setLayout(layout_filter_seq_dialog2)
-                layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
-
                 if min_len_groupseq:
                     if max_len - min_len_groupseq > 10:
                         label_filter_min = QLabel(f'**Short sequence length detected in window (length={min_len_groupseq}). Please remove if required.')
@@ -973,6 +1005,21 @@ class codon(QWidget):
                 label_filter_seq_dialog = QLabel('Please check sequences below and select to remove from the new list:')
                 label_filter_seq_dialog.setStyleSheet('font-weight: bold;')
                 layout_filter_seq_dialog.addWidget(label_filter_seq_dialog)
+
+                # 2 main seq layout (lines of seqs)
+                widget_filter_seq_scroll = QScrollArea()
+                widget_filter_seq_scroll.setWidgetResizable(True)
+                widget_filter_seq_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                widget_filter_seq_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                layout_filter_seq_dialog.addWidget(widget_filter_seq_scroll)
+
+                widget_filter_seq_dialog2 = QWidget()
+                widget_filter_seq_dialog2.setStyleSheet('background-color: white;')
+                layout_filter_seq_dialog2 = QVBoxLayout()
+                widget_filter_seq_dialog2.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                widget_filter_seq_dialog2.setLayout(layout_filter_seq_dialog2)
+                widget_filter_seq_scroll.setWidget(widget_filter_seq_dialog2)
+    #            layout_filter_seq_dialog.addWidget(widget_filter_seq_dialog2)
 
                 # 4 fill in each seq layout
                 self.filter_checkboxes = []
@@ -1046,9 +1093,9 @@ class codon(QWidget):
     def button4_removeseq_clicked(self, layout):
 # . . .  CLEAR GUI . . .
         for group in self.groups:
-            if group['layout_seq'] == layout:
+            if group['main_layout_seq'] == layout:
                 widgets_to_remove = []
-                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_protein_row']
+                target_names = ['consensus_row', 'conservation_block', 'custom_conservation_block', 'lbl_second', 'consensus_codon_row']
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
                     if widget and widget.objectName() in target_names:
@@ -1070,11 +1117,11 @@ class codon(QWidget):
             self.widget_global.deleteLater()
             self.widget_global = None
 
-        if hasattr(self, 'widget_global_protein') and self.widget_global_protein is not None:
-            self.layout_codon_l3.removeWidget(self.widget_global_protein)
-            self.widget_global_protein.setParent(None)
-            self.widget_global_protein.deleteLater()
-            self.widget_global_protein = None
+        if hasattr(self, 'widget_global_codon') and self.widget_global_codon is not None:
+            self.layout_codon_l3.removeWidget(self.widget_global_codon)
+            self.widget_global_codon.setParent(None)
+            self.widget_global_codon.deleteLater()
+            self.widget_global_codon = None
 
 
         seq_removed = []
@@ -1360,7 +1407,7 @@ class codon(QWidget):
 
             # -- 3 Connect - DEF: Get and Display Consensus in each group
             for group in self.groups:
-                consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, button_aln=button_aln, sequences=sequences)
+                consensus_str, codon_consensus_str = self.get_consensus_aln(group, threshold=None, button_aln=button_aln, sequences=sequences)
 
             print('#  Calculate %Conservation')
 
@@ -1373,7 +1420,7 @@ class codon(QWidget):
                     break
             # 2 get group consensus and calculate %conservation
             for group in self.groups:
-                layout = group['layout_seq']                                                   
+                layout = group['main_layout_seq']                                                   
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
                     continue    # skip the for loop
@@ -1392,7 +1439,7 @@ class codon(QWidget):
             self.color_code_seq(seq_map=self.seq_map, mode="all")
 
 
-            # run global consensus to get both global consensus for codon and protein
+            # run global consensus to get both global consensus for codon and codon
             # -- 6 Connect - DEF Get & Display on GUI (Global Consensus)
             global_p_consensus_str = self.get_global_consensus(aa_aln_file=self.aligned_aa_output_file)
             if global_p_consensus_str:
@@ -1441,7 +1488,7 @@ class codon(QWidget):
                 print('#  Generate consensus sequences')
 
             # 2 Connect - DEF Add codon_consensus then, aa_consensus onto GUI
-                consensus_str, protein_consensus_str = self.get_consensus_aln(group, threshold=None, button_aln=None)
+                consensus_str, codon_consensus_str = self.get_consensus_aln(group, threshold=None, button_aln=None)
 
             # -- 3 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
                 group_idx = self.groups.index(group)
@@ -1453,10 +1500,10 @@ class codon(QWidget):
                 print('')
                 print('#3 Generating secondary structure with PSIPRED...')
 
-                if protein_consensus_str:
+                if codon_consensus_str:
                     p_consensus_file = os.path.join(self.session_folder, f"{self.uid}_groupconsensus.fasta")
                     with open(p_consensus_file, 'w') as f:
-                        f.write(f">consensus\n{protein_consensus_str}\n")
+                        f.write(f">consensus\n{codon_consensus_str}\n")
 
                     if not os.path.exists(p_consensus_file):
                         QMessageBox.critical(self, 'Error', f'Consensus FASTA file not found: {p_consensus_file}')
@@ -1542,7 +1589,7 @@ class codon(QWidget):
         print('#  Generating group consensus') 
 
 # . . .  CLEAR GUI . . .
-        layout = group['layout_seq']
+        layout = group['main_layout_seq']
         if layout is None:
             return
         for i in reversed(range(layout.count())):
@@ -1611,54 +1658,54 @@ class codon(QWidget):
         # Clean and chunk codon string into triplets
         codons = [consensus_str[i:i+3] for i in range(0, len(consensus_str), 3)]
         # Translate codons into amino acids
-        protein_consensus_str = ""
+        codon_consensus_str = ""
         for codon in codons:
             if len(codon) < 3 or '-' in codon or 'N' in codon.upper():
-                protein_consensus_str += 'X'  # Ambiguous or incomplete
+                codon_consensus_str += 'X'  # Ambiguous or incomplete
             else:
                 try:
                     aa = Seq(codon).translate()
-                    protein_consensus_str += str(aa)
+                    codon_consensus_str += str(aa)
                 except:
-                    protein_consensus_str += 'X'
+                    codon_consensus_str += 'X'
 
 
 # --------------------------------------------Output_files
-        protein_consensus_file = os.path.join(self.session_folder, f'{self.uid}_groupconsensus_protein.fasta')
-        with open(protein_consensus_file, 'a') as c:
-            c.write(f'>{group_name}\n{protein_consensus_str}\n')
+        codon_consensus_file = os.path.join(self.session_folder, f'{self.uid}_groupconsensus_codon.fasta')
+        with open(codon_consensus_file, 'a') as c:
+            c.write(f'>{group_name}\n{codon_consensus_str}\n')
 
 
-                # --------------------------------------------Main_Protein Consensus
-        widget_consensus_protein = QWidget()
-        widget_consensus_protein.setObjectName('consensus_protein_row')
-        layout_consensus_protein = QHBoxLayout()
-        layout_consensus_protein.setContentsMargins(5, 0, 0, 0)
-        layout_consensus_protein.setSpacing(0)
-        widget_consensus_protein.setLayout(layout_consensus_protein)
-        layout.addWidget(widget_consensus_protein, alignment=Qt.AlignLeft)
+                # --------------------------------------------Main_codon Consensus
+        widget_consensus_codon = QWidget()
+        widget_consensus_codon.setObjectName('consensus_codon_row')
+        layout_consensus_codon = QHBoxLayout()
+        layout_consensus_codon.setContentsMargins(5, 0, 0, 0)
+        layout_consensus_codon.setSpacing(0)
+        widget_consensus_codon.setLayout(layout_consensus_codon)
+        layout.addWidget(widget_consensus_codon, alignment=Qt.AlignLeft)
 
         # Sub-elements
-        invisible_checkbox_protein = QCheckBox()
-        invisible_checkbox_protein.setEnabled(False)
-        invisible_checkbox_protein.setStyleSheet('background: transparent; border: none;')
-        layout_consensus_protein.addWidget(invisible_checkbox_protein)
+        invisible_checkbox_codon = QCheckBox()
+        invisible_checkbox_codon.setEnabled(False)
+        invisible_checkbox_codon.setStyleSheet('background: transparent; border: none;')
+        layout_consensus_codon.addWidget(invisible_checkbox_codon)
 
-        label_consensus_protein = QLabel('')
-        label_consensus_protein.setFixedSize(120, 20)
-        layout_consensus_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
-        layout_consensus_protein.addSpacing(5)
+        label_consensus_codon = QLabel('')
+        label_consensus_codon.setFixedSize(120, 20)
+        layout_consensus_codon.addWidget(label_consensus_codon, alignment=Qt.AlignLeft)
+        layout_consensus_codon.addSpacing(5)
 
-        for aa in protein_consensus_str.strip():
+        for aa in codon_consensus_str.strip():
             lbl = QLabel(aa)
             lbl.setFixedSize(45, 20)
             lbl.setAlignment(Qt.AlignCenter)
             lbl.setStyleSheet('color:gray;')
-            layout_consensus_protein.addWidget(lbl)
-            group['consensus_seq_codon_protein'] = protein_consensus_str
+            layout_consensus_codon.addWidget(lbl)
+            group['consensus_seq_codon_codon'] = codon_consensus_str
 
 # --------------------------------------------Others
-        return consensus_str, protein_consensus_str
+        return consensus_str, codon_consensus_str
 
 
 
@@ -1676,15 +1723,14 @@ class codon(QWidget):
             self.widget_global.deleteLater()
             self.widget_global = None
 
-        if hasattr(self, 'widget_global_protein') and self.widget_global_protein is not None:
-            self.layout_codon_l3.removeWidget(self.widget_global_protein)
-            self.widget_global_protein.setParent(None)
-            self.widget_global_protein.deleteLater()
-            self.widget_global_protein = None
+        if hasattr(self, 'widget_global_codon') and self.widget_global_codon is not None:
+            self.layout_codon_l3.removeWidget(self.widget_global_codon)
+            self.widget_global_codon.setParent(None)
+            self.widget_global_codon.deleteLater()
+            self.widget_global_codon = None
 
 
 # --------------------------------------------Main
-
         self.widget_global = QWidget()
         layout_global = QHBoxLayout()
         layout_global.setContentsMargins(5,0,0,0)
@@ -1703,6 +1749,7 @@ class codon(QWidget):
 
         # 2 Label
         invisible_label = QLabel('Consensus')
+        invisible_label.setStyleSheet('font-weight: bold;')
         invisible_label.setFixedSize(120,20)
         layout_global.addWidget(invisible_label, alignment=Qt.AlignLeft)
         layout_global.addSpacing(5)
@@ -1749,30 +1796,31 @@ class codon(QWidget):
                 summary = AlignInfo.SummaryInfo(aa_alignment)
                 if threshold is None:
                     threshold = getattr(self, 'consensus_threshold', 0.5)
-                protein_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
-                global_p_consensus_str = str(protein_consensus)
+                codon_consensus = summary.dumb_consensus(threshold=threshold, ambiguous='X')
+                global_p_consensus_str = str(codon_consensus)
 
-                # --------------------------------------------Main_Protein Consensus
+                # --------------------------------------------Main_codon Consensus
 
-                self.widget_global_protein = QWidget()  
-                self.widget_global_protein.setObjectName('widget_global_protein')    
-                layout_global_protein = QHBoxLayout()
-                layout_global_protein.setContentsMargins(5,0,0,0)
-                layout_global_protein.setSpacing(0)
-                self.widget_global_protein.setLayout(layout_global_protein)
-                self.layout_codon_l3.addWidget(self.widget_global_protein, alignment=Qt.AlignLeft)
+                self.widget_global_codon = QWidget()  
+                self.widget_global_codon.setObjectName('widget_global_codon')    
+                layout_global_codon = QHBoxLayout()
+                layout_global_codon.setContentsMargins(5,0,0,0)
+                layout_global_codon.setSpacing(0)
+                self.widget_global_codon.setLayout(layout_global_codon)
+                self.layout_codon_l3.addWidget(self.widget_global_codon, alignment=Qt.AlignLeft)
+                #layout_global_codon.setAlignment(Qt.AlignTop)
 
                 # Sub-elements
-                invisible_checkbox_protein = QCheckBox()
-                invisible_checkbox_protein.setEnabled(False)
-                invisible_checkbox_protein.setStyleSheet('background: transparent; border: none;')
-                layout_global_protein.addWidget(invisible_checkbox_protein)
-                layout_global_protein.addSpacing(5)
+                invisible_checkbox_codon = QCheckBox()
+                invisible_checkbox_codon.setEnabled(False)
+                invisible_checkbox_codon.setStyleSheet('background: transparent; border: none;')
+                layout_global_codon.addWidget(invisible_checkbox_codon)
+                layout_global_codon.addSpacing(5)
 
-                label_consensus_protein = QLabel('Protein Consensus')
-                label_consensus_protein.setFixedSize(120, 20)
-                layout_global_protein.addWidget(label_consensus_protein, alignment=Qt.AlignLeft)
-                layout_global_protein.addSpacing(5)
+                label_consensus_codon = QLabel('')
+                label_consensus_codon.setFixedSize(120, 20)
+                layout_global_codon.addWidget(label_consensus_codon, alignment=Qt.AlignLeft)
+                layout_global_codon.addSpacing(5)
 
                 for aa in global_p_consensus_str:
                     if aa != "":
@@ -1780,12 +1828,12 @@ class codon(QWidget):
                         lbl.setFixedSize(45, 20)
                         lbl.setAlignment(Qt.AlignCenter)
                         lbl.setStyleSheet('color:gray;')
-                        layout_global_protein.addWidget(lbl)
+                        layout_global_codon.addWidget(lbl)
 
         # --------------------------------------------Output_files
-                global_consensus_protein_file = os.path.join(self.session_folder, f'{self.uid}_globalconsensus_protein.fasta')
-                with open(global_consensus_protein_file, 'w') as c:
-                    c.write(f'>global_consensus_protein\n{global_p_consensus_str}')
+                global_consensus_codon_file = os.path.join(self.session_folder, f'{self.uid}_globalconsensus_codon.fasta')
+                with open(global_consensus_codon_file, 'w') as c:
+                    c.write(f'>global_consensus_codon\n{global_p_consensus_str}')
 
             except Exception as e:
                 print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")
@@ -1874,7 +1922,7 @@ class codon(QWidget):
                 continue
 
         # 4 Remove existing Widget: Custom Display % Conservative
-            layout = group['layout_seq']
+            layout = group['main_layout_seq']
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.objectName() == 'custom_conservation_block':
@@ -2222,7 +2270,7 @@ class codon(QWidget):
         for group in self.groups:
             if group['checkbox_setrefgroup'].isChecked():
                 continue
-            layout = group['layout_seq']
+            layout = group['main_layout_seq']
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.objectName() == "conservation_block":
