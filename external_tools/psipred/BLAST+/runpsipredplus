@@ -10,8 +10,10 @@
 
 # NOTE: Experimental PSIPRED script with BLAST+ compatability (DTJ May 2010)
 
-set cwd = `dirname $0`                                          # Get current script directory
-set dbname = "$cwd/blastdb/swissprot"                           # The name of the BLAST+ data bank
+set cwd = `dirname $0`						# Get current script directory
+set pdb_file = `ls $cwd/blastdb/*.pdb | head -n 1`
+set dbbasename = `basename $pdb_file .pdb`
+set dbname = "$cwd/blastdb/$dbbasename"                           # The name of the BLAST+ data bank
 set ncbidir = "$cwd/ncbi-blast-2.16.0+/bin"                    # Where the NCBI BLAST+ programs have been installed
 set execdir = "$cwd/../bin"                                     # Where the PSIPRED V3 programs have been installed
 set datadir = "$cwd/../data"                                    # Where the PSIPRED V3 data files have been installed

@@ -1,4 +1,4 @@
-external_tools/psipred/BLAST+/blastdb/
+external_tools/psipred/BLAST+/blastdb/*
 drafts/
 pypackages/
 output_files/
