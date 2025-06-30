@@ -49,3 +49,6 @@ pyinstaller alignate.py --add-data "external_tools/psipred:psipred"
   --add-data "external_tools/clustalo_linux/clustalo:external_tools/clustalo" \
   --add-data "external_tools/mafft_linux/mafft:external_tools/mafft" \
   --add-data "external_tools/psipred:external_tools/psipred"
+
+
+# to remove from git: git rm -r --cached external_tools/psipred/BLAST+
