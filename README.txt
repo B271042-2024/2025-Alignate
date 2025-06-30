@@ -28,7 +28,7 @@ INSTALLATION
 % mkdir external_tools/psipred/BLAST+/blastdb
 % cd external_tools/psipred/BLAST+/blastdb
 % wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz		# note: example database. please install accordingly.
-
+% tar xzf swissprot.tar.gz						# note: change according to your database
 
 
 
