@@ -1,3 +1,3 @@
 #!/bin/bash
 source ./pypackages/bin/activate
-python support_files/alignate.py
+python3 support_files/alignate.py

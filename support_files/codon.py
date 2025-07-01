@@ -46,10 +46,10 @@ class AlignmentWorker(QThread):
         os.makedirs(session_folder, exist_ok=True)        
 
         # 3 create files
-        fasta_file = os.path.join(output_folder, f"{self.uid}.fasta")
-        aa_output_file = os.path.join(output_folder, f"{self.uid}_aa.fasta")
-        self.aligned_aa_output_file = os.path.join(output_folder, f"{self.uid}_aa.aln")
-        output_file = os.path.join(output_folder, f"{self.uid}.aln")
+        fasta_file = os.path.join(session_folder, f"{self.uid}.fasta")
+        aa_output_file = os.path.join(session_folder, f"{self.uid}_aa.fasta")
+        self.aligned_aa_output_file = os.path.join(session_folder, f"{self.uid}_aa.aln")
+        output_file = os.path.join(session_folder, f"{self.uid}.aln")
         
         with open(fasta_file, 'w') as fasta_out:
             for name, seq in self.sequences:

@@ -124,11 +124,6 @@ class main(QMainWindow):
         menu1 = menu.addMenu('File')
         menu1_load = menu1.addAction('Load Project')
         menu1_save = menu1.addAction('Save Project')
-        menu1_saveas = menu1.addMenu('Save as')
-        menu1_saveas_aln = menu1_saveas.addAction('.fa')           # ***** to amend 1 ***** connect           
-        menu1_saveas_txt = menu1_saveas.addAction('.txt')           # ***** to amend 2 ***** connect
-        menu1_saveas_png = menu1_saveas.addAction('.png')           # ***** to amend 3 ***** connect
-        menu1_saveas_pdf = menu1_saveas.addAction('.pdf')           # ***** to amend 5 ***** connect
         menu2 = menu.addMenu('View')
         menu2_color = menu2.addMenu('Color')
         menu2_color_orange = menu2_color.addAction('Orange')
@@ -218,7 +213,7 @@ class main(QMainWindow):
         widget_search_seq.textChanged.connect(active_search_seq)
 
         # Re-create Folder: output_files is absent
-        output_folder = os.path.join(os.path.dirname(__file__), 'output_files')
+        output_folder = os.path.join(os.path.dirname(__file__), '..', 'output_files')
         os.makedirs(output_folder, exist_ok=True)
 
 
@@ -236,7 +231,7 @@ class main(QMainWindow):
 #_______________________________________________________________________________________________
 
     def todelcloseEvent(self, event):                                                            # delete files in output_files when software is closed
-        tmp_folder = os.path.join(os.path.dirname(__file__), 'output_files')
+        tmp_folder = os.path.join(os.path.dirname(__file__), '..', 'output_files')
         if os.path.exists(tmp_folder):
             try:
                 for filename in os.listdir(tmp_folder):
