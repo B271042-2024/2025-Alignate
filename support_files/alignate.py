@@ -1911,7 +1911,10 @@ class protein(QWidget):
 
             print('#  Calculate %Conservation')
 
+
             # -- 4 not DEF: Calculate %Base conservation
+            groupconservation_file = os.path.join(self.session_folder, f'{self.uid}_groupconservation.txt')
+
             # 1 get reference consensus
             ref_consensus = None
             for group in self.groups:
@@ -1920,6 +1923,7 @@ class protein(QWidget):
                     break
             # 2 get group consensus and calculate %conservation
             for group in self.groups:
+                group_name = group['lineedit_groupname'].text()
                 layout = group['main_layout_seq']                                                   
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
@@ -1927,6 +1931,11 @@ class protein(QWidget):
                 matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
                 percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
+# --------------------------------------------Output_files
+                with open(groupconservation_file, 'a') as c:
+                    c.write(f'{group_name}\t{str_percent_conservation}\n')
+
             # 3 update %conservation consensus against reference consensus
                 for i in range(layout.count()):
                     widget = layout.itemAt(i).widget()
@@ -1934,6 +1943,13 @@ class protein(QWidget):
                         label = widget.findChild(QLabel, "percent_conservation")    # group['layout_seq'] > consensus_row > percent_conservation
                         if label:
                             label.setText(str_percent_conservation)
+
+
+
+
+
+
+
 
             # -- 5 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
             self.color_code_seq(seq_map=self.seq_map, mode="all")

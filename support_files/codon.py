@@ -1415,6 +1415,8 @@ class codon(QWidget):
             print('#  Calculate %Conservation')
 
             # -- 4 not DEF: Calculate %Base conservation
+            groupconservation_file = os.path.join(self.session_folder, f'{self.uid}_groupconservation.txt')
+
             # 1 get reference consensus
             ref_consensus = None
             for group in self.groups:
@@ -1423,6 +1425,7 @@ class codon(QWidget):
                     break
             # 2 get group consensus and calculate %conservation
             for group in self.groups:
+                group_name = group['lineedit_groupname'].text()
                 layout = group['main_layout_seq']                                                   
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
@@ -1430,6 +1433,11 @@ class codon(QWidget):
                 matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
                 percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
+# --------------------------------------------Output_files
+                with open(groupconservation_file, 'a') as c:
+                    c.write(f'{group_name}\t{str_percent_conservation}\n')
+
             # 3 update %conservation consensus against reference consensus
                 for i in range(layout.count()):
                     widget = layout.itemAt(i).widget()
@@ -1674,7 +1682,7 @@ class codon(QWidget):
 
 
 # --------------------------------------------Output_files
-        codon_consensus_file = os.path.join(self.session_folder, f'{self.uid}_groupconsensus_codon.fasta')
+        codon_consensus_file = os.path.join(self.session_folder, f'{self.uid}_groupconsensus_aa.fasta')
         with open(codon_consensus_file, 'a') as c:
             c.write(f'>{group_name}\n{codon_consensus_str}\n')
 
@@ -1834,9 +1842,9 @@ class codon(QWidget):
                         layout_global_codon.addWidget(lbl)
 
         # --------------------------------------------Output_files
-                global_consensus_codon_file = os.path.join(self.session_folder, f'{self.uid}_globalconsensus_codon.fasta')
+                global_consensus_codon_file = os.path.join(self.session_folder, f'{self.uid}_globalconsensus_aa.fasta')
                 with open(global_consensus_codon_file, 'w') as c:
-                    c.write(f'>global_consensus_codon\n{global_p_consensus_str}')
+                    c.write(f'>global_consensus_amino_acid\n{global_p_consensus_str}')
 
             except Exception as e:
                 print(f"[Warning] Failed to compute AA consensus from {aa_aln_file}: {e}")

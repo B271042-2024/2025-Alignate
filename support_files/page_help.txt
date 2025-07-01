@@ -19,8 +19,10 @@ This tool enables group-based comparisons of protein and codon sequences. It acc
 <b>Supported formats</b>
 Input: <code>.fasta</code>, <code>.fa</code>, <code>.txt</code>, pasted text	(FASTA format only). Max sequence length: 900 amino acid residues or codons.
 Output (Folder: output_files):
-	- Protein Mode: <code>.alignate</code>, <code>*.fasta</code>, <code>*.aln</code>, *_globalconsensus.fasta, *_groupconsensus.fasta, *_refseq.fasta, <code>*_refseq.horiz</code>, <code>*_refseq.ss*</code>, <code>*_ssconservation.txt</code> and other additional files from psiblast when running psipred with BLAST+.
-	- Codon Mode: <code>
+	- <i>Protein</i>:
+		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files 
+	- <i>Codon</i>:
+		- Input sequences (.fasta), Translated sequences (_aa.fasta), Aligned translated sequences (_aa.aln), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Group translated consensus (_groupconsensus_aa.fasta), Global translated consensus (_globalconsensus_aa.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refaa.fasta), PSIPRED output (_refaa.horiz) and other PSIPRED output files
 
 
 <b>Usage workflow</b>
@@ -184,12 +186,12 @@ Created on 15/06/2025.
 
 DONE
 1 - solve codon output files
-
-TO-DO
 2 - update Help: codon output files
 3 - git commit 
-4 - solve save & load project file
 5 - %Conservation overall
-6 - update README with coding stuffs and output files
+
+TO-DO
+4 - solve save & load project file
+
 
 </pre>

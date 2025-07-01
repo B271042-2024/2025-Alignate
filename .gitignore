@@ -2,3 +2,4 @@ external_tools/psipred/BLAST+/blastdb/*
 drafts/
 pypackages/
 output_files/
+support_files/__pycache__/
