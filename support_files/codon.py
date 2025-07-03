@@ -2430,17 +2430,10 @@ class codon(QWidget):
         # ---4 Convert to QPixmap and Display on GUI
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.getvalue())
-#        label = StructureLabel(pixmap, "\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
+        header = "\t" + "\t".join(f"{g} (%)" for g in region_conservation[0].get("group_scores", {}).keys()) if region_conservation else ""
+        body = "\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{v:.1f}" for v in reg.get("group_scores", {}).values()) for reg in region_conservation) if region_conservation else ""
         if not self.align_blue:
-            tooltip_text = "Position for amino acid residues (bases/3):\n"
-            if region_conservation:
-                tooltip_text += "\n".join(
-                    f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" +
-                    "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items())
-                    for reg in region_conservation
-                )
-            label = StructureLabel(pixmap, tooltip_text)
-
+            label = StructureLabel(pixmap, "Position for amino acid residues:\n" + header + "\n" + body)
         else:
             group_name = group['lineedit_groupname'].text()
             label = StructureLabel(pixmap, group_name)
@@ -2452,8 +2445,7 @@ class codon(QWidget):
 #-----------------------------------------------------Output files
         ss_conservation_file = os.path.join(self.session_folder, f'{self.uid}_ssconservation.txt')
         with open(ss_conservation_file, 'w') as ss:
-            ss.write('Position for amino acid residues (bases/3):\n')
-            ss.write("\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
+            ss.write("Position for amino acid residues:\n" + header + "\n" + body)
 
 
 
