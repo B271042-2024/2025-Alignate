@@ -31,23 +31,6 @@ INSTALLATION
 % tar -xzf swissprot.tar.gz						# note: change according to your database
 
 4. Allow executions in all files
-chmod -R +x .
+% chmod -R +x .
 
-5. If you move this folder, please remove and re-install python packages if software doesn't work.
-
-
-
-
-
-
-# Packaging sofware
-pyinstaller alignate.py --add-data "external_tools/psipred:psipred"
-# Have to run pyinstaller separately for each platform
-## Eg. linux:
-( please confirm if alignate.py or run.sh/run.bat ) pyinstaller alignate.py --onefile \
-  --add-data "external_tools/clustalo_linux/clustalo:external_tools/clustalo" \
-  --add-data "external_tools/mafft_linux/mafft:external_tools/mafft" \
-  --add-data "external_tools/psipred:external_tools/psipred"
-
-
-# to remove from git: git rm -r --cached external_tools/psipred/BLAST+
+5. If you move this folder, please remove and re-install python packages if software failed to work.
