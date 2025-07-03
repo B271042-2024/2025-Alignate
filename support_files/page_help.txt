@@ -40,6 +40,9 @@ Output (Folder: output_files):
 4. Begin Sequence Analysis:
 	a. Choose Mode:
 		- Align: Analyze sequences in a single group.
+			- The background color of sequence name turns orange:
+				a) Secondary structure is predicted using this group only.
+				b) Global consensus is invalid. It represents 'mode: Alignall' only.
 		- Alignall: Analyze all groups together (button at the top of the page).
 	b. Analysis includes:
 		- Sequence alignment
@@ -182,13 +185,6 @@ Created on 15/06/2025.
 
 
 
-
-
-DONE
-1 - solve codon output files
-2 - update Help: codon output files
-3 - git commit 
-5 - %Conservation overall
 
 TO-DO
 4 - solve save & load project file

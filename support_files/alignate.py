@@ -375,13 +375,13 @@ class AlignmentWorker(QThread):
             fasta_file = os.path.join(session_folder, f'{self.uid}.fasta')
             aln_file = os.path.join(session_folder, f'{self.uid}.aln')
 
-            with open(fasta_file, 'a') as f:
+            with open(fasta_file, 'w') as f:
                 for name, seq in self.sequences:
+                    seq = seq.replace('-','')
                     if not name or not seq:
                         self.error.emit('Missing sequence name or sequence.')
-                        #QMessageBox.warning(self, 'Error', 'Missing sequence name or sequence.')
                         return
-                    if not re.match(r'^[A-Za-z\_\-]+$', seq):
+                    if not re.match(r'^[A-Za-z]+$', seq):
                         self.error.emit(f'Invalid characters found in sequence: {name}. **Special characters are not allowed.')
                         #QMessageBox.warning(self, 'Error', 'Invalid characters found in sequence: {seq}. **Special characters are not allowed.')
                         return
@@ -480,6 +480,8 @@ class protein(QWidget):
         self.is_searchseq = False
         self.widget_global = None
         self.similarity_color = 'darkmagenta'
+        self.align_blue = False
+        self.prediction_text = ""
 
 # --------------------------------------------Main
         # ---Layer 1
@@ -526,13 +528,6 @@ class protein(QWidget):
         self.layout_protein_l4.setContentsMargins(0, 0, 0, 0)
         self.widget_protein_l4.setLayout(self.layout_protein_l4)
         self.layout_protein_l3.addWidget(self.widget_protein_l4, alignment=Qt.AlignTop)
-
-        # ---Drawing Canvas (In Layer 4)
-#        self.canvas = DrawingCanvas()                                           # CONNECT TO FILE 2: drawingcanvas.py
-#        self.canvas.setToolTip('Left-click to draw, Right-click to erase.')
-#        self.canvas.setFixedHeight(40)
-#        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-#        self.layout_protein_l4.addWidget(self.canvas)
 
         # ---Layer 4 Elements
         # Line 1
@@ -863,88 +858,196 @@ class protein(QWidget):
 #_______________________________________________________________________________________________
 
     def save_project(self):
-# --------------------------------------------Main
-        # ---1 DIALOGBOX: SET FILE PATH (SAVE)
-        file_path, _ = QFileDialog.getSaveFileName(self, 'Save Project', '', 'Alignate Project(*.alignate)')
-        if not file_path:                                   # If no file, return
+
+# ------1 Set directory for saved file        
+        file_path, _ = QFileDialog.getSaveFileName(self, 'Save Project', '', 'Alignate Project (*.alignate)')
+        if not file_path:
             return
-        if not file_path.endswith('.alignate'):             # Automatically append extension if missing
+        if not file_path.endswith('.alignate'):
             file_path += '.alignate'
 
-        # ---2-1 MAIN STORAGE: STATE
-        state = {
-            'groups': [],
-            'slider_value': self.slidercon.value(),
-            'slider_checked': self.checkboxslider.isChecked()
-        }
+        # Set window protein
+        window_tag = "protein"
+
+# ------2 Save self.groups in group_data
+        serializable_groups = []
         for group in self.groups:
-        # ---2-2 MAIN STORAGE: STATE < GROUP_DATA < [GROUP NAME, REFERENCE GROUP, SEQUENCES]
-            group_data = {
-                'name': group['lineedit_groupname'].text(),
-                'is_reference': group['checkbox_setrefgroup'].isChecked(),
-                'sequences': []
-            }
-        # ---2-3 MAIN STORAGE: STATE < GROUP_DATA < SEQUENCES NAME, REFERENCE GROUP, SEQUENCES: [SEQUENCE NAMES, SEQUENCES]
-            for entry in group['widget_seq']:
-                header = entry['seq_header'].text()
-                seq = ''.join(label.text() for label in entry['seq_letters'])
-                group_data['sequences'].append((header, seq))
-            state['groups'].append(group_data)
+            group_data = {'name': group['lineedit_groupname'].text(), 'is_reference': group['checkbox_setrefgroup'].isChecked(), 'sequences': [{'header': entry['seq_header'].text(), 'sequence': ''.join(lbl.text() for lbl in entry['seq_letters'])} for entry in group['widget_seq']]}
+            serializable_groups.append(group_data)
 
-        # ---3-1 OUTPUT FILE: JSON
-        with tempfile.TemporaryDirectory() as temp_dir:         # Create temporary dir that is automatically deleted after with block ends
-            json_path = os.path.join(temp_dir, 'state.json')    # Set path for file: state.json
-            with open(json_path, 'w') as f:                         
-                json.dump(state, f)                             # Open state.json to write and dump state dict as JSON
-        # ---3-2 OUTPUT FILE: ZIP THE JSON FILE
+# ------3 Save modes
+        saved_mode = "group"
+        if self.is_alignall:
+            saved_mode = "all"
+        else:
+            saved_mode = "group"
+
+# ------4 Save in states
+        state = {
+            'window': window_tag,
+            'groups': serializable_groups,
+            'prediction_text': self.prediction_text or "",
+            'mode': saved_mode,
+        }
+
+# ------5 Save file
+        with tempfile.TemporaryDirectory() as temp_dir:
+            json_path = os.path.join(temp_dir, 'state.json')
+            with open(json_path, 'w') as f:
+                json.dump(state, f)
             with zipfile.ZipFile(file_path, 'w') as zf:
-                zf.write(json_path, 'state.json')               # Write state.json into Zip file, with the name: state.json
+                zf.write(json_path, 'state.json')
 
-# --------------------------------------------Others
-        # ---4 MESSAGE BOX: SAVED
+# ------6 Saved file Message
         QMessageBox.information(self, 'Saved', f'Project saved to {file_path}')
+
 
 
 #_______________________________________________________________________________________________5-2 DEF: Menu - Load Project
 #_______________________________________________________________________________________________
 
-    def load_project(self):
-# --------------------------------------------Main
-        # ---1 DIALOGBOX: OPEN FILE PATH
+    def load_project(self, file_path: str | None = None):
+
+# ------1 Load file         
         file_path, _ = QFileDialog.getOpenFileName(self, 'Load Project', '', 'Alignate Project (*.alignate)')
         if not file_path:
             return
-        
-        # ---2-1 EXTRACT ZIP FILE
+
+        # extract JSON
         with tempfile.TemporaryDirectory() as temp_dir:
-            with zipfile.ZipFile(file_path, 'r') as zf:         
-                zf.extractall(temp_dir)                                         # Extract Zip file into Temporary Directory: temp_dir
-        # ---2-2 LOAD JSON FILE
+            with zipfile.ZipFile(file_path, 'r') as zf:
+                zf.extractall(temp_dir)
             with open(os.path.join(temp_dir, 'state.json')) as f:
-                state = json.load(f)                                            # Load json file
+                state = json.load(f)
 
-        # ---3 RESET WIDGET
-            self.slidercon.setValue(state.get('slider_value', 100))                     # Reset slidercon
-            self.checkboxslider.setChecked(state.get('slider_checked', False))          # Reset slider checked
+        # window tag
+        my_tag   = "protein"          #  in Codon.py use "codon"
+        file_tag = state.get("window", my_tag)
+        if file_tag != my_tag:
+            main = self.parent()      # main window holds the other pages
+            if file_tag == "protein" and hasattr(main, "window_protein"):
+                main.window_protein.load_project(file_path)
+                if hasattr(main, "switch_mode"):
+                    main.switch_mode("protein")
+            elif file_tag == "codon" and hasattr(main, "window_codon"):
+                main.window_codon.load_project(file_path)
+                if hasattr(main, "switch_mode"):
+                    main.switch_mode("codon")
+            else:
+                QMessageBox.warning(self, "Unknown page", f"Open window “{file_tag}” and reload.")
+            return
 
-# --------------------------------------------Connect
-            # 1 Remove previous self.groups
-            for group in self.groups[:]:                                                # Update Widget Group Data
-                self.button2_removegroup_clicked(group['widget_group'])                 # ':' = create a copy of the self.groups
+        # . . .  CLEAR GUI . . .
+        # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
+        if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
+            self.layout_protein_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
+            self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
+            self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
+            self.widget_horizontal = None                                                   # no widget global
 
-            for group_data in state["groups"]:
-            # 2 Update self.groups with STATE (new)
-                self.button1_addgroup_clicked()                                         # Both GUI and DICT
-                group = self.groups[-1]                                                 # -1 = last item
-                group['lineedit_groupname'].setText(group_data["name"])                 # Update: Group Name
-                group['checkbox_setrefgroup'].setChecked(group_data["is_reference"])    # Update: Checkbox Set Reference Group
-                for header, seq in group_data["sequences"]:
-            # 3 Update GUI
-                    self.add_sequences_toGUI(group, group["layout_seq"], header, seq)   # Add sequences to GUI
+# ------2 Clear current groups
+        for group in self.groups[:]:
+            self.button2_removegroup_clicked(group['widget_group'])
 
-# --------------------------------------------Others
-        # 4 MESSAGE BOX: LOADED
+# ------3 Restore objects
+        saved_mode = state.get('mode')
+        self.prediction_text = state.get('prediction_text', "")
+
+        # self.groups
+        for group_data in state['groups']:
+            self.button1_addgroup_clicked()
+            group = self.groups[-1]
+            group['lineedit_groupname'].setText(group_data['name'])
+            group['checkbox_setrefgroup'].setChecked(group_data['is_reference'])
+            for seq in group_data['sequences']:
+
+# ------4 Run: Display sequences on GUI
+                self.add_sequences_toGUI(group, group['layout_seq'], seq['header'], seq['sequence'])
+
+# ------5 Create output folder
+        self.session_folder = os.path.join(os.path.dirname(__file__), '..', 'output_files', 'restored_session')
+        os.makedirs(self.session_folder, exist_ok=True)
+        self.uid = 'restored'
+
+        # sequence mapping for Alignall
+        seq_map = [(group_idx, entry_idx) for group_idx, group in enumerate(self.groups) for entry_idx, _ in enumerate(group['widget_seq'])]
+
+        try:
+            if self.prediction_text:
+# ------6 Group mode - Run: Group consensus; Color sequences
+                if saved_mode == "group":
+                    self.is_alignall = False
+
+                    # Group consensus
+                    for group in self.groups:
+                        self.get_consensus_aln(group=group)
+
+                    # Color sequences
+                    self.color_code_seq(mode="group")
+
+            # . . .  CLEAR GUI . . .
+                    # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
+                    if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
+                        self.layout_protein_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
+                        self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
+                        self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
+                        self.widget_horizontal = None                                                   # no widget global
+
+                    print("This is group-based alignment file. Skipping secondary structure prediction.")
+                        
+# ------7 All mode - Color sequences; Group %Conservation, Global consensus, 2ndary structure & its %Conservation   
+                else:
+                    self.is_alignall = True
+
+                    # Group consensus
+                    for group in self.groups:
+                        self.get_consensus_aln(group=group)
+
+                    # Color sequences
+                    self.color_code_seq(seq_map=seq_map, mode="all")
+
+                    # Group %Conservation
+                    ref_consensus = None
+                    for group in self.groups:
+                        if group['checkbox_setrefgroup'].isChecked():
+                            ref_consensus = group.get('consensus_seq')
+                            break
+
+                    if ref_consensus:
+                        for group in self.groups:
+                            target_consensus = group.get('consensus_seq')
+                            layout = group['main_layout_seq']
+                            if not target_consensus or target_consensus == ref_consensus:
+                                continue
+                            # Calculate match %
+                            matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                            percent_conservation = (matches / len(ref_consensus)) * 100
+                            str_percent_conservation = f"{percent_conservation:.3g}%"
+                            # Update GUI label
+                            for i in range(layout.count()):
+                                widget = layout.itemAt(i).widget()
+                                if widget and widget.objectName() == "consensus_row":
+                                    label = widget.findChild(QLabel, "percent_conservation")
+                                    if label:
+                                        label.setText(str_percent_conservation)
+
+                    # Global consensus
+                    self.get_global_consensus()
+
+                    # 2ndary structure & its %Conservation
+                    region_conservation = self.compute_region_conservation(self.prediction_text)
+                    self.draw_secondary_structure_to_gui(
+                        self.prediction_text,
+                        region_conservation=region_conservation,
+                        mode="all"
+                    )
+
+# ------9 Load file message
+        except Exception as e:
+            print(f"Error restoring secondary structure: {str(e)}")
         QMessageBox.information(self, "Loaded", f"Project loaded from {file_path}")
+
+
 
 
 #_______________________________________________________________________________________________OTHER DEF___
@@ -952,7 +1055,10 @@ class protein(QWidget):
 #_______________________________________________________________________________________________
 
     def button1_addgroup_clicked(self):
-        
+
+# --------------------------------------------Initiation
+        self.align_blue = False
+
 # . . .  CLEAR GUI . . .
         if hasattr(self, 'widget_global') and self.widget_global is not None:
             self.layout_protein_l3.removeWidget(self.widget_global)             # only remove from layout
@@ -1116,7 +1222,10 @@ class protein(QWidget):
 #_______________________________________________________________________________________________
 
     def button3_addseq_clicked(self, layout):
-        
+
+# --------------------------------------------Initiation
+        self.align_blue = False
+
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
             if group['main_layout_seq'] == layout:
@@ -1655,7 +1764,10 @@ class protein(QWidget):
 #__________________________________________________________________________________________ALIGN
 
     def button5_align_clicked(self, layout):
-        
+
+# --------------------------------------------Initiation
+        self.align_blue = True
+
 # --------------------------------------------Main
         widget_dialogbox_align = QDialog(self)
         widget_dialogbox_align.setStyleSheet('QDialog {background-color: white;}')
@@ -1748,6 +1860,7 @@ class protein(QWidget):
         all_seq = []
         self.seq_map = []
         self.is_alignall = True
+        self.align_blue = False
 
 # --------------------------------------------Main
         widget_dialogbox_alignall = QDialog(self)
@@ -1837,9 +1950,19 @@ class protein(QWidget):
 #_______________________________________________________________________________________________10-3 DEF: Run Alignment > etc.
 #_______________________________________________________________________________________________
 
+    def clear_sequences_from_layout(self, layout, group):
+        # Clear layout widgets (rows of sequences)
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        # Also clear the data list
+        group['widget_seq'].clear()
+
+
+
+
     def run_alignment(self, sequences, group=None, layout=None, button_aln=None, output_file=None, return_only=False, seq_map=None):
-        print('')
-        print('#1 Aligning amino acid sequence...')
 
         self.status.setText('Running . . .')
         self.status.setStyleSheet('color: red; font-weight: bold;')
@@ -1860,7 +1983,11 @@ class protein(QWidget):
         # QC 1: No. of sequences need to be > 2
         if len(sequences) < 2:
             QMessageBox.warning(self, 'Error', 'Need at least 2 sequences for alignment.')
+            self.status.setText('')
             return
+
+        print('')
+        print('#1 Aligning amino acid sequence...')
 
 # --------------------------------------------Actions
 # ------1 Run Alignment: MAFFT/ClustlO
@@ -1884,16 +2011,27 @@ class protein(QWidget):
 
         # ---1 Alignall
         if seq_map:                                                         # created in def button2_alignall_clicked(self)
+            # 1 check if reference group is empty
+            for group in self.groups:
+                if group['checkbox_setrefgroup'].isChecked():
+                    if not group['widget_seq']:
+                        QMessageBox.critical(self, 'Missing data', 'Void reference group. Discard all empty groups.')
+                        self.status.setText('')
+                        return
+
             # -- 1 Clear GUI (unaligned seq/previously aligned seq) and DICT
             for group in self.groups:
                 layout = group['layout_seq']
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
                     if widget:
+                        layout.removeWidget(widget)
                         widget.setParent(None)                              # REMOVE FROM GUI
                         widget.deleteLater()
-                group['widget_seq'].clear()                                 # REMOVE FROM DICT: widget: sequence
-                group['consensus_seq'] = None                               # REMOVE FROM DICT: consensus sequence
+                # Only clear these if we're keeping the group
+                group['widget_seq'].clear()
+                group['consensus_seq'] = None
+
 
             # -- 2 Connect - DEF: to add sequences to GUI
             for (group_idx, __), (aligned_name, aligned_seq) in zip(seq_map, aligned_seq):       
@@ -1945,23 +2083,12 @@ class protein(QWidget):
                             label.setText(str_percent_conservation)
 
 
-
-
-
-
-
-
             # -- 5 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
             self.color_code_seq(seq_map=self.seq_map, mode="all")
 
             # -- 6 Connect - DEF Get & Display on GUI (Global Consensus)
             global_consensus = self.get_global_consensus()
             if global_consensus:
-                with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta') as f:
-                    f.write(f">global_consensus\n{global_consensus.replace('-', '')}\n")
-                    fasta_file = f.name
-
-
                 print('')
                 print('#3 Generating secondary structure with PSIPRED...')
 
@@ -1969,15 +2096,15 @@ class protein(QWidget):
             # -- 7 Connect - DEF Run PSIPRED: Build Secondary Structure
                 if self.widget_psipred_offline.isChecked():
                     psipred_dir = os.path.join(self.base_path, '..', 'external_tools', 'psipred')
-                    self.prediction_text = self.build_secondary_structure_offline(psipred_dir)
+                    self.prediction_text = self.build_secondary_structure_offline(psipred_dir, mode="all")
                 else:
-                    self.prediction_text = self.build_secondary_structure_online(fasta_file)
+                    self.prediction_text = self.build_secondary_structure_online(mode="all")
 
             # -- 8 Connect - DEF Compute & Display (% Conservation based on PSIPRED Output)
-                region_conservation = self.compute_region_conservation(self.prediction_text)
+                region_conservation = self.compute_region_conservation(self.prediction_text, mode="all")
 
             # -- 9 Connect - DEF Display on GUI (PSIPRED Output)
-                self.draw_secondary_structure_to_gui(self.prediction_text, region_conservation)
+                self.draw_secondary_structure_to_gui(self.prediction_text, region_conservation=region_conservation, mode="all")
 
 
 
@@ -1988,6 +2115,7 @@ class protein(QWidget):
                 for i in reversed(range(layout.count())):
                     widget = layout.itemAt(i).widget()
                     if widget:
+                        layout.removeWidget(widget)
                         widget.setParent(None)                                          # removes from layout & GUI hierarchy but not delete
                         widget.deleteLater()                                            # REMOVE FROM GUI # ***** to amend ***** originally absent
 
@@ -2009,27 +2137,21 @@ class protein(QWidget):
 
             # -- 5 Connect - DEF Run PSIPRED: Build Secondary Structure
                 if 'consensus_seq' in group:
-
                     print('')
                     print('#3 Generating secondary structure with PSIPRED...')
-
-                    seq = group['consensus_seq'].replace('-', '')
-                    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.fasta') as f:
-                        f.write(f">consensus\n{seq}\n")
-                        fasta_file = f.name
-
                     if self.widget_psipred_offline.isChecked():
                         psipred_dir = os.path.join(self.base_path, '..', 'external_tools', 'psipred')
-                        self.prediction_text = self.build_secondary_structure_offline(psipred_dir)
+                        self.prediction_text = self.build_secondary_structure_offline(psipred_dir, group, mode="group")
                     else:
-                        self.prediction_text = self.build_secondary_structure_online(fasta_file)
+                        self.prediction_text = self.build_secondary_structure_online(group, mode="group")
 
 
             # -- 6 Connect - DEF Display on GUI (PSIPRED Output)
-                    self.draw_secondary_structure_to_gui(self.prediction_text)
+                    self.draw_secondary_structure_to_gui(self.prediction_text, group=group, mode="group")
 
                 else:
                     QMessageBox.warning(self, 'Missing value', 'Consensus Sequences not found. Please contact Alignate.')
+                    self.status.setText('')
                     return
 
         print('')
@@ -2047,7 +2169,7 @@ class protein(QWidget):
 #_______________________________________________________________________________________________
 
     def add_sequences_toGUI(self, group, layout, seq_name='', seq=''):
-                     
+                               
 # --------------------------------------------Main
         widget_seq = QWidget()
         layout_seq = QHBoxLayout()
@@ -2068,6 +2190,11 @@ class protein(QWidget):
         layout_seq.addWidget(seq_header)
         layout_seq.addSpacing(5)
         layout_seq.setAlignment(Qt.AlignLeft)
+
+        if self.align_blue == True:
+            seq_header.setStyleSheet('border: 1px solid grey; border-radius: 2px; background-color: orange;')
+        else:
+            seq_header.setStyleSheet('border: 1px solid lightgray; border-radius: 1px; background-color: white;')
 
         # 3 Sequence
         seq_letters = []
@@ -2103,6 +2230,7 @@ class protein(QWidget):
         layout = group['main_layout_seq']
         if layout is None:
             return
+            
         for i in reversed(range(layout.count())):
             widget = layout.itemAt(i).widget()
             if widget:
@@ -2127,6 +2255,7 @@ class protein(QWidget):
         invisible_checkbox.setEnabled(False)
         invisible_checkbox.setStyleSheet('background: transparent; border: none;')
         layout_consensus.addWidget(invisible_checkbox)
+        layout_consensus.addSpacing(5)
 
         # 2 Label
         label_consensus = QLabel('')
@@ -2373,7 +2502,7 @@ class protein(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def build_secondary_structure_offline(self, psipred_dir):
+    def build_secondary_structure_offline(self, psipred_dir, group=None, mode=None):
 
         print('#  Offline: Running PSIPRED V4 with database: BLAST+')
 
@@ -2391,12 +2520,18 @@ class protein(QWidget):
 
 
 # -------------------------- for aligned reference sequence ---------------------------
-        for group in self.groups:
-            if group['checkbox_setrefgroup'].isChecked():   
-                refseq = group['widget_seq'][0]['seq']
-                fasta_file = os.path.join(self.session_folder, f'{self.uid}_refseq.fasta')
-                with open(fasta_file, 'w') as fasta:
-                    fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+        if mode == "all":
+            for group in self.groups:
+                if group['checkbox_setrefgroup'].isChecked():   
+                    refseq = group['widget_seq'][0]['seq']
+                    fasta_file = os.path.join(self.session_folder, f'{self.uid}_refseq.fasta')
+                    with open(fasta_file, 'w') as fasta:
+                        fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+        elif mode == "group":
+            refseq = group['widget_seq'][0]['seq']
+            fasta_file = os.path.join(self.session_folder, f'{self.uid}_refseq.fasta')
+            with open(fasta_file, 'w') as fasta:
+                fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
 # -------------------------- for aligned reference sequence ---------------------------
 
 
@@ -2416,6 +2551,7 @@ class protein(QWidget):
                     subprocess.run([runpsipred, fasta_file], check=True, env=env, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
                 QMessageBox.critical(self, 'PSIPRED error', f'PSIPRED with BLAST+ failed: {e}')
+                self.status.setText('')
                 raise e
 
         elif self.widget_psipred_single.isChecked():
@@ -2428,11 +2564,13 @@ class protein(QWidget):
                     subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
                 QMessageBox.critical(self, 'PSIPRED Error', f'PSIPRED Single failed: {e}')
+                self.status.setText('')
                 raise e                
 
         # ---3 Extract data from output: horiz file
         if not os.path.exists(horiz_file):
             QMessageBox.critical(self, 'Error', f'Expected PSIPRED output file {horiz_file} not found!')
+            self.status.setText('')
 
         with open(horiz_file, "r") as f:
             self.prediction_text = f.read()
@@ -2443,9 +2581,29 @@ class protein(QWidget):
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
 #________________________________________________________________________________________PSIPRED
 
-    def build_secondary_structure_online(self, fasta_file):
+    def build_secondary_structure_online(self, group=None, mode=None):
 
         print('#  Online: Running PSIPRED V4 online')
+
+# --------------------------------------------Action
+        # ---1 Set files
+        horiz_file = f"{self.session_folder}/{self.uid}_refseq.horiz"
+
+
+# -------------------------- for aligned reference sequence ---------------------------
+        if mode == "all":
+            for group in self.groups:
+                if group['checkbox_setrefgroup'].isChecked():   
+                    refseq = group['widget_seq'][0]['seq']
+                    fasta_file = os.path.join(self.session_folder, f'{self.uid}_refseq.fasta')
+                    with open(fasta_file, 'w') as fasta:
+                        fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+        else:
+            refseq = group['widget_seq'][0]['seq']
+            fasta_file = os.path.join(self.session_folder, f'{self.uid}_refseq.fasta')
+            with open(fasta_file, 'w') as fasta:
+                fasta.write(f'>ref_seq\n{refseq}\n')    # write to fasta file
+# -------------------------- for aligned reference sequence ---------------------------
 
         with open(fasta_file, 'r') as fasta:
             lines = fasta.readlines()
@@ -2457,6 +2615,7 @@ class protein(QWidget):
         user_email = self.qlineedit_email.text()
         if not user_email or '@' not in user_email:
             QMessageBox.warning(self, "Missing Email", "Please enter a valid email address to run PSIPRED online.")
+            self.status.setText('')
             return
 
         fasta_file_name = os.path.basename(fasta_file)
@@ -2516,9 +2675,17 @@ class protein(QWidget):
 #_______________________________________________________________________________________________16 PSIPRED: DISPLAY ON GUI
 #________________________________________________________________________________________PSIPRED
 
-    def draw_secondary_structure_to_gui(self, prediction_text, region_conservation=None):
+    def draw_secondary_structure_to_gui(self, prediction_text, region_conservation=None, group=None, mode=None):
 
         print('#  Drawing secondary structure from PSIPRED on GUI')
+
+# . . .  CLEAR GUI . . .
+        # REMOVE EXISTING WIDGET SECONDARY STRUCTURE
+        if hasattr(self, 'widget_horizontal') and self.widget_horizontal is not None:
+            self.layout_protein_l4_2ndarystructure.removeWidget(self.widget_horizontal)     # remove from layout (optional)
+            self.widget_horizontal.setParent(None)                                          # remove from parent GUI hierarchy
+            self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
+            self.widget_horizontal = None                                                   # no widget global
 
 # --------------------------------------------Main
         # --- 1 Widgets
@@ -2550,11 +2717,15 @@ class protein(QWidget):
                 if len(parts) > 1:
                     pred += parts[1]
 
-        refseq = None
-        for group in self.groups:
-            if group['checkbox_setrefgroup'].isChecked():
+        refseq = ''
+        if mode == "group":
+            if group.get('widget_seq') and len(group['widget_seq']) > 0:
                 refseq = group['widget_seq'][0]['seq']
-                break
+        elif mode == "all":
+            for group in self.groups:
+                if group['checkbox_setrefgroup'].isChecked():
+                    refseq = group['widget_seq'][0]['seq']
+                    break
 
         final_pred = []
         pred_idx = 0
@@ -2565,11 +2736,11 @@ class protein(QWidget):
                 final_pred.append(pred[pred_idx])
                 pred_idx += 1
 
+
         # --- 3 Draw the secondary structure
         fig_width = len(final_pred) * 0.15
         fig, ax = plt.subplots(figsize=(fig_width, 0.4), dpi=100)
         i = 0
-        hover_regions = []
         while i < len(final_pred):
             ss = final_pred[i]
             start = i
@@ -2581,7 +2752,7 @@ class protein(QWidget):
 
             # --- Draw the shapes ---
             if ss == 'H':
-                rect = Rectangle((start, 0.1), region_length, 0.8, linewidth=1, edgecolor='red', facecolor='red', alpha=0.4)
+                rect = Rectangle((start, 0.1), region_length, 0.8, linewidth=1, edgecolor='orange', facecolor='orange')
                 ax.add_patch(rect)
             elif ss == 'E':
                 arrow = FancyArrow(start, 0.5, region_length - 0.2, 0, width=0.3, length_includes_head=True, head_width=0.5, head_length=0.3, color='blue')
@@ -2599,13 +2770,28 @@ class protein(QWidget):
 
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.getvalue())
-        label = StructureLabel(pixmap, "\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
+#        label = StructureLabel(pixmap, "\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
+
+        if not self.align_blue:
+            label = StructureLabel(
+                pixmap,
+                "Position for amino acid residues:\n" + "\n".join(
+                    f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" +
+                    "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items())
+                    for reg in region_conservation
+                ) if region_conservation else ""
+            )
+        else:
+            group_name = group['lineedit_groupname'].text()
+            label = StructureLabel(pixmap, group_name)
+
         layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
 
 
 #-----------------------------------------------------Output files
         ss_conservation_file = os.path.join(self.session_folder, f'{self.uid}_ssconservation.txt')
-        with open(ss_conservation_file, 'a') as ss:
+        with open(ss_conservation_file, 'w') as ss:
+            ss.write('Position for amino acid residues:\n')
             ss.write("\n".join(f"{reg['type']} ({reg['start']+1}-{reg['end']+1}):\t" + "\t".join(f"{g}: {v:.1f}%" for g, v in reg.get("group_scores", {}).items()) for reg in region_conservation) if region_conservation else "")
 
 
@@ -2613,7 +2799,7 @@ class protein(QWidget):
 #_______________________________________________________________________________________________17 PSIPRED: Compute SS Region Conservation
 #________________________________________________________________________________________PSIPRED
 
-    def compute_region_conservation(self, prediction_text):
+    def compute_region_conservation(self, prediction_text, mode=None):
 
         print('#  Calculating %Conservation on secondary structure')
 
