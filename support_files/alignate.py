@@ -1547,6 +1547,10 @@ class protein(QWidget):
                 name = record.id or 'unnamed'
                 seq = str(record.seq)
 
+                print('seq')
+                print(seq)
+                print('---')
+
                 if 'M' not in seq:
                     QMessageBox.warning(self, 'Invalid sequence', 'Met is not found in sequence. Please ensure only protein sequences are added.')
                     return
