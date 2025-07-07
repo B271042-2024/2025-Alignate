@@ -544,11 +544,82 @@ class codon(QWidget):
 #_______________________________________________________________________________________________3-2 DEF: Slider
 #_______________________________________________________________________________________________ (Called in DEF: run_alignment)
 
+
+
+
+    def menu1_others_saveconservationfile_clicked(self):
+        self.saveconservation = True
+        self.slider_threshold()
+
+
+
     def slider_threshold(self):
         if self.checkboxslider.isChecked():
             threshold = self.slidercon.value()
-            lower = threshold - 5.5
-            upper = threshold + 5.5
+            lower = threshold - 10
+            upper = threshold + 10
+
+            all_seqs = []
+            for group in self.groups:
+                for entry in group['widget_seq']:
+                    all_seqs.append(entry['seq'])
+
+            if not all_seqs:
+                return
+
+            columns = list(zip(*all_seqs))
+            conservation_scores = []
+            for col in columns:
+                most_common = Counter(col).most_common(1)[0][1]
+                percent = round((most_common / len(col)) * 100)
+                conservation_scores.append(percent)
+
+            if self.saveconservation:
+                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
+                with open(selectconservation_file, 'w') as sc:
+                    sc.write(f'#{threshold} +/-10\n')
+                    sc.write(f'Position\tGroup\tResidue\n')
+                    for group in self.groups:
+                        group_name = group['lineedit_groupname'].text()
+                        for entry in group['widget_seq']:
+                            for i, lbl in enumerate(entry['seq_letters']):
+                                if i >= len(conservation_scores):
+                                    continue
+                                percent = conservation_scores[i]
+                                bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
+                                if lower <= percent <= upper:
+                                    sc.write(f'{i+1}\t{group_name}\t{lbl.text()}\n')
+                                    lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+                                else:
+                                    lbl.setStyleSheet('color: lightgray;')
+                QMessageBox.information(self, 'Saved', f'Project saved to {self.session_folder}')
+            else:
+                for group in self.groups:
+                    for entry in group['widget_seq']:
+                        for i, lbl in enumerate(entry['seq_letters']):
+                            if i >= len(conservation_scores):
+                                continue
+                            percent = conservation_scores[i]
+                            bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
+                            if lower <= percent <= upper:
+                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+                            else:
+                                lbl.setStyleSheet('color: lightgray;')
+            self.saveconservation = False
+        else:
+            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
+
+
+
+    def todel_slider_threshold(self):
+        if self.checkboxslider.isChecked():
+            threshold = self.slidercon.value()
+            lower = threshold - 10
+            upper = threshold + 10
 
             all_seqs = []
             for group in self.groups:

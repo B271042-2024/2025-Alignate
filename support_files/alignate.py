@@ -124,6 +124,8 @@ class main(QMainWindow):
         menu1 = menu.addMenu('File')
         menu1_load = menu1.addAction('Load Project')
         menu1_save = menu1.addAction('Save Project')
+        menu1_others = menu1.addMenu('Others')
+        menu1_others_saveconservationfile = menu1_others.addAction('Save Conservation (Only for %Conservation slider)')
         menu2 = menu.addMenu('View')
         menu2_color = menu2.addMenu('Color')
         menu2_color_orange = menu2_color.addAction('Orange')
@@ -205,6 +207,8 @@ class main(QMainWindow):
         menu2_color_green.triggered.connect(lambda: self.active_window.set_similarity_color("olive"))
         menu2_color_orange.triggered.connect(lambda: self.active_window.set_similarity_color("darkorange"))
         menu2_color_blue.triggered.connect(lambda: self.active_window.set_similarity_color("DarkRed"))
+
+        menu1_others_saveconservationfile.triggered.connect(self.active_window.menu1_others_saveconservationfile_clicked)
 
         def active_search_seq():                                                            # dynamically switch between protein & codon
             current_widget = self.stack.currentWidget()
@@ -482,6 +486,7 @@ class protein(QWidget):
         self.similarity_color = 'darkmagenta'
         self.align_blue = False
         self.prediction_text = ""
+        self.saveconservation = False
 
 # --------------------------------------------Main
         # ---Layer 1
@@ -813,11 +818,11 @@ class protein(QWidget):
 #_______________________________________________________________________________________________4-2 DEF: Slider
 #_______________________________________________________________________________________________ (Called in DEF: run_alignment)
 
-    def slider_threshold(self):
+    def todel_slider_threshold(self):
         if self.checkboxslider.isChecked():
             threshold = self.slidercon.value()
-            lower = threshold - 5.5
-            upper = threshold + 5.5
+            lower = threshold - 10
+            upper = threshold + 10
 
             all_seqs = []
             for group in self.groups:
@@ -852,6 +857,79 @@ class protein(QWidget):
             else:
                 for idx, group in enumerate(self.groups):
                     self.color_code_seq(mode="group", group_idx=idx)
+
+
+
+
+    def menu1_others_saveconservationfile_clicked(self):
+        self.saveconservation = True
+        self.slider_threshold()
+
+
+
+
+    def slider_threshold(self):
+        if self.checkboxslider.isChecked():
+            threshold = self.slidercon.value()
+            lower = threshold - 10
+            upper = threshold + 10
+
+            all_seqs = []
+            for group in self.groups:
+                for entry in group['widget_seq']:
+                    all_seqs.append(entry['seq'])
+
+            if not all_seqs:
+                return
+
+            columns = list(zip(*all_seqs))
+            conservation_scores = []
+            for col in columns:
+                most_common = Counter(col).most_common(1)[0][1]
+                percent = round((most_common / len(col)) * 100)
+                conservation_scores.append(percent)
+
+            if self.saveconservation:
+                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
+                with open(selectconservation_file, 'w') as sc:
+                    sc.write(f'#{threshold} +/-10\n')
+                    sc.write(f'Position\tGroup\tResidue\n')
+                    for group in self.groups:
+                        group_name = group['lineedit_groupname'].text()
+                        for entry in group['widget_seq']:
+                            for i, lbl in enumerate(entry['seq_letters']):
+                                if i >= len(conservation_scores):
+                                    continue
+                                percent = conservation_scores[i]
+                                bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
+                                if lower <= percent <= upper:
+                                    sc.write(f'{i+1}\t{group_name}\t{lbl.text()}\n')
+                                    lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+                                else:
+                                    lbl.setStyleSheet('color: lightgray;')
+                QMessageBox.information(self, 'Saved', f'Project saved to {self.session_folder}')
+            else:
+                for group in self.groups:
+                    for entry in group['widget_seq']:
+                        for i, lbl in enumerate(entry['seq_letters']):
+                            if i >= len(conservation_scores):
+                                continue
+                            percent = conservation_scores[i]
+                            bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
+                            if lower <= percent <= upper:
+                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+                            else:
+                                lbl.setStyleSheet('color: lightgray;')
+
+            self.saveconservation = False
+
+        else:
+            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
+
 
 
 #_______________________________________________________________________________________________5-1 DEF: Menu - Save Project
@@ -1546,10 +1624,6 @@ class protein(QWidget):
             for record in sequences:
                 name = record.id or 'unnamed'
                 seq = str(record.seq)
-
-                print('seq')
-                print(seq)
-                print('---')
 
                 if 'M' not in seq:
                     QMessageBox.warning(self, 'Invalid sequence', 'Met is not found in sequence. Please ensure only protein sequences are added.')
