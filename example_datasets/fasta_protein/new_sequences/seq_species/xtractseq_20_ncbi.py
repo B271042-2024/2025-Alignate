@@ -128,22 +128,22 @@ def main():
         required_organism=organism
     )
 
-    output_file = f"{protein_name.replace(' ', '_')}_{organism.replace(' ', '_')}.fasta"
-    with open(output_file, 'w') as f:
-        f.write(filtered_fasta)
+#    output_file = f"{protein_name.replace(' ', '_')}_{organism.replace(' ', '_')}.fasta"
+#    with open(output_file, 'w') as f:
+#        f.write(filtered_fasta)
 
-    # --- Save only the first 50 sequences
+    # --- Save only the first 20 sequences
     records = filtered_fasta.strip().split('\n>')
-    top_50 = records[:50]
-    top_50_text = '\n>'.join(top_50)
-    if not top_50_text.startswith('>'):
-        top_50_text = '>' + top_50_text
+    top_20 = records[:20]
+    top_20_text = '\n>'.join(top_20)
+    if not top_20_text.startswith('>'):
+        top_20_text = '>' + top_20_text
 
-    output_50_file = output_file.replace('.fasta', '_50.fasta')
-    with open(output_50_file, 'w') as f50:
-        f50.write(top_50_text)
+    output_20_file = f"{protein_name.replace(' ', '_')}_{organism.replace(' ', '_')}_20.fasta"
+    with open(output_20_file, 'w') as f20:
+        f20.write(top_20_text)
 
-    print(f"Filtered FASTA saved to {output_file}")
+    print(f"Filtered FASTA saved to {output_20_file}")
 
 
 if __name__ == '__main__':

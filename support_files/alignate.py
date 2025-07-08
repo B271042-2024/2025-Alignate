@@ -888,6 +888,92 @@ class protein(QWidget):
                 most_common = Counter(col).most_common(1)[0][1]
                 percent = round((most_common / len(col)) * 100)
                 conservation_scores.append(percent)
+                
+            if self.saveconservation:
+                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
+                with open(selectconservation_file, 'w') as sc:
+                    sc.write(f'# Conservation Threshold: {threshold} +/-10\n')
+
+                    # Build header line
+                    header = ['Position']
+                    label_refs = []  # Store (group_seq_name, lbl_list)
+                    for group in self.groups:
+                        group_name = group['lineedit_groupname'].text()
+                        for idx, entry in enumerate(group['widget_seq']):
+                            seq_name = f'{group_name}_seq{idx+1}'
+                            header.append(seq_name)
+                            label_refs.append((seq_name, entry['seq_letters']))
+                    sc.write('\t'.join(header) + '\n')
+
+                    # Write filtered rows
+                    num_positions = len(conservation_scores)
+                    for pos in range(num_positions):
+                        percent = conservation_scores[pos]
+                        if not (lower <= percent <= upper):
+                            continue  # Skip position if it's outside the threshold
+
+                        row = [str(pos + 1)]
+                        keep_position = False
+                        for seq_name, lbl_list in label_refs:
+                            if pos < len(lbl_list):
+                                lbl = lbl_list[pos]
+                                residue = lbl.text()
+                                row.append(residue)
+                                keep_position = True
+                                bg_color = lbl.property("bg_color") or 'white'
+                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+
+                        if keep_position:
+                            sc.write('\t'.join(row) + '\n')
+
+                QMessageBox.information(self, 'Saved', f'Project saved to {self.session_folder}')
+
+            else:
+                for group in self.groups:
+                    for entry in group['widget_seq']:
+                        for i, lbl in enumerate(entry['seq_letters']):
+                            if i >= len(conservation_scores):
+                                continue
+                            percent = conservation_scores[i]
+                            bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
+                            if lower <= percent <= upper:
+                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+                            else:
+                                lbl.setStyleSheet('color: lightgray;')
+
+            self.saveconservation = False
+
+        else:
+            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+                self.color_code_seq(seq_map=self.seq_map, mode="all")
+            else:
+                for idx, group in enumerate(self.groups):
+                    self.color_code_seq(mode="group", group_idx=idx)
+
+
+
+
+
+    def todel_slider_threshold(self):
+        if self.checkboxslider.isChecked():
+            threshold = self.slidercon.value()
+            lower = threshold - 10
+            upper = threshold + 10
+
+            all_seqs = []
+            for group in self.groups:
+                for entry in group['widget_seq']:
+                    all_seqs.append(entry['seq'])
+
+            if not all_seqs:
+                return
+
+            columns = list(zip(*all_seqs))
+            conservation_scores = []
+            for col in columns:
+                most_common = Counter(col).most_common(1)[0][1]
+                percent = round((most_common / len(col)) * 100)
+                conservation_scores.append(percent)
 
             if self.saveconservation:
                 selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')

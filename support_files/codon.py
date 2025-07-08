@@ -577,21 +577,40 @@ class codon(QWidget):
             if self.saveconservation:
                 selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
                 with open(selectconservation_file, 'w') as sc:
-                    sc.write(f'#{threshold} +/-10\n')
-                    sc.write(f'Position\tGroup\tResidue\n')
+                    sc.write(f'# Conservation Threshold: {threshold} +/-10\n')
+
+                    # Build header line
+                    header = ['Position']
+                    label_refs = []  # Store (group_seq_name, lbl_list)
                     for group in self.groups:
                         group_name = group['lineedit_groupname'].text()
-                        for entry in group['widget_seq']:
-                            for i, lbl in enumerate(entry['seq_letters']):
-                                if i >= len(conservation_scores):
-                                    continue
-                                percent = conservation_scores[i]
-                                bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
-                                if lower <= percent <= upper:
-                                    sc.write(f'{i+1}\t{group_name}\t{lbl.text()}\n')
-                                    lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
-                                else:
-                                    lbl.setStyleSheet('color: lightgray;')
+                        for idx, entry in enumerate(group['widget_seq']):
+                            seq_name = f'{group_name}_seq{idx+1}'
+                            header.append(seq_name)
+                            label_refs.append((seq_name, entry['seq_letters']))
+                    sc.write('\t'.join(header) + '\n')
+
+                    # Write filtered rows
+                    num_positions = len(conservation_scores)
+                    for pos in range(num_positions):
+                        percent = conservation_scores[pos]
+                        if not (lower <= percent <= upper):
+                            continue  # Skip position if it's outside the threshold
+
+                        row = [str(pos + 1)]
+                        keep_position = False
+                        for seq_name, lbl_list in label_refs:
+                            if pos < len(lbl_list):
+                                lbl = lbl_list[pos]
+                                residue = lbl.text()
+                                row.append(residue)
+                                keep_position = True
+                                bg_color = lbl.property("bg_color") or 'white'
+                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
+
+                        if keep_position:
+                            sc.write('\t'.join(row) + '\n')
+
                 QMessageBox.information(self, 'Saved', f'Project saved to {self.session_folder}')
             else:
                 for group in self.groups:
