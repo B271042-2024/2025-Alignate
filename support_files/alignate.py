@@ -785,9 +785,14 @@ class protein(QWidget):
             target_consensus = group.get('consensus_seq')
             if not target_consensus or target_consensus == ref_consensus:
                 continue    # skip the for loop
-            matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-            percent_conservation = (matches / len(ref_consensus)) * 100
+            matches = sum(
+                1 for i in range(1, len(ref_consensus))  # start at 1
+                if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+            percent_conservation = (matches / (len(ref_consensus))) * 100
+            #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+            #percent_conservation = (matches / len(ref_consensus)) * 100
             str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
         # 3 update %conservation consensus against reference consensus
             for i in range(layout.count()):
                 widget = layout.itemAt(i).widget()
@@ -815,51 +820,10 @@ class protein(QWidget):
                     self.color_code_seq(mode="group", group_idx=idx)
 
 
+
+
 #_______________________________________________________________________________________________4-2 DEF: Slider
 #_______________________________________________________________________________________________ (Called in DEF: run_alignment)
-
-    def todel_slider_threshold(self):
-        if self.checkboxslider.isChecked():
-            threshold = self.slidercon.value()
-            lower = threshold - 10
-            upper = threshold + 10
-
-            all_seqs = []
-            for group in self.groups:
-                for entry in group['widget_seq']:
-                    all_seqs.append(entry['seq'])
-
-            if not all_seqs:
-                return
-
-            columns = list(zip(*all_seqs))
-            conservation_scores = []
-            for col in columns:
-                most_common = Counter(col).most_common(1)[0][1]
-                percent = round((most_common / len(col)) * 100)
-                conservation_scores.append(percent)
-
-            for group in self.groups:
-                for entry in group['widget_seq']:
-                    for i, lbl in enumerate(entry['seq_letters']):
-                        if i >= len(conservation_scores):
-                            continue
-                        percent = conservation_scores[i]
-                        bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
-                        if lower <= percent <= upper:
-                            lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
-                        else:
-                            lbl.setStyleSheet('color: lightgray;')
-
-        else:
-            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
-                self.color_code_seq(seq_map=self.seq_map, mode="all")
-            else:
-                for idx, group in enumerate(self.groups):
-                    self.color_code_seq(mode="group", group_idx=idx)
-
-
-
 
     def menu1_others_saveconservationfile_clicked(self):
         self.saveconservation = True
@@ -890,7 +854,7 @@ class protein(QWidget):
                 conservation_scores.append(percent)
                 
             if self.saveconservation:
-                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
+                selectconservation_file = os.path.join(self.session_folder, f'{self.uid}_conservation_{threshold}.txt')
                 with open(selectconservation_file, 'w') as sc:
                     sc.write(f'# Conservation Threshold: {threshold} +/-10\n')
 
@@ -1184,9 +1148,14 @@ class protein(QWidget):
                             if not target_consensus or target_consensus == ref_consensus:
                                 continue
                             # Calculate match %
-                            matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                            percent_conservation = (matches / len(ref_consensus)) * 100
-                            str_percent_conservation = f"{percent_conservation:.3g}%"
+                            matches = sum(
+                                1 for i in range(1, len(ref_consensus))  # start at 1
+                                if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+                            percent_conservation = (matches / (len(ref_consensus))) * 100
+                            #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                            #percent_conservation = (matches / len(ref_consensus)) * 100
+                            str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
                             # Update GUI label
                             for i in range(layout.count()):
                                 widget = layout.itemAt(i).widget()
@@ -2230,9 +2199,21 @@ class protein(QWidget):
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
                     continue    # skip the for loop
-                matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                percent_conservation = (matches / len(ref_consensus)) * 100
+
+                matches = sum(
+                    1 for i in range(1, len(ref_consensus))  # start at 1
+                    if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+                percent_conservation = (matches / (len(ref_consensus))) * 100
+                #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                #percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
+
+#                print('continue_run...')
+#                print(f'matches: {matches}')
+#                print(len(ref_consensus))
+#                print('---')
+
 
 # --------------------------------------------Output_files
                 with open(groupconservation_file, 'a') as c:
@@ -2399,7 +2380,7 @@ class protein(QWidget):
             widget = layout.itemAt(i).widget()
             if widget:
                 name = widget.objectName()
-                if name == "consensus_row":                             # Remove Group Consensus Row
+                if name in ["consensus_row", "custom_conservation_block"]:                             # Remove Group Consensus Row
                     layout.removeWidget(widget)
                     widget.setParent(None)
                     widget.deleteLater()
@@ -2591,7 +2572,7 @@ class protein(QWidget):
 #_______________________________________________________________________________________________14 Custom Display % Conservation
 #_______________________________________________________________________________________________
 
-    def custom_display_perc_cons(self, pos1, pos2):
+    def todel_custom_display_perc_cons(self, pos1, pos2):
         
 # --------------------------------------------Action
         # 1 Get Reference Consensus
@@ -2659,6 +2640,135 @@ class protein(QWidget):
             layout_result.addWidget(invisible_label)
             widget_result.setLayout(layout_result)
             layout.addWidget(widget_result_main)
+
+
+
+
+    def custom_display_perc_cons(self, pos1, pos2, widget_checkbox):
+        
+# --------------------------------------------Action
+        # 1 Get Reference Consensus
+        ref_consensus = None
+        for group in self.groups:
+            if group['checkbox_setrefgroup'].isChecked():
+                ref_consensus = group.get('consensus_seq')
+                break
+        if not ref_consensus:
+            print('No reference group selected.')
+
+        # 2 Positions: MIN (Click 1) & MAX (Click 2)
+        start = min(pos1, pos2)
+        end = max(pos1, pos2)
+
+        for group in self.groups:
+        # 3 Get Target Consensus
+            if group['checkbox_setrefgroup'].isChecked():
+                continue
+            target_consensus = group.get('consensus_seq')
+            if not target_consensus:
+                continue
+
+            # Check start & end
+            if start < 1:
+                start = 1
+            if end > len(target_consensus):
+                end = len(target_consensus)
+
+        # 4 Remove existing Widget: Custom Display % Conservative
+            layout = group['main_layout_seq']
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if widget and widget.objectName() == 'custom_conservation_block':
+                    layout.removeWidget(widget)
+                    widget.deleteLater()
+
+        ## start & end positions are not index numbers
+        # 5 Calculate %Similarity
+            #start_index = start - 1
+            #end_index = end - 1
+            start_index = max(1, start)
+            end_index = end
+            match_count = sum(1 for i in range(start_index, end_index + 1) if i < len(ref_consensus) and i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+            total = end - start + 1
+            percent = (match_count / total * 100) if total else 0
+
+#            print('---')
+#            print(percent)
+#            print(match_count)
+#            print(f'{total}: {end} - {start}')
+#            print(len(ref_consensus))
+#            print('---')
+
+# --------------------------------------------Main
+            widget_result_main = QWidget()
+            widget_result_main.setObjectName("custom_conservation_block")
+            layout_result_main = QHBoxLayout()
+            widget_result_main.setLayout(layout_result_main)
+            layout_result_main.setContentsMargins(0, 0, 0, 0)
+            layout_result_main.setSpacing(0)
+
+# --------------------------------------------Sub-elements
+            # ---1 2nd Layer
+            widget_result = QWidget()
+            layout_result = QHBoxLayout()
+            layout_result.setContentsMargins(0, 0, 0, 0)
+            layout_result.setSpacing(0)
+            layout_result_main.addWidget(widget_result, alignment=Qt.AlignLeft)
+
+            # ---2 Labels (Spacing)
+            invisible_checkbox = QCheckBox()
+            invisible_checkbox.setEnabled(False)
+            invisible_checkbox.setStyleSheet('background: transparent; border: none;')
+            layout_result.addWidget(invisible_checkbox)
+
+            invisible_label = QLabel(f"(pos: {str(start)}-{str(end)}) {percent:.1f}%")
+            invisible_label.setStyleSheet("font-size: 12px;")
+            layout_result.addWidget(invisible_label)
+            widget_result.setLayout(layout_result)
+            layout.addWidget(widget_result_main)
+
+# --------------------------------------------%Conservation based on amino acid properties
+
+        if widget_checkbox.isChecked():
+            aa_properties = [['P','G','C'],['G','A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
+            property_names = ["special","hydrophobic_aliphatic","hydrophobic_aromatic","polar","negative","positive","unknown"]
+
+            # filter and name your groups
+            if group in self.groups:
+                group_names = [group['lineedit_groupname'].text() for group in self.groups]
+
+            # initialize counts per group per property
+            counts = [[0]*len(self.groups) for _ in aa_properties]
+
+            # count
+            for grp_idx, g in enumerate(self.groups):
+                seq = g['consensus_seq']
+                for i in range(start, end+1):
+                    if i >= len(seq): 
+                        continue
+                    aa = seq[i]
+                    for prop_idx, props in enumerate(aa_properties):
+                        if aa in props:
+                            counts[prop_idx][grp_idx] += 1
+                            break
+
+            # compute totals per group (sum over all properties)
+            totals = [ sum(counts[prop][grp] for prop in range(len(aa_properties))) for grp in range(len(self.groups)) ]
+
+            # build percent matrix
+            percents = [[(counts[prop_idx][grp_idx] / totals[grp_idx] * 100) if totals[grp_idx] else 0.0 for grp_idx in range(len(self.groups))] for prop_idx in range(len(aa_properties))]
+
+            # write file with header: aa_properties  group1  group2  ...
+            aa_properties_perc_file = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.txt')
+            with open(aa_properties_perc_file, 'w') as afile:
+                afile.write("# %Amino acid properties for each group")
+                afile.write("aa_properties\t" + "\t".join(group_names) + "\n")
+                for prop_idx, pname in enumerate(property_names):
+                    row = [f"{pname}"] + [f"{percents[prop_idx][g]:.1f}" for g in range(len(self.groups))]
+                    afile.write("\t".join(row) + "\n")
+
+            QMessageBox.information(self, 'Saved', f'%Conservation is saved as {aa_properties_perc_file}')
+
 
 
 

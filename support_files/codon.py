@@ -512,9 +512,14 @@ class codon(QWidget):
             target_consensus = group.get('consensus_seq')
             if not target_consensus or target_consensus == ref_consensus:
                 continue    # skip the for loop
-            matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-            percent_conservation = (matches / len(ref_consensus)) * 100
+            matches = sum(
+                1 for i in range(1, len(ref_consensus))  # start at 1
+                if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+            percent_conservation = (matches / (len(ref_consensus))) * 100
+            #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+            #percent_conservation = (matches / len(ref_consensus)) * 100
             str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
         # 3 update %conservation consensus against reference consensus
             for i in range(layout.count()):
                 widget = layout.itemAt(i).widget()
@@ -575,7 +580,7 @@ class codon(QWidget):
                 conservation_scores.append(percent)
 
             if self.saveconservation:
-                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
+                selectconservation_file = os.path.join(self.session_folder, f'{self.uid}_conservation_{threshold}.txt')
                 with open(selectconservation_file, 'w') as sc:
                     sc.write(f'# Conservation Threshold: {threshold} +/-10\n')
 
@@ -860,9 +865,14 @@ class codon(QWidget):
                             if not target_consensus or target_consensus == ref_consensus:
                                 continue  # skip ref group or empty
                             # Calculate match %
-                            matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                            percent_conservation = (matches / len(ref_consensus)) * 100
-                            str_percent_conservation = f"{percent_conservation:.3g}%"
+                            matches = sum(
+                                1 for i in range(1, len(ref_consensus))  # start at 1
+                                if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+                            percent_conservation = (matches / (len(ref_consensus))) * 100
+                            #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                            #percent_conservation = (matches / len(ref_consensus)) * 100
+                            str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+                            
                             # Update GUI label
                             for i in range(layout.count()):
                                 widget = layout.itemAt(i).widget()
@@ -1664,9 +1674,20 @@ class codon(QWidget):
                 target_consensus = group.get('consensus_seq')
                 if not target_consensus or target_consensus == ref_consensus:
                     continue    # skip the for loop
-                matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                percent_conservation = (matches / len(ref_consensus)) * 100
+                matches = sum(
+                    1 for i in range(1, len(ref_consensus))  # start at 1
+                    if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
+                percent_conservation = (matches / (len(ref_consensus))) * 100
+                #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
+                #percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
+
+
+#                print('continue_run...')
+#                print(f'matches: {matches}')
+#                print(len(ref_consensus))
+#                print('---')
+
 
 # --------------------------------------------Output_files
                 with open(groupconservation_file, 'a') as c:
@@ -2129,7 +2150,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________14 Custom Display % Conservation
 #_______________________________________________________________________________________________
 
-    def custom_display_perc_cons(self, pos1, pos2):
+    def custom_display_perc_cons(self, pos1, pos2, widget_checkbox):
 # --------------------------------------------Action
         # 1 Get Reference Consensus
         ref_consensus = None
@@ -2152,6 +2173,12 @@ class codon(QWidget):
             if not target_consensus:
                 continue
 
+            # Check start & end
+            if start < 1:
+                start = 1
+            if end > len(target_consensus):
+                end = len(target_consensus)
+
         # 4 Remove existing Widget: Custom Display % Conservative
             layout = group['main_layout_seq']
             for i in reversed(range(layout.count())):
@@ -2160,14 +2187,22 @@ class codon(QWidget):
                     layout.removeWidget(widget)
                     widget.deleteLater()
 
-        # 5 Calculate % Similarity
-            match_count = sum(
-                1 for i in range(start, end + 1)
-                if i < len(ref_consensus) and i < len(target_consensus) and ref_consensus[i] == target_consensus[i]
-            )
+        ## start & end positions are not index numbers
+        # 5 Calculate %Similarity
+            start_index = max(1, start)
+            end_index = end
+            match_count = sum(1 for i in range(start_index, end_index + 1) if i < len(ref_consensus) and i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
             total = end - start + 1
             percent = (match_count / total * 100) if total else 0
-            mid = (start + end) // 2                                                # // = division without decimals, / = normal division
+
+
+#            print('---')
+#            print(percent)
+#            print(match_count)
+#            print(f'{total}: {end} - {start}')
+#            print(len(ref_consensus))
+#            print('---')
+
 
 # --------------------------------------------Main
             widget_result_main = QWidget()
@@ -2196,6 +2231,52 @@ class codon(QWidget):
             layout_result.addWidget(invisible_label)
             widget_result.setLayout(layout_result)
             layout.addWidget(widget_result_main)
+
+
+# --------------------------------------------%Conservation based on amino acid properties
+
+        if widget_checkbox.isChecked():
+            aa_properties = [['P','G','C'],['G','A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
+            property_names = ["special","hydrophobic_aliphatic","hydrophobic_aromatic","polar","negative","positive","unknown"]
+
+            # filter and name your groups
+            if group in self.groups:
+                group_names = [group['lineedit_groupname'].text() for group in self.groups]
+
+            # initialize counts per group per property
+            counts = [[0]*len(self.groups) for _ in aa_properties]  # 2D list, start with 0. - Stores no. of residues in each property category per group
+
+            # count
+            for grp_idx, g in enumerate(self.groups):
+                seq = g['consensus_seq_codon_codon']
+                for i in range(start, end+1):
+                    if i >= len(seq): 
+                        continue
+                    aa = seq[i]
+                    for prop_idx, props in enumerate(aa_properties):
+                        if aa in props:
+                            counts[prop_idx][grp_idx] += 1
+                            break
+
+            # compute totals per group (sum over all properties)
+            totals = [ sum(counts[prop][grp] for prop in range(len(aa_properties))) for grp in range(len(self.groups)) ]    # for each group, adds up total no. of residues classified into any property group
+
+            # build percent matrix
+            percents = [[(counts[prop_idx][grp_idx] / totals[grp_idx] * 100) if totals[grp_idx] else 0.0 for grp_idx in range(len(self.groups))] for prop_idx in range(len(aa_properties))]     # % residues in group_idx that fall into property prop_idx
+
+            # write file with header: aa_properties  group1  group2  ...
+            aa_properties_perc_file = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.txt')
+            with open(aa_properties_perc_file, 'w') as afile:
+                afile.write("# %Amino acid properties for each group")
+                afile.write("aa_properties\t" + "\t".join(group_names) + "\n")
+                for prop_idx, pname in enumerate(property_names):
+                    row = [f"{pname}"] + [f"{percents[prop_idx][g]:.1f}" for g in range(len(self.groups))]
+                    afile.write("\t".join(row) + "\n")
+
+            QMessageBox.information(self, 'Saved', f'%Conservation is saved as {aa_properties_perc_file}')
+
+
+
 
 
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE

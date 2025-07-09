@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QCheckBox, QLabel, QSizePolicy, QDialog, QPushButton
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QCheckBox, QLabel, QSizePolicy, QDialog, QPushButton, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QMouseEvent, QPainter, QPen
 
@@ -47,7 +47,6 @@ class ruler(QWidget):
         # call Class 2, fxn : set clickable
         self.clickable = ClickableLabel()
         self.layout_ruler.addWidget(self.clickable)
-        #self.clickable.clicked.connect(self.handle_clickable)
         self.clickable.clicked.connect(lambda: self.handle_clickable(-1))
         self.click_count = 0
         self.positions = []
@@ -95,7 +94,13 @@ class ruler(QWidget):
             self.ruler_labels.append(label)                                     # 4 red mark
 
 
+
+
+
     def handle_clickable(self, position):
+
+        if position < 0 or position >= len(self.ruler_labels):
+            return
 
         label = self.ruler_labels[position]                                  # 5 red mark
         label.marked = True                                                  # 6 red mark
@@ -115,7 +120,9 @@ class ruler(QWidget):
             
             widget_label1 = QLabel("WARNING! Only for aligned sequences.")
             widget_label2 = QLabel("---")
-            widget_label3 = QLabel(f"Show '%'conservation for selected position: {pos1}, {pos2}?")
+            widget_label3 = QLabel(f"Show '%'Conservation for selected position: {pos1}, {pos2}?")
+            widget_label5 = QLabel("---")
+            widget_label6 = QLabel("")
             widget_button = QWidget()
             layout_button = QHBoxLayout()
             widget_button.setLayout(layout_button)
@@ -124,9 +131,18 @@ class ruler(QWidget):
             layout_button.addWidget(button_yes)
             layout_button.addWidget(button_cancel)
 
+            # add option for %Conservation based on amino acid properties
+            widget_label4 = QLabel('Tick below to calculate %Amino acid properties for each group:')
+            widget_checkbox = QCheckBox()
+
             layout_dialog.addWidget(widget_label1)
             layout_dialog.addWidget(widget_label2)
             layout_dialog.addWidget(widget_label3)
+            layout_dialog.addWidget(widget_label5)
+            layout_dialog.addWidget(widget_label4)
+            layout_dialog.addWidget(widget_checkbox)
+            layout_dialog.addWidget(widget_label6)
+
             layout_dialog.addWidget(widget_button)
 
             def reset_state():
@@ -138,7 +154,7 @@ class ruler(QWidget):
 
             button_cancel.clicked.connect(widget_dialog.reject)
             button_cancel.clicked.connect(reset_state)
-            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
+            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2, widget_checkbox)))
             button_yes.clicked.connect(reset_state)
 
             widget_dialog.exec()
