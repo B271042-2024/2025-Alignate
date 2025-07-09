@@ -2267,13 +2267,73 @@ class codon(QWidget):
             # write file with header: aa_properties  group1  group2  ...
             aa_properties_perc_file = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.txt')
             with open(aa_properties_perc_file, 'w') as afile:
-                afile.write("# %Amino acid properties for each group")
+                afile.write("# %Amino acid properties for each group\n")
                 afile.write("aa_properties\t" + "\t".join(group_names) + "\n")
                 for prop_idx, pname in enumerate(property_names):
                     row = [f"{pname}"] + [f"{percents[prop_idx][g]:.1f}" for g in range(len(self.groups))]
                     afile.write("\t".join(row) + "\n")
 
-            QMessageBox.information(self, 'Saved', f'%Conservation is saved as {aa_properties_perc_file}')
+            png_path = self.save_aa_property_distribution_plot(percents, property_names, group_names)
+            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\n{aa_properties_perc_file}\n{png_path}')
+
+
+
+
+
+    def save_aa_property_distribution_plot(self, percents, property_names, group_names):
+        # Prepare species data from computed percents
+        species_data = {group: [percents[prop_idx][grp_idx] for prop_idx in range(len(property_names))]
+                        for grp_idx, group in enumerate(group_names)}
+
+        species = list(species_data.keys())
+        num_species = len(species)
+        num_props = len(property_names)
+
+        # Transpose data for plotting: props x species
+        values = list(zip(*species_data.values()))
+
+        custom_colors = [
+            '#827717',  # special (purple)
+            '#33691e',  # hydrophobic_aliphatic (blue)
+            '#689138',  # hydrophobic_aromatic (green)
+            '#c0ca33',  # polar (darker green)
+            '#ffeb3b',  # negative (red)
+            '#ffc107',  # positive (orange)
+            '#999999'   # unknown (gray)
+        ]
+
+
+        # Bar chart setup
+        fig, ax = plt.subplots(figsize=(14, 6))
+        width = 0.1
+        x = list(range(num_species))
+
+        for i, prop_vals in enumerate(values):
+            ax.bar([pos + i * width for pos in x], prop_vals, width=width, color=custom_colors[i], label=property_names[i])
+#            ax.bar([pos + i * width for pos in x], prop_vals, width=width, label=property_names[i])
+
+        ax.set_xticks([pos + (num_props / 2 - 0.5) * width for pos in x])
+        ax.set_xticklabels(species, rotation=45, ha='right')
+        ax.set_ylabel('% Amino Acid Property Composition')
+        ax.set_title('Amino Acid Property Distribution Across Species in Prion Proteins')
+#        ax.legend(title='Amino Acid Property')
+        ax.legend(title='Amino Acid Property', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
+
+        ax.grid(True, linestyle='--', alpha=0.5)
+        plt.tight_layout()
+
+        # Save PNG
+        png_path = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.png')
+        plt.savefig(png_path, dpi=300)
+        plt.close()
+
+        return png_path
+
+
+
+
+
+
 
 
 
