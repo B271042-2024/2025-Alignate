@@ -477,6 +477,7 @@ class protein(QWidget):
 
 # --------------------------------------------Others
         # Initiation
+        self.is_protein = True
         self.seq_rows = []                                              # SEQUENCE ROWS BY GROUP
         self.groups = []                                                # SEQUENCE DETAILS DICT
         self.widget_toggles = []                                        # FOR MENU2_HIDE TOGGLES
@@ -2730,7 +2731,7 @@ class protein(QWidget):
 # --------------------------------------------%Conservation based on amino acid properties
 
         if widget_checkbox.isChecked():
-            aa_properties = [['P','G','C'],['G','A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
+            aa_properties = [['P','G','C'],['A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
             property_names = ["special","hydrophobic_aliphatic","hydrophobic_aromatic","polar","negative","positive","unknown"]
 
             # filter and name your groups
@@ -2768,7 +2769,7 @@ class protein(QWidget):
                     afile.write("\t".join(row) + "\n")
 
             png_path = self.save_aa_property_distribution_plot(percents, property_names, group_names)
-            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\n{aa_properties_perc_file}\n{png_path}')
+            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\nTable: {aa_properties_perc_file}\n\nBar Chart: {png_path}')
 
 
 
@@ -2811,7 +2812,7 @@ class protein(QWidget):
         ax.set_ylabel('% Amino Acid Property Composition')
         ax.set_title('Amino Acid Property Distribution Across Species in Prion Proteins')
 #        ax.legend(title='Amino Acid Property')
-        ax.legend(title='Amino Acid Property', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
+        ax.legend(title='Amino Acid Properties', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
 
         ax.grid(True, linestyle='--', alpha=0.5)
         plt.tight_layout()

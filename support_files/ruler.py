@@ -118,11 +118,8 @@ class ruler(QWidget):
             layout_dialog = QVBoxLayout()
             widget_dialog.setLayout(layout_dialog)
             
-            widget_label1 = QLabel("WARNING! Only for aligned sequences.")
-            widget_label2 = QLabel("---")
-            widget_label3 = QLabel(f"Show '%'Conservation for selected position: {pos1}, {pos2}?")
-            widget_label5 = QLabel("---")
-            widget_label6 = QLabel("")
+            widget_label1 = QLabel(f"WARNING! ONLY VALID FOR ALIGNED SEQUENCES. Showing %Conservation for region: {pos1} to {pos2}. Press Yes to continue.")
+            widget_label2 = QLabel("")
             widget_button = QWidget()
             layout_button = QHBoxLayout()
             widget_button.setLayout(layout_button)
@@ -131,17 +128,22 @@ class ruler(QWidget):
             layout_button.addWidget(button_yes)
             layout_button.addWidget(button_cancel)
 
-            # add option for %Conservation based on amino acid properties
-            widget_label4 = QLabel('Tick below to calculate %Amino acid properties for each group:')
-            widget_checkbox = QCheckBox()
-
             layout_dialog.addWidget(widget_label1)
             layout_dialog.addWidget(widget_label2)
-            layout_dialog.addWidget(widget_label3)
-            layout_dialog.addWidget(widget_label5)
-            layout_dialog.addWidget(widget_label4)
-            layout_dialog.addWidget(widget_checkbox)
-            layout_dialog.addWidget(widget_label6)
+
+            # if in window: protein, add function to compute amino acid distributiion
+            if getattr(self.context, 'is_protein', False):
+
+                # add option for %Conservation based on amino acid properties
+                h_widget4 = QWidget()
+                h_layout4 = QHBoxLayout()
+                h_widget4.setLayout(h_layout4)
+                widget_label4 = QLabel('Tick to compute amino acid distribution via residue properties in each group. The resulting plot and file will be in the output folder.')
+                widget_checkbox = QCheckBox()
+                h_layout4.addWidget(widget_checkbox)
+                h_layout4.addSpacing(5)
+                h_layout4.addWidget(widget_label4)
+                layout_dialog.addWidget(h_widget4)
 
             layout_dialog.addWidget(widget_button)
 

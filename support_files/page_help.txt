@@ -20,7 +20,7 @@ This tool enables group-based comparisons of protein and codon sequences. It acc
 Input: <code>.fasta</code>, <code>.fa</code>, <code>.txt</code>, pasted text	(FASTA format only). Max sequence length: 900 amino acid residues or codons.
 Output (Folder: output_files):
 	- <i>Protein</i>:
-		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files 
+		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), Residue distribution plot (.png) only if generated, Residue distribution table (.txt) only if generated, PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files
 	- <i>Codon</i>:
 		- Input sequences (.fasta), Translated sequences (_aa.fasta), Aligned translated sequences (_aa.aln), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Group translated consensus (_groupconsensus_aa.fasta), Global translated consensus (_globalconsensus_aa.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refaa.fasta), PSIPRED output (_refaa.horiz) and other PSIPRED output files
 
@@ -141,6 +141,18 @@ Output (Folder: output_files):
 		- Click the start and end positions on the ruler.
 		- A confirmation popup will appear.
 		- After confirmation, the %Conservation will be shown in the last row of each group.
+	c. Additional feature for Protein Mode.
+		- Compute residue percentage distribution using the amino acid properties. This function uses the consensus sequences in each group, categorized as below:
+			- Special (P, G, C)	Note: P, G are classified as Hydrophobic aliphatic, C is classified as Polar
+			- Hydrophobic aliphatic (A, V, L, I, M)
+			- Hydrophobic aromatic (F, Y, W)
+			- Polar/Hydrophilic (S, T, N, Q)
+			- Negative/Acidic (E, D)
+			- Positive/Basic (R, H, K)
+			- Unknown (X)	Note: Unknown X is used in consensus sequence to represent the columns with ambiguous/mixed residues
+
+		- To use, in the confirmation popup, tick the box.
+			- The distribution will be tabulated and plotted, made available in the output folder
 5. Adjust Consensus Threshold (default: 0.5):
 	a. Allows users to change the threshold that affects all consensus.
 	b. How to use:

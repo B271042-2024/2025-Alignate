@@ -206,6 +206,7 @@ class codon(QWidget):
 
 # --------------------------------------------Others
         # Initiation
+        self.is_protein = False
         self.cancelled = False                                          # PROGRESS (DIALOG BOX)
         self.seq_rows = []                                              # SEQUENCE ROWS BY GROUP
         self.groups = []                                                # SEQUENCE DETAILS DICT
@@ -2195,15 +2196,6 @@ class codon(QWidget):
             total = end - start + 1
             percent = (match_count / total * 100) if total else 0
 
-
-#            print('---')
-#            print(percent)
-#            print(match_count)
-#            print(f'{total}: {end} - {start}')
-#            print(len(ref_consensus))
-#            print('---')
-
-
 # --------------------------------------------Main
             widget_result_main = QWidget()
             widget_result_main.setObjectName("custom_conservation_block")
@@ -2274,7 +2266,7 @@ class codon(QWidget):
                     afile.write("\t".join(row) + "\n")
 
             png_path = self.save_aa_property_distribution_plot(percents, property_names, group_names)
-            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\n{aa_properties_perc_file}\n{png_path}')
+            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\nTable: {aa_properties_perc_file}\n\nBar Chart: {png_path}')
 
 
 
