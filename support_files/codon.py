@@ -1777,7 +1777,8 @@ class codon(QWidget):
         self.status.setText('')
 
 # --------------------------------------------Connect
-        self.slider_threshold()
+        if self.checkboxslider.isChecked():
+            self.slider_threshold()
 
 #_______________________________________________________________________________________________11 Add sequences to GUI (Unaligned & Aligned)
 #_______________________________________________________________________________________________
@@ -2600,19 +2601,83 @@ class codon(QWidget):
             if group.get('widget_seq') and len(group['widget_seq']) > 0:
                 refseq = group['widget_seq'][0]['seq']
 
+
+
+
+
+
+
+
+
         # 2 if -, check aa b4 & after
+#        final_pred = []
+#        pred_idx = 0
+#        for i in range(0, len(refseq), 3):
+#            codon = refseq[i:i+3]
+#            if codon == '---':
+#                final_pred.append('C')  # fallback for gapped codon
+#            else:
+#                if pred_idx < len(pred):
+#                    final_pred.append(pred[pred_idx])
+#                    pred_idx += 1
+#                else:
+#                    final_pred.append('C')  # fallback if pred string runs out
+
+
         final_pred = []
         pred_idx = 0
+        num_codons = len(refseq) // 3
+
         for i in range(0, len(refseq), 3):
             codon = refseq[i:i+3]
+            codon_idx = i // 3
+
             if codon == '---':
-                final_pred.append('C')  # fallback for gapped codon
+                # Look for left (already added) and right (next codon in refseq)
+                left = final_pred[codon_idx - 1] if codon_idx > 0 else None
+
+                # Find right only if it's not '---' and within bounds
+                if i + 3 < len(refseq):
+                    right_codon = refseq[i+3:i+6]
+                    right = pred[pred_idx] if right_codon != '---' and pred_idx < len(pred) else None
+                else:
+                    right = None
+
+                # Assign based on neighbor agreement
+                if left and right and left == right:
+                    final_pred.append(left)
+                elif left:
+                    final_pred.append(left)
+                elif right:
+                    final_pred.append(right)
+                else:
+                    final_pred.append('C')  # fallback
             else:
+                # Regular case: non-gap codon
                 if pred_idx < len(pred):
                     final_pred.append(pred[pred_idx])
                     pred_idx += 1
                 else:
-                    final_pred.append('C')  # fallback if pred string runs out
+                    final_pred.append('C')  # fallback if prediction is missing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
  # -------------------------- for aligned reference sequence ---------------------------

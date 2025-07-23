@@ -256,6 +256,9 @@ class main(QMainWindow):
     def show_widget_help(self):
 
         dialog_help = QDialog(self)
+
+        dialog_help.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+
         dialog_help.setWindowTitle('Help')
         dialog_help.resize(1000, 300)
         dialog_help.move(50,400)
@@ -621,14 +624,19 @@ class protein(QWidget):
 #_______________________________________________________________________________________________2 DEF: Set color for alignment
 #_______________________________________________________________________________________________
 
-    def set_similarity_color(self, color):
+#    def set_similarity_color(self, color):
+    def set_similarity_color(self, color, group_idx=None):
         self.similarity_color = color
         # Reapply coloring based on current alignment mode
         if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
             self.color_code_seq(seq_map=self.seq_map, mode="all")
-        else:
-            for idx, group in enumerate(self.groups):
-                self.color_code_seq(mode="group", group_idx=idx)
+        elif group_idx is not None:
+            self.color_code_seq(mode="group", group_idx=group_idx)
+#        else:
+#            for idx, group in enumerate(self.groups):
+#                for group in self.groups:
+#                    if (group['widget_seq']):
+#                        self.color_code_seq(mode="group", group_idx=idx)
 
 
 #_______________________________________________________________________________________________3 DEF: Search Sequence
@@ -790,8 +798,6 @@ class protein(QWidget):
                 1 for i in range(1, len(ref_consensus))  # start at 1
                 if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
             percent_conservation = (matches / (len(ref_consensus))) * 100
-            #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-            #percent_conservation = (matches / len(ref_consensus)) * 100
             str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
 
         # 3 update %conservation consensus against reference consensus
@@ -908,78 +914,13 @@ class protein(QWidget):
 
             self.saveconservation = False
 
-        else:
-            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
-                self.color_code_seq(seq_map=self.seq_map, mode="all")
-            else:
-                for idx, group in enumerate(self.groups):
-                    self.color_code_seq(mode="group", group_idx=idx)
+#        else:
+#            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
+#               self.color_code_seq(seq_map=self.seq_map, mode="all")
+#            else:
+#                for idx, group in enumerate(self.groups):
+#                    self.color_code_seq(mode="group", group_idx=idx)
 
-
-
-
-
-    def todel_slider_threshold(self):
-        if self.checkboxslider.isChecked():
-            threshold = self.slidercon.value()
-            lower = threshold - 10
-            upper = threshold + 10
-
-            all_seqs = []
-            for group in self.groups:
-                for entry in group['widget_seq']:
-                    all_seqs.append(entry['seq'])
-
-            if not all_seqs:
-                return
-
-            columns = list(zip(*all_seqs))
-            conservation_scores = []
-            for col in columns:
-                most_common = Counter(col).most_common(1)[0][1]
-                percent = round((most_common / len(col)) * 100)
-                conservation_scores.append(percent)
-
-            if self.saveconservation:
-                selectconservation_file = os.path.join(self.session_folder, f'conservation_{threshold}.txt')
-                with open(selectconservation_file, 'w') as sc:
-                    sc.write(f'#{threshold} +/-10\n')
-                    sc.write(f'Position\tGroup\tResidue\n')
-                    for group in self.groups:
-                        group_name = group['lineedit_groupname'].text()
-                        for entry in group['widget_seq']:
-                            for i, lbl in enumerate(entry['seq_letters']):
-                                if i >= len(conservation_scores):
-                                    continue
-                                percent = conservation_scores[i]
-                                bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
-                                if lower <= percent <= upper:
-                                    sc.write(f'{i+1}\t{group_name}\t{lbl.text()}\n')
-                                    lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
-                                else:
-                                    lbl.setStyleSheet('color: lightgray;')
-                QMessageBox.information(self, 'Saved', f'Project saved to {self.session_folder}')
-            else:
-                for group in self.groups:
-                    for entry in group['widget_seq']:
-                        for i, lbl in enumerate(entry['seq_letters']):
-                            if i >= len(conservation_scores):
-                                continue
-                            percent = conservation_scores[i]
-                            bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
-                            if lower <= percent <= upper:
-                                lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
-                            else:
-                                lbl.setStyleSheet('color: lightgray;')
-
-            self.saveconservation = False
-
-        else:
-            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
-                self.color_code_seq(seq_map=self.seq_map, mode="all")
-            else:
-                for idx, group in enumerate(self.groups):
-                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 
@@ -1122,8 +1063,8 @@ class protein(QWidget):
                         self.widget_horizontal.deleteLater()                                            # schedule for safe deletion by Qt event loop
                         self.widget_horizontal = None                                                   # no widget global
 
-                    print("This is group-based alignment file. Skipping secondary structure prediction.")
-                        
+                    print("This is group-based alignment file. Skipping secondary structure prediction and colors.")
+
 # ------7 All mode - Color sequences; Group %Conservation, Global consensus, 2ndary structure & its %Conservation   
                 else:
                     self.is_alignall = True
@@ -2139,7 +2080,6 @@ class protein(QWidget):
         print('')
         print('#2 Generating consensus sequences and calculate %Conservation...')
 
-
         # ---Initiation
         self.uid = uid
 
@@ -2205,15 +2145,7 @@ class protein(QWidget):
                     1 for i in range(1, len(ref_consensus))  # start at 1
                     if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
                 percent_conservation = (matches / (len(ref_consensus))) * 100
-                #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                #percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
-
-
-#                print('continue_run...')
-#                print(f'matches: {matches}')
-#                print(len(ref_consensus))
-#                print('---')
 
 
 # --------------------------------------------Output_files
@@ -2291,7 +2223,6 @@ class protein(QWidget):
                     else:
                         self.prediction_text = self.build_secondary_structure_online(group, mode="group")
 
-
             # -- 6 Connect - DEF Display on GUI (PSIPRED Output)
                     self.draw_secondary_structure_to_gui(self.prediction_text, group=group, mode="group")
 
@@ -2306,7 +2237,8 @@ class protein(QWidget):
         self.status.setText('')
 
 # --------------------------------------------Connect
-        self.slider_threshold()
+        if self.checkboxslider.isChecked():
+            self.slider_threshold()
 
 
 
@@ -2554,96 +2486,24 @@ class protein(QWidget):
                         lbl.setStyleSheet(f'background-color: {color};')
 
         # ---2 Align
-        elif mode == "group":
-            selected_group = [self.groups[group_idx]] if group_idx is not None else self.groups
-            for group in selected_group:
-                group_seqs = [entry['seq'] for entry in group['widget_seq']]
-                group_similarity = get_col_similarity(group_seqs)
-                for idx_col, score in enumerate(group_similarity):
-                    for entry in group['widget_seq']:
-                        if idx_col < len(entry['seq_letters']):
-                            lbl = entry['seq_letters'][idx_col]
-                            color = similarity_to_color(score)
-                            lbl.setProperty('bg_color', color)
-                            lbl.setStyleSheet(f'background-color: {color};')
+        elif mode == "group" and group_idx is not None:
 
+            # Color only the selected group
+            group = self.groups[group_idx]
+            group_seqs = [entry['seq'] for entry in group['widget_seq']]
+            group_similarity = get_col_similarity(group_seqs)
 
+            for idx_col, score in enumerate(group_similarity):
+                for entry in group['widget_seq']:
+                    if idx_col < len(entry['seq_letters']):
+                        lbl = entry['seq_letters'][idx_col]
+                        shade = similarity_to_color(score)
+                        lbl.setProperty('bg_color', shade)
+                        lbl.setStyleSheet(f'background-color: {shade};')
 
 
 #_______________________________________________________________________________________________14 Custom Display % Conservation
 #_______________________________________________________________________________________________
-
-    def todel_custom_display_perc_cons(self, pos1, pos2):
-        
-# --------------------------------------------Action
-        # 1 Get Reference Consensus
-        ref_consensus = None
-        for group in self.groups:
-            if group['checkbox_setrefgroup'].isChecked():
-                ref_consensus = group.get('consensus_seq')
-                break
-        if not ref_consensus:
-            print('No reference group selected.')
-
-        # 2 Positions: MIN (Click 1) & MAX (Click 2)
-        start = min(pos1, pos2)
-        end = max(pos1, pos2)
-
-        for group in self.groups:
-        # 3 Get Target Consensus
-            if group['checkbox_setrefgroup'].isChecked():
-                continue
-            target_consensus = group.get('consensus_seq')
-            if not target_consensus:
-                continue
-
-        # 4 Remove existing Widget: Custom Display % Conservative
-            layout = group['main_layout_seq']
-            for i in reversed(range(layout.count())):
-                widget = layout.itemAt(i).widget()
-                if widget and widget.objectName() == 'custom_conservation_block':
-                    layout.removeWidget(widget)
-                    widget.deleteLater()
-
-        # 5 Calculate % Similarity
-            match_count = sum(
-                1 for i in range(start, end + 1)
-                if i < len(ref_consensus) and i < len(target_consensus) and ref_consensus[i] == target_consensus[i]
-            )
-            total = end - start + 1
-            percent = (match_count / total * 100) if total else 0
-            mid = (start + end) // 2                                                # // = division without decimals, / = normal division
-
-# --------------------------------------------Main
-            widget_result_main = QWidget()
-            widget_result_main.setObjectName("custom_conservation_block")
-            layout_result_main = QHBoxLayout()
-            widget_result_main.setLayout(layout_result_main)
-            layout_result_main.setContentsMargins(0, 0, 0, 0)
-            layout_result_main.setSpacing(0)
-
-# --------------------------------------------Sub-elements
-            # ---1 2nd Layer
-            widget_result = QWidget()
-            layout_result = QHBoxLayout()
-            layout_result.setContentsMargins(0, 0, 0, 0)
-            layout_result.setSpacing(0)
-            layout_result_main.addWidget(widget_result, alignment=Qt.AlignLeft)
-
-            # ---2 Labels (Spacing)
-            invisible_checkbox = QCheckBox()
-            invisible_checkbox.setEnabled(False)
-            invisible_checkbox.setStyleSheet('background: transparent; border: none;')
-            layout_result.addWidget(invisible_checkbox)
-
-            invisible_label = QLabel(f"(pos: {str(start)}-{str(end)}) {percent:.1f}%")
-            invisible_label.setStyleSheet("font-size: 12px;")
-            layout_result.addWidget(invisible_label)
-            widget_result.setLayout(layout_result)
-            layout.addWidget(widget_result_main)
-
-
-
 
     def custom_display_perc_cons(self, pos1, pos2, widget_checkbox):
         
@@ -2685,20 +2545,11 @@ class protein(QWidget):
 
         ## start & end positions are not index numbers
         # 5 Calculate %Similarity
-            #start_index = start - 1
-            #end_index = end - 1
             start_index = max(1, start)
             end_index = end
             match_count = sum(1 for i in range(start_index, end_index + 1) if i < len(ref_consensus) and i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
             total = end - start + 1
             percent = (match_count / total * 100) if total else 0
-
-#            print('---')
-#            print(percent)
-#            print(match_count)
-#            print(f'{total}: {end} - {start}')
-#            print(len(ref_consensus))
-#            print('---')
 
 # --------------------------------------------Main
             widget_result_main = QWidget()
@@ -3056,14 +2907,55 @@ class protein(QWidget):
                     refseq = group['widget_seq'][0]['seq']
                     break
 
+
+
+
+
+
+
+
+
+
+#        final_pred = []
+#        pred_idx = 0
+#        for letter in refseq:
+#            if letter == '-':
+#                final_pred.append('C')
+#            else:
+#                final_pred.append(pred[pred_idx])
+#                pred_idx += 1
+
+            #if letter == '-':
+                #if letter[index - 1] == letter[index + 1]:
+                    #final_pred.append(pred[pred_idx-1])
+
+
         final_pred = []
         pred_idx = 0
-        for letter in refseq:
+        seq_len = len(refseq)
+
+        for i, letter in enumerate(refseq):
             if letter == '-':
-                final_pred.append('C')
+                # Look for valid neighbors
+                left = final_pred[i - 1] if i > 0 else None
+                right = pred[pred_idx] if i + 1 < seq_len and refseq[i + 1] != '-' else None
+
+                # If both neighbors agree, use that structure
+                if left and right and left == right:
+                    final_pred.append(left)
+                elif left:                                          # last residue
+                    final_pred.append(left)
+                elif right:                                         # first residue
+                    final_pred.append(right)
+                else:
+                    final_pred.append('C')                          # fallback
             else:
                 final_pred.append(pred[pred_idx])
                 pred_idx += 1
+
+### test then, fix codon as well!!!
+
+
 
 
         # --- 3 Draw the secondary structure

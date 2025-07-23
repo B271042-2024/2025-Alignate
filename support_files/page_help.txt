@@ -20,7 +20,7 @@ This tool enables group-based comparisons of protein and codon sequences. It acc
 Input: <code>.fasta</code>, <code>.fa</code>, <code>.txt</code>, pasted text	(FASTA format only). Max sequence length: 900 amino acid residues or codons.
 Output (Folder: output_files):
 	- <i>Protein</i>:
-		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), Residue distribution plot (.png) only if generated, Residue distribution table (.txt) only if generated, PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files
+		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), Residue distribution plot ({uid}_conservation_byaaproperties.png) only if generated, Residue distribution table ({uid}_conservation_byaaproperties.txt) only if generated, PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files
 	- <i>Codon</i>:
 		- Input sequences (.fasta), Translated sequences (_aa.fasta), Aligned translated sequences (_aa.aln), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Group translated consensus (_groupconsensus_aa.fasta), Global translated consensus (_globalconsensus_aa.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refaa.fasta), PSIPRED output (_refaa.horiz) and other PSIPRED output files
 
@@ -194,12 +194,5 @@ Output (Folder: output_files):
 
 <i>Please contact Alignate Team for any enquiries at s2704130@ed.ac.uk</i>
 Created on 15/06/2025.
-
-
-
-
-TO-DO
-4 - solve save & load project file
-
 
 </pre>
