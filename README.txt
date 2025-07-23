@@ -8,7 +8,7 @@ This tool aligns amino acid and codon sequences and generates consensus, conserv
 
 
 ------
-To run this Alignate v1.0, please type ./run.sh. This tool requires some additional installation, please see INSTALLATION for details.
+To run this Alignate v1.0, please type ./run.sh. This tool requires some additional installation, please see INSTALLATION for details. Only 1 & 4 are required.
 ------
 
 
@@ -38,5 +38,5 @@ INSTALLATION
 
 
 
-### IMPORTANT!:
-If you move this folder, please remove and re-install python packages if software failed to work.
+### IMPORTANT!
+If you move this folder, please remove and re-install python packages (1) if software failed to work.
