@@ -11,8 +11,11 @@ This tool aligns amino acid and codon sequences and generates consensus, conserv
 To run this Alignate v1.0, please type ./run.sh. This tool requires some additional installation, please see INSTALLATION for details.
 ------
 
+
+
 RUN PROGRAM
 ./run.sh
+
 
 
 INSTALLATION
@@ -21,10 +24,10 @@ INSTALLATION
 % source pypackages/bin/activate
 % pip install -r requirements.txt
 
-2. Install tcsh shell (Only if not exist). Please run,
+2. [OPTIONAL: Only to use PSIPRED locally. To use PSIPRED website, skip this step.] Install tcsh shell (Only if not exist). Please run,
 % sudo apt install tcsh
 
-3. [OPTIONAL: Don't need to install to use website-based pripred] Install BLAST+ protein database in psipred folder (see https://ftp.ncbi.nlm.nih.gov/blast/db/ for ref)
+3. [OPTIONAL: Only to use PSIPRED locally. To use PSIPRED website, skip this step. Please select accordingly when running the program (after pressing button Align/Align All)] Install BLAST+ protein database in psipred folder (see https://ftp.ncbi.nlm.nih.gov/blast/db/ for ref)
 % mkdir external_tools/psipred/BLAST+/blastdb
 % cd external_tools/psipred/BLAST+/blastdb
 % wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz		# note: example database. please install accordingly.
@@ -33,4 +36,7 @@ INSTALLATION
 4. Allow executions in all files
 % chmod -R +x .
 
-5. If you move this folder, please remove and re-install python packages if software failed to work.
+
+
+### IMPORTANT!:
+If you move this folder, please remove and re-install python packages if software failed to work.

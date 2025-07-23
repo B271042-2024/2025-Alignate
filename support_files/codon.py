@@ -341,7 +341,7 @@ class codon(QWidget):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setWindowTitle('tcsh Not Found')
-        msg.setText("Warning: Missing 'tcsh' shell. \nSome features like PSIPRED will not work. Please install using sudo apt install.")
+        msg.setText("Warning: Missing 'tcsh' shell. \nSome features like local PSIPRED will not work. Please see README.txt to install or run PSIPRED online by selecting it when prompted after pressing the align button.")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.show()
 
@@ -2601,14 +2601,6 @@ class codon(QWidget):
             if group.get('widget_seq') and len(group['widget_seq']) > 0:
                 refseq = group['widget_seq'][0]['seq']
 
-
-
-
-
-
-
-
-
         # 2 if -, check aa b4 & after
 #        final_pred = []
 #        pred_idx = 0
@@ -2622,7 +2614,6 @@ class codon(QWidget):
 #                    pred_idx += 1
 #                else:
 #                    final_pred.append('C')  # fallback if pred string runs out
-
 
         final_pred = []
         pred_idx = 0

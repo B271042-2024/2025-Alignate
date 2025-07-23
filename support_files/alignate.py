@@ -616,7 +616,7 @@ class protein(QWidget):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setWindowTitle('tcsh Not Found')
-        msg.setText("Warning: Missing 'tcsh' shell. \nSome features like PSIPRED will not work. Please install using sudo apt install.")
+        msg.setText("Warning: Missing 'tcsh' shell. \nSome features like local PSIPRED will not work. Please see README.txt to install or run PSIPRED online by selecting it when prompted after pressing the align button.")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.show()
 
@@ -913,13 +913,6 @@ class protein(QWidget):
                                 lbl.setStyleSheet('color: lightgray;')
 
             self.saveconservation = False
-
-#        else:
-#            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
-#               self.color_code_seq(seq_map=self.seq_map, mode="all")
-#            else:
-#                for idx, group in enumerate(self.groups):
-#                    self.color_code_seq(mode="group", group_idx=idx)
 
 
 
@@ -2769,7 +2762,6 @@ class protein(QWidget):
         # ---1 Set files
         horiz_file = f"{self.session_folder}/{self.uid}_refseq.horiz"
 
-
 # -------------------------- for aligned reference sequence ---------------------------
         if mode == "all":
             for group in self.groups:
@@ -2906,15 +2898,6 @@ class protein(QWidget):
                 if group['checkbox_setrefgroup'].isChecked():
                     refseq = group['widget_seq'][0]['seq']
                     break
-
-
-
-
-
-
-
-
-
 
 #        final_pred = []
 #        pred_idx = 0
