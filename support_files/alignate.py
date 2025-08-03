@@ -2723,7 +2723,7 @@ class protein(QWidget):
                 else:
                     subprocess.run([runpsipred, fasta_file], check=True, env=env, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, 'PSIPRED error', f'PSIPRED with BLAST+ failed: {e}')
+                QMessageBox.critical(self, 'PSIPRED error', f'PSIPRED with BLAST+ failed. Please ensure PSIPRED is installed. If yes: {e}')
                 self.status.setText('')
                 raise e
 
@@ -2736,7 +2736,7 @@ class protein(QWidget):
                     runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
                     subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, 'PSIPRED Error', f'PSIPRED Single failed: {e}')
+                QMessageBox.critical(self, 'PSIPRED Error', f'PSIPRED Single failed. Please ensure PSIPRED is installed. If yes: {e}')
                 self.status.setText('')
                 raise e                
 
@@ -2924,7 +2924,7 @@ class protein(QWidget):
                 right = pred[pred_idx] if i + 1 < seq_len and refseq[i + 1] != '-' else None
 
                 # If both neighbors agree, use that structure
-                if left and right and left == right:
+                if left and right and left == right:                # in the middle of similar states
                     final_pred.append(left)
                 elif left:                                          # last residue
                     final_pred.append(left)

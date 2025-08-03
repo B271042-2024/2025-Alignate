@@ -2401,7 +2401,7 @@ class codon(QWidget):
                 else:
                     subprocess.run([runpsipred, fasta_file], check=True, env=env, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, 'PSIPRED error', f'PSIPRED with BLAST+ failed: {e}')
+                QMessageBox.critical(self, 'PSIPRED error', f'PSIPRED with BLAST+ failed. Please ensure PSIPRED is installed. If yes: {e}')
                 self.status.setText('')
                 raise e
 
@@ -2414,7 +2414,7 @@ class codon(QWidget):
                     runpsipred_single = os.path.join(psipred_dir, "runpsipred_single")
                     subprocess.run([runpsipred_single, fasta_file], check=True, cwd=self.session_folder)
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, 'PSIPRED Error', f'PSIPRED Single failed: {e}')
+                QMessageBox.critical(self, 'PSIPRED Error', f'PSIPRED Single failed. Please ensure PSIPRED is installed. If yes: {e}')
                 self.status.setText('')
                 raise e    
          

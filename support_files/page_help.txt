@@ -1,6 +1,6 @@
 <pre>
 <b>Introduction</b>
-This tool enables group-based comparisons of protein and codon sequences. It accepts FASTA-formatted input, performs sequence alignment, predicts secondary structure and calculates conservation percentages.
+This tool enables group-based comparisons of protein and codon sequences. It accepts FASTA-formatted input, performs sequence alignment, predicts secondary structure and calculates similarity percentages based on reference group.
 
 
 <b>Installation</b>
@@ -20,9 +20,9 @@ This tool enables group-based comparisons of protein and codon sequences. It acc
 Input: <code>.fasta</code>, <code>.fa</code>, <code>.txt</code>, pasted text	(FASTA format only). Max sequence length: 900 amino acid residues or codons.
 Output (Folder: output_files):
 	- <i>Protein</i>:
-		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), Residue distribution plot ({uid}_conservation_byaaproperties.png) only if generated, Residue distribution table ({uid}_conservation_byaaproperties.txt) only if generated, PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files
+		- Input sequences (.fasta), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Global consensus (_globalconsensus.fasta), Group similarity percentage (_groupconservation.txt), Similarity percentage by regions in secondary structure (_ssconservation.txt), Residue distribution plot ({uid}_conservation_byaaproperties.png) only if generated, Residue distribution table ({uid}_conservation_byaaproperties.txt) only if generated, PSIPRED input sequence (_refseq.fasta), PSIPRED output (_refseq.horiz) and other PSIPRED output files
 	- <i>Codon</i>:
-		- Input sequences (.fasta), Translated sequences (_aa.fasta), Aligned translated sequences (_aa.aln), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Group translated consensus (_groupconsensus_aa.fasta), Global translated consensus (_globalconsensus_aa.fasta), Group conservation percentage (_groupconservation.txt), Conservation percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refaa.fasta), PSIPRED output (_refaa.horiz) and other PSIPRED output files
+		- Input sequences (.fasta), Translated sequences (_aa.fasta), Aligned translated sequences (_aa.aln), Aligned sequences (.aln), Group consensus (_groupconsensus.fasta), Group translated consensus (_groupconsensus_aa.fasta), Global translated consensus (_globalconsensus_aa.fasta), Group similarity percentage (_groupconservation.txt), Similarity percentage by regions in secondary structure (_ssconservation.txt), PSIPRED input sequence (_refaa.fasta), PSIPRED output (_refaa.horiz) and other PSIPRED output files
 
 
 <b>Usage workflow</b>
@@ -58,10 +58,10 @@ Output (Folder: output_files):
 		- Conservation Coloring
 			- Each column is colored based on the frequency of the most common amino acid.
 			- Gradient: Dark (highly conserved) to White (least conserved).
-		- Conservation Percentage Calculation (against the reference group)
-			- Overall group conservation:
+		- Similarity Percentage Calculation (against the reference group)
+			- Overall group similarity:
 				- Displayed in the consensus row of each group.
-			- Secondary structure conservation (% in helices and beta sheets).
+			- Secondary structure similarity (% in helices and beta sheets).
 				- Display by hovering over predicted secondary structures.
 		- Secondary Structure Prediction (via <code>PSIPRED V4</code> 
 			- H: Helix, E: Strand, C: Coil
@@ -106,12 +106,12 @@ Output (Folder: output_files):
 		- Conservation Coloring
 			- Each column is colored based on the frequency of the most common amino acid.
 			- Gradient: Dark (highly conserved) to White (least conserved).
-		- Conservation Percentage Calculation (against the reference group)
-			- Overall group conservation:
+		- Similarity Percentage Calculation (against the reference group)
+			- Overall group similarity:
 				- Displayed in the consensus row of each group.
-			- Secondary structure conservation (% in helices and beta sheets).
+			- Secondary structure similarity (% in helices and beta sheets).
 				- Display by hovering over predicted secondary structures.
-		- Secondary Structure Prediction (via <code>PSIPRED V4</code> 
+		- Secondary Structure Prediction (via <code>PSIPRED V4</code>) 
 			- H: Helix, E: Strand, C: Coil
 			- Predicted using the first sequence in the reference group (**IMPORTANT).
 			- Options: Run Online or Offline.
@@ -123,7 +123,7 @@ Output (Folder: output_files):
 
 <b>Additional Features</b>
 1. Ruler:
-	a. Displays the position of each amino acid codon base above the secondary structure.
+	a. Displays the position of each amino acid/codon base above the secondary structure.
 2. Drawing pad:
 	a. Right-click: Draw annotations.
 	b. Left-click: Erase annotations.
@@ -135,12 +135,12 @@ Output (Folder: output_files):
 		- Tick the checkbox to enable the slider.
 		- Move the slider to select a conservation level.
 		- e.g. Tick: 50%. Only columns with 50% (+/-10) conservation will be shown.
-4. Custom Region Conservation:
-	a. Allows users to calculate conservation for a specific region.
+4. Custom Region similarity:
+	a. Allows users to calculate similarity for a specific region.
 	b. How to use:
 		- Click the start and end positions on the ruler.
 		- A confirmation popup will appear.
-		- After confirmation, the %Conservation will be shown in the last row of each group.
+		- After confirmation, the %Similarity will be shown in the last row of each group.
 	c. Additional feature for Protein Mode.
 		- Compute residue percentage distribution using the amino acid properties. This function uses the consensus sequences in each group, categorized as below:
 			- Special (P, G, C)	Note: P, G are classified as Hydrophobic aliphatic, C is classified as Polar
@@ -161,7 +161,7 @@ Output (Folder: output_files):
 6. Word Search:
 	a. Highlights motifs or keywords.
 	b. How to use:
-		- Type a keyword into the search bar at the top of the page. 
+		- Type a keyword into the search bar at the top of the page.
 		- Matching amino acid or codon bases will be highlighted in orange.
 7. Adjust color
 	a. Customize the color scheme used for conservation gradients.

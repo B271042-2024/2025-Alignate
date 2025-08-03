@@ -69,7 +69,7 @@ class ruler(QWidget):
 
         # 3 add label
         self.invisible_label = QLabel('')
-        self.invisible_label.setFixedSize(117,20)
+        self.invisible_label.setFixedSize(125,20)
         layout_ruler_main.addWidget(self.invisible_label, alignment=Qt.AlignLeft)
 
         # 4 add ruler
