@@ -1,0 +1,9 @@
+# %Amino acid properties for each group
+aa_properties	Bos_taurus_BSE	Ovis_aries_Scrapie	Homo_sapiens_CJD_BSE	Felis_catus_FSE_BSE	Cervus_canadensis_CWD	Odocoileus_hemionus_CWD
+special	27.8	24.2	23.8	26.0	23.8	23.8
+hydrophobic_aliphatic	20.9	20.9	19.9	22.4	20.9	20.9
+hydrophobic_aromatic	11.2	10.8	10.5	10.1	10.8	10.8
+polar	20.2	20.6	19.9	18.4	19.9	19.9
+negative	5.1	4.7	5.4	5.1	5.1	5.1
+positive	12.6	11.6	11.2	11.6	11.6	11.6
+unknown	2.2	7.2	9.4	6.5	7.9	7.9

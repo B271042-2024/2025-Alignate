@@ -1,0 +1,9 @@
+# %Amino acid properties for each group
+aa_properties	Felis_catus_FSE_BSE	Canis_lupus_familiaris
+special	27.7	26.9
+hydrophobic_aliphatic	23.8	22.7
+hydrophobic_aromatic	10.8	10.8
+polar	19.6	20.0
+negative	5.4	5.8
+positive	12.3	12.3
+unknown	0.4	1.5

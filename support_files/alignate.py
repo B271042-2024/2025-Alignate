@@ -400,7 +400,8 @@ class AlignmentWorker(QThread):
             # align sequences
             if self.button_aln.text() == 'MAFFT':
                 print('#  Running MAFFT v7.526	(parameters: --anysymbol, --genafpair,--maxiterate 10000)...')
-                mafft_path = "./external_tools/mafft_linux/mafft"
+#                mafft_path = "./external_tools/mafft_linux/mafft"
+                mafft_path = "./external_tools/mafft_linux/mafft_7_525_withoutextensions/core/mafft"
                 with open(aln_file, 'w') as out:
                     subprocess.run([mafft_path, '--anysymbol', '--genafpair', '--maxiterate', '10000', fasta_file], check=True, stdout=out, stderr=subprocess.DEVNULL)
 
@@ -2742,8 +2743,9 @@ class protein(QWidget):
 
         # ---3 Extract data from output: horiz file
         if not os.path.exists(horiz_file):
-            QMessageBox.critical(self, 'Error', f'Expected PSIPRED output file {horiz_file} not found!')
+            #QMessageBox.critical(self, 'Error', f'Expected PSIPRED output file {horiz_file} not found!')
             self.status.setText('')
+            raise RuntimeError(f"PSIPRED output file {horiz_file} not found!\n\nPlease ensure local PSIPRED is installed.")
 
         with open(horiz_file, "r") as f:
             self.prediction_text = f.read()

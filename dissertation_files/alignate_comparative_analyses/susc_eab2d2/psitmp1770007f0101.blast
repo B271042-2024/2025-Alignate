@@ -1,0 +1,1334 @@
+PSIBLAST 2.16.0+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+Reference for compositional score matrix adjustment: Stephen F.
+Altschul, John C. Wootton, E. Michael Gertz, Richa Agarwala,
+Aleksandr Morgulis, Alejandro A. Schaffer, and Yi-Kuo Yu (2005)
+"Protein database searches using compositionally adjusted
+substitution matrices", FEBS J. 272:5101-5109.
+
+
+Reference for composition-based statistics starting in round 2:
+Alejandro A. Schaffer, L. Aravind, Thomas L. Madden, Sergei
+Shavirin, John L. Spouge, Yuri I. Wolf, Eugene V. Koonin, and
+Stephen F. Altschul (2001), "Improving the accuracy of PSI-BLAST
+protein database searches with composition-based statistics and
+other refinements", Nucleic Acids Res. 29:2994-3005.
+
+
+
+Database: Non-redundant UniProtKB/SwissProt sequences
+           485,565 sequences; 184,945,355 total letters
+
+CFastaReader: Hyphens are invalid and will be ignored around line 2
+Results from round 1
+
+
+Query= ref_seq
+
+Length=219
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+B5SY89.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  440     5e-158
+Q6EH52.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  437     7e-157
+P40242.1 RecName: Full=Major prion protein 1; Short=PrP; AltName:...  434     2e-155
+Q5UJG1.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  433     2e-155
+Q5UJH8.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  433     3e-155
+Q5UJG3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  432     9e-155
+Q5UJG7.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  429     8e-154
+Q95M08.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  411     1e-146
+Q5XVM4.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  409     5e-146
+Q68G95.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  409     5e-146
+P40243.1 RecName: Full=Major prion protein 2; Short=PrP; AltName:...  409     6e-146
+P52113.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  409     7e-146
+P23907.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  408     2e-145
+P67986.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  407     3e-145
+P47852.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  407     5e-145
+P40252.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  392     5e-139
+P04925.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  299     2e-102
+P40248.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  294     2e-100
+P40245.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  279     8e-95 
+Q60506.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  279     1e-94 
+P13852.2 RecName: Full=Major prion protein; Short=PrP; AltName: C...  279     1e-94 
+P40246.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  278     2e-94 
+Q9Z0T3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  278     3e-94 
+P04273.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  278     6e-94 
+Q60468.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  277     9e-94 
+P40247.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     5e-93 
+P51446.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     6e-93 
+P40258.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     8e-93 
+P40249.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     1e-92 
+O18754.3 RecName: Full=Major prion protein; Short=PrP; AltName: C...  274     2e-92 
+P04156.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  273     3e-92 
+P61766.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  273     5e-92 
+P40256.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  272     7e-92 
+P40251.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  270     4e-91 
+P40257.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  270     5e-91 
+Q95270.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  270     5e-91 
+Q95211.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  269     1e-90 
+P67990.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     2e-90 
+P61761.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     2e-90 
+Q95174.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     2e-90 
+P67988.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  267     5e-90 
+P67992.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  267     6e-90 
+Q95176.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  267     7e-90 
+P40255.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  266     8e-90 
+P79141.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  255     5e-85 
+O46501.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  253     3e-84 
+P51780.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  251     2e-83 
+P40244.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  232     6e-76 
+P49927.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  231     2e-75 
+P52114.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  228     2e-74 
+B0FYL5.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  224     8e-73 
+P27177.2 RecName: Full=Major prion protein homolog; AltName: Full...  92.0    2e-21 
+O88664.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  44.3    4e-04 
+Q5F2E8.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  44.3    5e-04 
+Q7L7X3.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  43.1    0.001 
+O74423.2 RecName: Full=Epsin-1 [Schizosaccharomyces pombe 972h-]      39.3    0.019 
+Q6BZG0.2 RecName: Full=Transcription elongation factor SPT5; AltN...  39.3    0.019 
+D8PJU0.1 RecName: Full=Velvet complex subunit B [Schizophyllum co...  37.4    0.064 
+P43139.1 RecName: Full=DNA polymerase beta [African swine fever v...  36.6    0.16  
+Q92125.1 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  36.2    0.20  
+O02328.2 RecName: Full=Eukaryotic translation initiation factor 3...  35.8    0.24  
+Q72ER1.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  34.7    0.66  
+A1VG83.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  34.7    0.66  
+E9E1W3.1 RecName: Full=Chitin synthase III; AltName: Full=Chitin-...  34.3    0.72  
+Q6FPQ7.1 RecName: Full=Actin cytoskeleton-regulatory complex prot...  34.3    0.75  
+A4J5X2.1 RecName: Full=Translation initiation factor IF-2 [Desulf...  34.3    0.93  
+Q4P9K9.1 RecName: Full=Chitin synthase 8; AltName: Full=Chitin-UD...  33.5    1.6   
+Q62314.1 RecName: Full=Trans-Golgi network integral membrane prot...  32.0    3.2   
+Q7ZYJ0.1 RecName: Full=Serine/threonine-protein kinase TAO1-B; Al...  32.3    3.5   
+Q802D3.1 RecName: Full=Exportin-4 [Danio rerio]                       32.3    3.6   
+Q6NU21.1 RecName: Full=Serine/threonine-protein kinase TAO1-A; Al...  32.0    4.1   
+A5DIP0.1 RecName: Full=ATP-dependent RNA helicase DHH1 [Meyerozym...  32.0    4.8   
+Q89186.1 RecName: Full=Protein A40 homolog [Variola virus human/I...  28.9    7.6   
+P32019.4 RecName: Full=Type II inositol 1,4,5-trisphosphate 5-pho...  30.8    9.9   
+
+
+
+Lambda      K        H        a         alpha
+   0.314    0.138    0.468    0.792     4.96 
+
+Gapped
+Lambda      K        H        a         alpha    sigma
+   0.267   0.0410    0.140     1.90     42.6     43.6 
+
+Effective search space used: 13788110060
+Warning: [psiblast] Query_1 ref_seq: Composition-based score adjustment conditioned on sequence properties and unconditional composition-based score adjustment is not supported with PSSMs, resetting to default value of standard composition-based statistics 
+Results from round 2
+
+
+Query= ref_seq
+
+Length=219
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+Sequences used in model and found again:
+
+Q5UJG1.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  358     1e-125
+P40242.1 RecName: Full=Major prion protein 1; Short=PrP; AltName:...  357     3e-125
+Q5UJH8.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  357     4e-125
+B5SY89.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  356     8e-125
+Q5UJG3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  356     1e-124
+Q6EH52.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  355     3e-124
+Q5UJG7.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  352     2e-123
+P40243.1 RecName: Full=Major prion protein 2; Short=PrP; AltName:...  352     4e-123
+Q68G95.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  350     2e-122
+Q5XVM4.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  348     9e-122
+Q95M08.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  348     1e-121
+P23907.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  347     2e-121
+P52113.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  347     2e-121
+P67986.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  347     2e-121
+P47852.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  346     8e-121
+P40252.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  337     2e-117
+P04925.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  282     1e-95 
+P40248.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  280     3e-95 
+P40245.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  279     7e-95 
+O18754.3 RecName: Full=Major prion protein; Short=PrP; AltName: C...  280     9e-95 
+P40246.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  277     8e-94 
+P40258.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  277     8e-94 
+P40247.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  277     1e-93 
+P40249.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  276     2e-93 
+P51446.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  276     2e-93 
+Q95270.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     5e-93 
+P61761.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     1e-92 
+P40256.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  275     1e-92 
+P40251.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     1e-92 
+P67990.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     1e-92 
+Q95211.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     1e-92 
+P40257.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     1e-92 
+Q95174.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  273     2e-92 
+P67992.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  274     2e-92 
+P67988.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  273     3e-92 
+P13852.2 RecName: Full=Major prion protein; Short=PrP; AltName: C...  273     4e-92 
+Q95176.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  272     5e-92 
+P04156.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  272     6e-92 
+P61766.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  271     1e-91 
+P40255.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  270     3e-91 
+Q60506.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  269     2e-90 
+Q60468.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     2e-90 
+P04273.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     3e-90 
+Q9Z0T3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  268     5e-90 
+O46501.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  259     1e-86 
+P79141.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  258     3e-86 
+P40244.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  254     2e-84 
+P49927.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  251     2e-83 
+P52114.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  251     3e-83 
+B0FYL5.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  243     3e-80 
+P51780.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  226     2e-73 
+P27177.2 RecName: Full=Major prion protein homolog; AltName: Full...  147     1e-42 
+O88664.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  62.8    2e-10 
+Q5F2E8.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  61.7    6e-10 
+
+Sequences not found previously or not previously below threshold:
+
+Q7L7X3.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  51.3    2e-06
+Q32L53.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  47.0    4e-05
+C0ZYA5.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  46.3    9e-05
+Q72ER1.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  45.5    2e-04
+A1VG83.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  45.5    2e-04
+D8PJU0.1 RecName: Full=Velvet complex subunit B [Schizophyllum co...  44.7    3e-04
+Q6NU21.1 RecName: Full=Serine/threonine-protein kinase TAO1-A; Al...  44.3    4e-04
+Q7ZYJ0.1 RecName: Full=Serine/threonine-protein kinase TAO1-B; Al...  44.3    4e-04
+A1R516.1 RecName: Full=Translation initiation factor IF-2 [Paenar...  44.3    4e-04
+Q7UZZ9.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  44.0    6e-04
+A4J5X2.1 RecName: Full=Translation initiation factor IF-2 [Desulf...  43.6    7e-04
+A9KNW4.1 RecName: Full=Translation initiation factor IF-2 [Lachno...  43.2    0.001
+P02672.5 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  42.4    0.002
+Q7Z429.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  41.6    0.002
+Q9ESF4.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  41.6    0.003
+Q9UV68.1 RecName: Full=Endo-1,4-beta-xylanase C; Short=Xylanase C...  41.6    0.003
+Q92125.1 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  41.3    0.003
+P38486.3 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  40.9    0.004
+Q4P9K9.1 RecName: Full=Chitin synthase 8; AltName: Full=Chitin-UD...  41.3    0.005
+Q6BZG0.2 RecName: Full=Transcription elongation factor SPT5; AltN...  40.9    0.005
+P04922.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  40.5    0.006
+Q8IN94.1 RecName: Full=Trithorax group protein osa; AltName: Full...  40.5    0.008
+D4HA34.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [C...  40.5    0.008
+O02328.2 RecName: Full=Eukaryotic translation initiation factor 3...  40.1    0.009
+Q00078.1 RecName: Full=Protein kinase C-like [Aspergillus niger]      40.1    0.009
+Q6ZMY3.1 RecName: Full=SPOC domain-containing protein 1 [Homo sap...  40.1    0.011
+Q6P6R0.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  39.3    0.014
+P06914.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  39.3    0.015
+Q8W4P1.2 RecName: Full=Cyclin-dependent kinase C-2; Short=CDKC;2 ...  39.3    0.016
+Q8R081.2 RecName: Full=Heterogeneous nuclear ribonucleoprotein L;...  39.3    0.019
+P14866.2 RecName: Full=Heterogeneous nuclear ribonucleoprotein L;...  39.0    0.021
+C0ZPK5.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [R...  39.0    0.021
+Q9QUG3.1 RecName: Full=Prion-like protein doppel; AltName: Full=D...  38.2    0.022
+A7E305.1 RecName: Full=Zinc finger SWIM domain-containing protein...  39.0    0.027
+Q1XI13.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  38.6    0.028
+P0CR70.1 RecName: Full=Transcription elongation factor SPT5; AltN...  39.0    0.029
+P0CR71.1 RecName: Full=Transcription elongation factor SPT5; AltN...  38.6    0.029
+Q61072.2 RecName: Full=Disintegrin and metalloproteinase domain-c...  38.6    0.030
+Q9GK16.1 RecName: Full=Prion-like protein doppel; AltName: Full=P...  37.4    0.037
+Q4I5I4.1 RecName: Full=Transcription elongation factor SPT5; AltN...  38.2    0.040
+Q8J140.1 RecName: Full=Metacaspase-1; Flags: Precursor [Aspergill...  37.8    0.049
+Q5R539.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  37.8    0.050
+A2AX52.2 RecName: Full=Collagen alpha-4(VI) chain; Flags: Precurs...  37.8    0.059
+Q80VP1.3 RecName: Full=Epsin-1; AltName: Full=EPS-15-interacting ...  37.8    0.059
+Q9SIV5.3 RecName: Full=Zinc finger CCCH domain-containing protein...  37.8    0.067
+O04023.1 RecName: Full=Protein SRC2 homolog; Short=AtSRC2 [Arabid...  37.0    0.068
+P34109.2 RecName: Full=Myosin ID heavy chain [Dictyostelium disco...  37.4    0.071
+Q9BGL9.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  37.0    0.074
+A4QUL1.1 RecName: Full=Protein transport protein SEC24 [Pyricular...  37.0    0.097
+P08672.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  36.6    0.10 
+E9Q4N7.2 RecName: Full=AT-rich interactive domain-containing prot...  37.0    0.10 
+Q9FQ03.1 RecName: Full=5'-3' exoribonuclease 3; Short=AtXRN3; Alt...  37.0    0.11 
+Q0KFR8.1 RecName: Full=Chromosomal replication initiator protein ...  37.0    0.11 
+Q0S219.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  37.0    0.12 
+E9E1W3.1 RecName: Full=Chitin synthase III; AltName: Full=Chitin-...  36.6    0.12 
+C1B313.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  36.6    0.13 
+Q4PHA8.1 RecName: Full=Vacuolar protein-sorting protein BRO1; Alt...  36.6    0.13 
+B8DW43.1 RecName: Full=Translation initiation factor IF-2 [Bifido...  36.6    0.15 
+Q29FF7.2 RecName: Full=Mediator of RNA polymerase II transcriptio...  36.6    0.16 
+A6H584.4 RecName: Full=Collagen alpha-5(VI) chain; AltName: Full=...  36.6    0.16 
+Q1DXH0.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  36.3    0.16 
+P43139.1 RecName: Full=DNA polymerase beta [African swine fever v...  36.3    0.16 
+Q60436.3 RecName: Full=Serrate RNA effector molecule homolog; Alt...  35.9    0.17 
+Q99MR6.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  36.3    0.18 
+Q3UHH1.1 RecName: Full=Zinc finger SWIM domain-containing protein...  36.3    0.18 
+P15988.1 RecName: Full=Collagen alpha-2(VI) chain; Flags: Precurs...  36.3    0.19 
+P08699.4 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  35.5    0.20 
+Q9GJY2.1 RecName: Full=Prion-like protein doppel; AltName: Full=P...  35.1    0.21 
+A0A0A7HMS2.1 RecName: Full=Conidiophore development regulator aba...  35.9    0.22 
+Q9UKY0.2 RecName: Full=Prion-like protein doppel; AltName: Full=P...  35.1    0.22 
+O04133.1 RecName: Full=Protein SRC2; AltName: Full=Protein SOYBEA...  35.5    0.22 
+Q96JH8.5 RecName: Full=Ras-associating and dilute domain-containi...  35.9    0.23 
+Q8NFD5.3 RecName: Full=AT-rich interactive domain-containing prot...  35.9    0.24 
+Q6UXA7.3 RecName: Full=Uncharacterized protein C6orf15; AltName: ...  35.5    0.25 
+Q9Y6I3.2 RecName: Full=Epsin-1; AltName: Full=EH domain-binding m...  35.5    0.27 
+Q4PEQ5.1 RecName: Full=Metacaspase-1; Flags: Precursor [Mycosarco...  35.5    0.28 
+Q9ZQE5.2 RecName: Full=Pentatricopeptide repeat-containing protei...  35.5    0.28 
+J9VX63.1 RecName: Full=C2H2 finger domain transcription factor US...  35.5    0.28 
+A5DIP0.1 RecName: Full=ATP-dependent RNA helicase DHH1 [Meyerozym...  35.5    0.28 
+Q2UN81.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  35.5    0.31 
+A4IFB1.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  35.5    0.32 
+Q9BXP5.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  35.5    0.32 
+A7E2V4.1 RecName: Full=Zinc finger SWIM domain-containing protein...  35.5    0.34 
+A5GVG4.1 RecName: Full=Translation initiation factor IF-2 [Synech...  35.5    0.36 
+C3PH19.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  35.5    0.36 
+Q8CGZ0.1 RecName: Full=Calcium homeostasis endoplasmic reticulum ...  35.1    0.38 
+Q67P86.1 RecName: Full=Translation initiation factor IF-2 [Symbio...  35.1    0.41 
+P17931.5 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  34.7    0.41 
+Q4WVG0.1 RecName: Full=Protein kinase C [Aspergillus fumigatus Af...  35.1    0.44 
+Q9P413.1 RecName: Full=pH-response transcription factor pacC/RIM1...  35.1    0.47 
+Q8IWX8.3 RecName: Full=Calcium homeostasis endoplasmic reticulum ...  35.1    0.48 
+B0XPP3.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  34.7    0.49 
+Q14151.1 RecName: Full=Scaffold attachment factor B2; Short=SAF-B...  34.7    0.54 
+Q8WXS8.2 RecName: Full=A disintegrin and metalloproteinase with t...  34.7    0.55 
+J9VS56.1 RecName: Full=Annexin C1 [Cryptococcus neoformans H99]       34.7    0.55 
+E9PV24.1 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  34.7    0.55 
+Q9LFT8.1 RecName: Full=Cyclin-dependent kinase C-1; Short=CDKC;1 ...  34.7    0.59 
+P02671.2 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  34.7    0.62 
+A2Q848.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  34.7    0.63 
+P02674.2 RecName: Full=Fibrinogen alpha-1 chain; Contains: RecNam...  34.7    0.63 
+A8IG20.1 RecName: Full=Translation initiation factor IF-2 [Azorhi...  34.7    0.63 
+O94855.2 RecName: Full=Protein transport protein Sec24D; AltName:...  34.3    0.68 
+P20785.1 RecName: Full=Collagen alpha-1(VI) chain; Flags: Precurs...  34.3    0.70 
+Q6CWW9.1 RecName: Full=Transcription elongation factor SPT5; AltN...  34.3    0.71 
+P08247.3 RecName: Full=Synaptophysin; AltName: Full=Major synapti...  33.9    0.79 
+Q5ZI08.1 RecName: Full=Transcription elongation factor SPT5; AltN...  34.3    0.79 
+Q4JV51.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  34.3    0.82 
+P16110.3 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  33.9    0.83 
+Q7S4N5.2 RecName: Full=Metacaspase-1B; Flags: Precursor [Neurospo...  33.9    0.83 
+Q6FRZ5.1 RecName: Full=Transcription elongation factor SPT5; AltN...  34.3    0.87 
+Q6CC84.1 RecName: Full=Transcription elongation factor SPT5; AltN...  33.9    0.90 
+Q17460.1 RecName: Full=Cuticle collagen 10; Flags: Precursor [Cae...  33.6    0.91 
+Q8TFZ1.4 RecName: Full=5'-3' exoribonuclease 2 [Aspergillus fumig...  33.9    0.94 
+O00267.1 RecName: Full=Transcription elongation factor SPT5; Shor...  33.9    0.98 
+B2GKR5.1 RecName: Full=Translation initiation factor IF-2 [Kocuri...  33.9    0.99 
+A4QTV1.1 RecName: Full=Vacuolar protein sorting-associated protei...  33.9    1.1  
+Q25060.1 RecName: Full=LWamide neuropeptides; Contains: RecName: ...  33.6    1.1  
+Q4P8R9.1 RecName: Full=Polyadenylate-binding protein 1; Short=PAB...  33.6    1.2  
+Q9D7W5.1 RecName: Full=Mediator of RNA polymerase II transcriptio...  33.2    1.2  
+Q9UPQ9.4 RecName: Full=Trinucleotide repeat-containing gene 6B pr...  33.9    1.2  
+E9Q0S6.1 RecName: Full=Tensin-1 [Mus musculus]                        33.9    1.2  
+P47953.2 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  33.2    1.2  
+Q5R405.1 RecName: Full=Transcription elongation factor SPT5; AltN...  33.6    1.3  
+Q641F3.1 RecName: Full=Collagen alpha-1(XXI) chain; Flags: Precur...  33.6    1.3  
+Q4X0M4.1 RecName: Full=Protein transport protein sec31 [Aspergill...  33.6    1.3  
+Q5H9R4.3 RecName: Full=Armadillo repeat-containing X-linked prote...  33.6    1.3  
+Q6INH5.1 RecName: Full=Serrate RNA effector molecule homolog B; A...  33.6    1.4  
+Q05856.1 RecName: Full=Small nuclear ribonucleoprotein-associated...  32.8    1.4  
+A4R2R1.2 RecName: Full=Stress response protein NST1 [Pyricularia ...  33.6    1.5  
+Q91ZV8.2 RecName: Full=Adhesion G protein-coupled receptor A2; Al...  33.6    1.5  
+Q9NRM7.2 RecName: Full=Serine/threonine-protein kinase LATS2; Alt...  33.6    1.5  
+Q5RJI5.1 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  33.2    1.7  
+Q1E1H4.2 RecName: Full=Stress response protein NST1 [Coccidioides...  33.2    1.7  
+Q80TZ3.2 RecName: Full=Auxilin; AltName: Full=DnaJ homolog subfam...  33.2    1.8  
+A2BH40.1 RecName: Full=AT-rich interactive domain-containing prot...  33.2    1.8  
+A4QUF0.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  33.2    1.8  
+Q8BKI2.2 RecName: Full=Trinucleotide repeat-containing gene 6B pr...  33.2    1.8  
+Q0CQL9.1 RecName: Full=Metacaspase-1B; Flags: Precursor [Aspergil...  32.8    1.8  
+Q4P9K4.1 RecName: Full=Protein transport protein SEC24 [Mycosarco...  33.2    1.8  
+P27214.1 RecName: Full=Annexin A11; AltName: Full=Annexin XI; Alt...  33.2    1.9  
+O15162.1 RecName: Full=Phospholipid scramblase 1; Short=PL scramb...  32.8    1.9  
+Q2J728.1 RecName: Full=Translation initiation factor IF-2 [Franki...  33.2    2.0  
+A5YVF1.1 RecName: Full=Protein SUPPRESSOR OF GENE SILENCING 3; Al...  32.8    2.1  
+Q82K53.1 RecName: Full=Translation initiation factor IF-2 [Strept...  32.8    2.2  
+P52912.1 RecName: Full=Cytotoxic granule associated RNA binding p...  32.8    2.2  
+P97384.2 RecName: Full=Annexin A11; AltName: Full=Annexin XI; Alt...  32.8    2.2  
+A1CQZ0.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  32.8    2.2  
+Q6A7M5.1 RecName: Full=Translation initiation factor IF-2 [Cutiba...  32.8    2.2  
+P12110.4 RecName: Full=Collagen alpha-2(VI) chain; Flags: Precurs...  32.8    2.2  
+Q9EQN3.2 RecName: Full=TSC22 domain family protein 4; AltName: Fu...  32.8    2.3  
+E1BUG7.3 RecName: Full=Protein SPT2 homolog [Gallus gallus]           32.8    2.3  
+Q6CDH3.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  32.8    2.4  
+Q8TDC3.2 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  32.8    2.4  
+Q14686.3 RecName: Full=Nuclear receptor coactivator 6; AltName: F...  32.8    2.5  
+B2DD29.1 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  32.8    2.6  
+Q0CR95.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  32.8    2.6  
+Q3UHC0.2 RecName: Full=Trinucleotide repeat-containing gene 6C pr...  32.8    2.6  
+Q9HCJ0.4 RecName: Full=Trinucleotide repeat-containing gene 6C pr...  32.8    2.8  
+Q9CD58.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [M...  32.4    2.9  
+A8M7W9.1 RecName: Full=tRNA dimethylallyltransferase; AltName: Fu...  32.4    2.9  
+Q4WHN8.1 RecName: Full=Vacuolar protein sorting-associated protei...  32.4    3.1  
+Q641Z8.1 RecName: Full=Peflin; AltName: Full=PEF protein with a l...  32.0    3.1  
+P17139.5 RecName: Full=Collagen alpha-1(IV) chain; Flags: Precurs...  32.4    3.2  
+Q12906.3 RecName: Full=Interleukin enhancer-binding factor 3; Alt...  32.4    3.4  
+O88339.1 RecName: Full=Epsin-1; AltName: Full=EPS-15-interacting ...  32.4    3.4  
+Q1IHW4.1 RecName: Full=Small ribosomal subunit protein bS18; AltN...  30.9    3.6  
+Q7MJL8.1 RecName: Full=UPF0313 protein VV2143 [Vibrio vulnificus ...  32.0    3.8  
+Q8DAI5.1 RecName: Full=UPF0313 protein VV1_2212 [Vibrio vulnificu...  32.0    3.9  
+Q54UJ6.1 RecName: Full=Uncharacterized transmembrane protein DDB_...  32.0    4.2  
+A7EMM3.1 RecName: Full=Stress response protein nst1 [Sclerotinia ...  32.0    4.2  
+Q0VF58.2 RecName: Full=Collagen alpha-1(XIX) chain; AltName: Full...  32.0    4.3  
+Q49378.2 RecName: Full=P32 adhesin; AltName: Full=Cytadhesin P32 ...  31.6    4.4  
+G4MZJ4.1 RecName: Full=Xylanolytic transcriptional activator xlnR...  32.0    4.4  
+Q5TGY3.1 RecName: Full=Transcription factor Gibbin; AltName: Full...  32.0    4.5  
+Q3KST0.1 RecName: Full=Epstein-Barr nuclear antigen 6; Short=EBNA...  32.0    4.5  
+Q9D1N2.1 RecName: Full=Glycosylphosphatidylinositol-anchored high...  31.2    4.7  
+P47845.2 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  31.2    4.8  
+Q4P333.1 RecName: Full=Chitin synthase 7; AltName: Full=Chitin-UD...  32.0    4.8  
+Q5JK68.1 RecName: Full=Cyclin-dependent kinase C-2; Short=CDKC;2 ...  31.6    4.9  
+Q7S3C4.3 RecName: Full=Transcription elongation factor spt5; AltN...  32.0    4.9  
+Q8BM15.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  31.6    5.0  
+A0A0J9VYS2.1 RecName: Full=Zn(2)-C6 fungal-type transcription fac...  31.6    5.1  
+P34340.1 RecName: Full=Putative cuticle collagen 90 [Caenorhabdit...  31.2    5.6  
+Q6CVS3.1 RecName: Full=Transcriptional regulatory protein LGE1 [K...  31.2    5.8  
+A0JUU0.1 RecName: Full=Translation initiation factor IF-2 [Arthro...  31.6    6.2  
+O49429.1 RecName: Full=Multiple organellar RNA editing factor 1, ...  31.2    6.3  
+Q801S8.1 RecName: Full=Collagen alpha-1(VI) chain; Flags: Precurs...  31.6    6.3  
+Q9FJR0.2 RecName: Full=Regulator of nonsense transcripts 1 homolo...  31.2    6.8  
+Q6CEV2.1 RecName: Full=COPII coat assembly protein SEC16; AltName...  31.6    6.9  
+Q47U23.1 RecName: Full=Chromosomal replication initiator protein ...  31.2    7.0  
+P13817.1 RecName: Full=Knob-associated histidine-rich protein; Sh...  31.2    7.0  
+Q8IZC6.1 RecName: Full=Collagen alpha-1(XXVII) chain; Flags: Prec...  31.2    7.0  
+A6NMZ7.2 RecName: Full=Collagen alpha-6(VI) chain; Flags: Precurs...  31.2    7.1  
+Q21955.3 RecName: Full=Mediator of RNA polymerase II transcriptio...  31.2    7.1  
+Q1E6U9.2 RecName: Full=Protein transport protein SEC24 [Coccidioi...  31.2    7.2  
+Q870V7.1 RecName: Full=Protein PNS1 [Neurospora crassa OR74A]         31.2    7.7  
+P09346.1 RecName: Full=Knob-associated histidine-rich protein; Sh...  31.2    7.8  
+Q8W4L0.1 RecName: Full=Probable calcium-binding protein CML49; Al...  30.9    7.9  
+Q8CQD9.1 RecName: Full=Accumulation-associated protein; Flags: Pr...  31.2    8.0  
+P35248.1 RecName: Full=Pulmonary surfactant-associated protein D;...  30.9    8.2  
+A1CH78.1 RecName: Full=ATP-dependent RNA helicase ded1 [Aspergill...  31.2    8.2  
+B8HG54.1 RecName: Full=Translation initiation factor IF-2 [Pseuda...  31.2    8.5  
+A5DVD6.1 RecName: Full=Actin cytoskeleton-regulatory complex prot...  31.2    8.5  
+Q17459.2 RecName: Full=Putative cuticle collagen 145; Flags: Prec...  30.9    8.6  
+Q8C6K9.2 RecName: Full=Collagen alpha-6(VI) chain; Flags: Precurs...  31.2    8.9  
+Q7XSA2.3 RecName: Full=Protein argonaute 1B; Short=OsAGO1b [Oryza...  30.9    9.1  
+P24784.2 RecName: Full=ATP-dependent RNA helicase DBP1; AltName: ...  30.9    9.1  
+C5BWS3.1 RecName: Full=Translation initiation factor IF-2 [Beuten...  30.9    9.1  
+P9WI71.1 RecName: Full=Serine/threonine-protein kinase PknH [Myco...  30.9    9.1  
+P9WI70.1 RecName: Full=Serine/threonine-protein kinase PknH [Myco...  30.9    9.4  
+Q68FG3.1 RecName: Full=Protein SPT2 homolog; AltName: Full=SPT2 d...  30.9    9.9  
+
+
+
+Lambda      K        H        a         alpha
+   0.317    0.127    0.374    0.792     4.96 
+
+Gapped
+Lambda      K        H        a         alpha    sigma
+   0.267   0.0388    0.140     1.90     42.6     43.6 
+
+Effective search space used: 13788110060
+Results from round 3
+
+
+Query= ref_seq
+
+Length=219
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+Sequences used in model and found again:
+
+Q5UJH8.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  327     2e-113
+Q5UJG1.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  327     3e-113
+P40242.1 RecName: Full=Major prion protein 1; Short=PrP; AltName:...  326     7e-113
+Q5UJG3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  325     2e-112
+B5SY89.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  325     2e-112
+Q6EH52.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  323     1e-111
+P40243.1 RecName: Full=Major prion protein 2; Short=PrP; AltName:...  322     3e-111
+Q5UJG7.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  321     6e-111
+Q68G95.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  320     1e-110
+Q5XVM4.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  318     1e-109
+P67986.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  317     1e-109
+P23907.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  317     2e-109
+Q95M08.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  317     2e-109
+P47852.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  316     5e-109
+P52113.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  316     5e-109
+P40252.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  310     2e-106
+P04925.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  268     3e-90 
+O18754.3 RecName: Full=Major prion protein; Short=PrP; AltName: C...  267     1e-89 
+P40248.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  266     1e-89 
+P40258.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  266     3e-89 
+P40249.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  265     5e-89 
+P40247.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  265     8e-89 
+P40251.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  264     9e-89 
+P40245.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  263     1e-88 
+P40256.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  264     1e-88 
+P67992.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  264     1e-88 
+P40257.2 RecName: Full=Major prion protein; Short=PrP; AltName: F...  264     2e-88 
+P51446.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  263     3e-88 
+P67988.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  263     3e-88 
+P61761.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  262     5e-88 
+Q95270.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  262     6e-88 
+P67990.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  261     8e-88 
+Q95174.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  261     1e-87 
+P04156.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  261     1e-87 
+P40246.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  261     1e-87 
+P13852.2 RecName: Full=Major prion protein; Short=PrP; AltName: C...  261     2e-87 
+P61766.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  261     3e-87 
+Q95176.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  260     3e-87 
+Q60468.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  259     2e-86 
+P40255.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  258     2e-86 
+Q60506.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  258     2e-86 
+P04273.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  257     6e-86 
+Q9Z0T3.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  257     6e-86 
+Q95211.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  256     1e-85 
+O46501.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  249     1e-82 
+P79141.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  248     2e-82 
+P40244.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  239     9e-79 
+P49927.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  239     1e-78 
+P52114.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  236     1e-77 
+B0FYL5.1 RecName: Full=Major prion protein; Short=PrP; AltName: C...  230     5e-75 
+P51780.1 RecName: Full=Major prion protein; Short=PrP; AltName: F...  203     2e-64 
+P27177.2 RecName: Full=Major prion protein homolog; AltName: Full...  134     2e-37 
+Q7UZZ9.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  100     5e-23 
+A1R516.1 RecName: Full=Translation initiation factor IF-2 [Paenar...  96.7    7e-22 
+A1VG83.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  85.9    3e-18 
+Q72ER1.1 RecName: Full=Translation initiation factor IF-2 [Nitrat...  85.9    3e-18 
+A4J5X2.1 RecName: Full=Translation initiation factor IF-2 [Desulf...  83.2    3e-17 
+Q32L53.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  80.5    1e-16 
+C0ZYA5.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  72.8    1e-13 
+Q5F2E8.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  67.4    7e-12 
+Q7L7X3.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  67.1    1e-11 
+O88664.1 RecName: Full=Serine/threonine-protein kinase TAO1; AltN...  65.9    2e-11 
+D8PJU0.1 RecName: Full=Velvet complex subunit B [Schizophyllum co...  60.1    2e-09 
+Q6NU21.1 RecName: Full=Serine/threonine-protein kinase TAO1-A; Al...  60.1    2e-09 
+Q7ZYJ0.1 RecName: Full=Serine/threonine-protein kinase TAO1-B; Al...  57.8    1e-08 
+
+Sequences not found previously or not previously below threshold:
+
+Q7Z429.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  70.5    4e-13
+A0JUU0.1 RecName: Full=Translation initiation factor IF-2 [Arthro...  64.7    5e-11
+Q0S219.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  62.0    5e-10
+C1B313.1 RecName: Full=Translation initiation factor IF-2 [Rhodoc...  61.7    6e-10
+B8HG54.1 RecName: Full=Translation initiation factor IF-2 [Pseuda...  56.7    3e-08
+A2BT70.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  56.7    3e-08
+A2BYM0.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  55.1    1e-07
+C0ZPK5.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [R...  54.3    2e-07
+Q46J13.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  54.0    2e-07
+Q9ESF4.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  53.6    3e-07
+Q6P6R0.1 RecName: Full=Protein lifeguard 1; AltName: Full=Glutama...  53.2    3e-07
+Q3AHW1.1 RecName: Full=Translation initiation factor IF-2 [Synech...  52.8    7e-07
+Q11PK5.1 RecName: Full=Translation initiation factor IF-2 [Cytoph...  52.0    1e-06
+A2C4P1.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  51.6    1e-06
+A9KNW4.1 RecName: Full=Translation initiation factor IF-2 [Lachno...  51.6    1e-06
+A6W7Z2.1 RecName: Full=Translation initiation factor IF-2 [Kineoc...  51.3    2e-06
+Q82K53.1 RecName: Full=Translation initiation factor IF-2 [Strept...  51.3    2e-06
+B1VYN5.1 RecName: Full=Translation initiation factor IF-2 [Strept...  51.3    2e-06
+B0T167.1 RecName: Full=Translation initiation factor IF-2 [Caulob...  50.9    3e-06
+P06914.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  49.7    6e-06
+P38486.3 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  49.3    7e-06
+A2AX52.2 RecName: Full=Collagen alpha-4(VI) chain; Flags: Precurs...  49.7    7e-06
+Q318P8.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  49.3    8e-06
+D4HA34.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [C...  49.0    1e-05
+A6H584.4 RecName: Full=Collagen alpha-5(VI) chain; AltName: Full=...  48.6    2e-05
+C3PH19.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  48.2    2e-05
+A5GVG4.1 RecName: Full=Translation initiation factor IF-2 [Synech...  47.8    3e-05
+A7H9F3.1 RecName: Full=Translation initiation factor IF-2 [Anaero...  47.4    4e-05
+Q7NY13.1 RecName: Full=Translation initiation factor IF-2 [Chromo...  47.4    4e-05
+P97445.2 RecName: Full=Voltage-dependent P/Q-type calcium channel...  47.4    4e-05
+Q9Y6V0.5 RecName: Full=Protein piccolo; AltName: Full=Aczonin [Ho...  47.4    4e-05
+A1D4K4.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  47.0    4e-05
+B2GKR5.1 RecName: Full=Translation initiation factor IF-2 [Kocuri...  47.0    5e-05
+Q4JV51.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  47.0    5e-05
+P02672.5 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  46.6    6e-05
+A5GNJ0.1 RecName: Full=Translation initiation factor IF-2 [Synech...  47.0    6e-05
+P9WI71.1 RecName: Full=Serine/threonine-protein kinase PknH [Myco...  46.6    7e-05
+P9WI70.1 RecName: Full=Serine/threonine-protein kinase PknH [Myco...  46.6    8e-05
+Q8J140.1 RecName: Full=Metacaspase-1; Flags: Precursor [Aspergill...  46.3    8e-05
+Q01W31.1 RecName: Full=Translation initiation factor IF-2 [Candid...  46.3    9e-05
+Q4WK03.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  46.3    1e-04
+Q8IN94.1 RecName: Full=Trithorax group protein osa; AltName: Full...  46.3    1e-04
+Q61072.2 RecName: Full=Disintegrin and metalloproteinase domain-c...  45.9    1e-04
+Q3AZB7.1 RecName: Full=Translation initiation factor IF-2 [Synech...  45.9    1e-04
+Q2J728.1 RecName: Full=Translation initiation factor IF-2 [Franki...  45.9    1e-04
+A9WPV8.1 RecName: Full=Translation initiation factor IF-2 [Reniba...  45.5    2e-04
+Q30WJ0.1 RecName: Full=Translation initiation factor IF-2 [Oleide...  45.5    2e-04
+Q29FF7.2 RecName: Full=Mediator of RNA polymerase II transcriptio...  45.1    2e-04
+B9M1G0.1 RecName: Full=Translation initiation factor IF-2 [Geotal...  45.1    2e-04
+Q4P2B6.1 RecName: Full=Protein transport protein SEC31 [Mycosarco...  45.1    2e-04
+Q92125.1 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  44.7    2e-04
+Q12193.1 RecName: Full=Transposon Ty1-BR Gag-Pol polyprotein; Alt...  45.1    3e-04
+P12110.4 RecName: Full=Collagen alpha-2(VI) chain; Flags: Precurs...  45.1    3e-04
+Q03619.1 RecName: Full=Transposon Ty1-ER2 Gag-Pol polyprotein; Al...  45.1    3e-04
+P0C2I6.1 RecName: Full=Transposon Ty1-LR3 Gag-Pol polyprotein; Al...  45.1    3e-04
+Q12316.3 RecName: Full=Transposon Ty1-GR3 Gag-Pol polyprotein; Al...  44.7    3e-04
+O13535.1 RecName: Full=Transposon Ty1-H Gag-Pol polyprotein; AltN...  44.7    3e-04
+P0C2J1.1 RecName: Full=Transposon Ty1-PR3 Gag-Pol polyprotein; Al...  44.7    3e-04
+Q12088.1 RecName: Full=Transposon Ty1-LR1 Gag-Pol polyprotein; Al...  44.7    3e-04
+Q03434.2 RecName: Full=Transposon Ty1-ML2 Gag-Pol polyprotein; Al...  44.7    3e-04
+P47098.3 RecName: Full=Transposon Ty1-JR1 Gag-Pol polyprotein; Al...  44.7    3e-04
+Q99231.2 RecName: Full=Transposon Ty1-DR3 Gag-Pol polyprotein; Al...  44.7    3e-04
+P0C2I3.1 RecName: Full=Transposon Ty1-DR6 Gag-Pol polyprotein; Al...  44.7    3e-04
+Q12273.1 RecName: Full=Transposon Ty1-OL Gag-Pol polyprotein; Alt...  44.7    3e-04
+A1A0A2.1 RecName: Full=Translation initiation factor IF-2 [Bifido...  44.7    3e-04
+P0C2I7.1 PUTATIVE PSEUDOGENE: RecName: Full=Transposon Ty1-LR4 Ga...  44.7    4e-04
+P0C2I5.1 RecName: Full=Transposon Ty1-LR2 Gag-Pol polyprotein; Al...  44.7    4e-04
+Q03612.1 RecName: Full=Transposon Ty1-ER1 Gag-Pol polyprotein; Al...  44.7    4e-04
+Q12414.1 RecName: Full=Transposon Ty1-PL Gag-Pol polyprotein; Alt...  44.7    4e-04
+Q12269.3 RecName: Full=Transposon Ty1-GR2 Gag-Pol polyprotein; Al...  44.7    4e-04
+Q04711.2 RecName: Full=Transposon Ty1-ML1 Gag-Pol polyprotein; Al...  44.7    4e-04
+Q07163.2 RecName: Full=Transposon TyH3 Gag-Pol polyprotein; AltNa...  44.3    4e-04
+Q03855.2 RecName: Full=Transposon Ty1-DR1 Gag-Pol polyprotein; Al...  44.3    4e-04
+P0C2J0.1 RecName: Full=Transposon Ty1-PR2 Gag-Pol polyprotein; Al...  44.3    4e-04
+B2HKS2.1 RecName: Full=Translation initiation factor IF-2 [Mycoba...  44.3    4e-04
+P0C2I2.1 RecName: Full=Transposon Ty1-DR5 Gag-Pol polyprotein; Al...  44.3    4e-04
+Q92393.1 RecName: Full=Transposon Ty1-OR Gag-Pol polyprotein; Alt...  44.3    4e-04
+Q04670.2 RecName: Full=Transposon Ty1-MR2 Gag-Pol polyprotein; Al...  44.3    4e-04
+Q4P9K9.1 RecName: Full=Chitin synthase 8; AltName: Full=Chitin-UD...  44.3    4e-04
+Q5R539.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  44.3    4e-04
+P75330.1 RecName: Full=P30 adhesin; AltName: Full=30 kDa adhesin-...  43.6    4e-04
+Q07793.2 RecName: Full=Transposon Ty1-DR4 Gag-Pol polyprotein; Al...  44.3    5e-04
+Q99MR6.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  43.9    5e-04
+P0CR70.1 RecName: Full=Transcription elongation factor SPT5; AltN...  43.9    5e-04
+O00555.3 RecName: Full=Voltage-dependent P/Q-type calcium channel...  43.9    5e-04
+Q9JKS6.1 RecName: Full=Protein piccolo; AltName: Full=Aczonin; Al...  43.9    5e-04
+P0CR71.1 RecName: Full=Transcription elongation factor SPT5; AltN...  43.9    6e-04
+A4YJE9.1 RecName: Full=Translation initiation factor IF-2 [Bradyr...  43.9    6e-04
+Q8W4P1.2 RecName: Full=Cyclin-dependent kinase C-2; Short=CDKC;2 ...  43.6    6e-04
+Q05196.3 RecName: Full=Polyadenylate-binding protein 5; Short=PAB...  43.9    6e-04
+Q8MSG8.2 RecName: Full=Aprataxin-like protein [Drosophila melanog...  43.9    6e-04
+B0XPP3.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  43.6    6e-04
+P47953.2 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  42.8    7e-04
+Q0KFR8.1 RecName: Full=Chromosomal replication initiator protein ...  43.6    7e-04
+Q9UV68.1 RecName: Full=Endo-1,4-beta-xylanase C; Short=Xylanase C...  43.6    7e-04
+Q9QYX7.4 RecName: Full=Protein piccolo; AltName: Full=Aczonin; Al...  43.6    8e-04
+Q0CR95.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  43.2    8e-04
+Q24UI6.1 RecName: Full=Translation initiation factor IF-2 [Desulf...  43.2    0.001
+Q8WXS8.2 RecName: Full=A disintegrin and metalloproteinase with t...  43.2    0.001
+P15988.1 RecName: Full=Collagen alpha-2(VI) chain; Flags: Precurs...  43.2    0.001
+Q9STN3.2 RecName: Full=Putative transcription elongation factor S...  43.2    0.001
+Q0I7K2.1 RecName: Full=Translation initiation factor IF-2 [Synech...  43.2    0.001
+Q12141.1 RecName: Full=Transposon Ty1-GR1 Gag-Pol polyprotein; Al...  43.2    0.001
+Q8R081.2 RecName: Full=Heterogeneous nuclear ribonucleoprotein L;...  42.8    0.001
+P08699.4 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  42.4    0.001
+P0C2I9.1 RecName: Full=Transposon Ty1-PR1 Gag-Pol polyprotein; Al...  43.2    0.001
+Q4R7H0.1 RecName: Full=Protein polyglycylase TTLL10; AltName: Ful...  42.8    0.001
+P47100.3 RecName: Full=Transposon Ty1-JR2 Gag-Pol polyprotein; Al...  43.2    0.001
+Q4I5I4.1 RecName: Full=Transcription elongation factor SPT5; AltN...  42.8    0.001
+P17931.5 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  42.4    0.001
+P14866.2 RecName: Full=Heterogeneous nuclear ribonucleoprotein L;...  42.8    0.001
+Q9BXP5.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  42.8    0.001
+Q2GSX8.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  42.8    0.001
+B8I6E7.1 RecName: Full=Translation initiation factor IF-2 [Rumini...  42.8    0.001
+P16110.3 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  42.0    0.001
+F5HSE3.1 RecName: Full=Nipped-B-like protein A [Danio rerio]          42.8    0.001
+Q9H1R3.3 RecName: Full=Myosin light chain kinase 2, skeletal/card...  42.4    0.001
+A5DM21.2 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  42.4    0.002
+Q02788.3 RecName: Full=Collagen alpha-2(VI) chain; Flags: Precurs...  42.8    0.002
+A2Q848.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  42.4    0.002
+P0CP46.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  42.4    0.002
+Q3KST0.1 RecName: Full=Epstein-Barr nuclear antigen 6; Short=EBNA...  42.4    0.002
+A4IFB1.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  42.4    0.002
+A5DIP0.1 RecName: Full=ATP-dependent RNA helicase DHH1 [Meyerozym...  42.0    0.002
+Q8W4L0.1 RecName: Full=Probable calcium-binding protein CML49; Al...  41.6    0.002
+P43139.1 RecName: Full=DNA polymerase beta [African swine fever v...  42.0    0.002
+Q60436.3 RecName: Full=Serrate RNA effector molecule homolog; Alt...  41.6    0.002
+Q5B9N7.2 RecName: Full=Eukaryotic translation initiation factor 3...  42.0    0.002
+Q6CDH3.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  41.6    0.003
+Q10NY2.1 RecName: Full=Protein TPR3; AltName: Full=Aberrant spike...  41.6    0.003
+Q8CQD9.1 RecName: Full=Accumulation-associated protein; Flags: Pr...  41.6    0.003
+A8TX70.1 RecName: Full=Collagen alpha-5(VI) chain; AltName: Full=...  41.6    0.003
+Q9DDT5.1 RecName: Full=Transcription elongation factor SPT5; AltN...  41.6    0.003
+O94855.2 RecName: Full=Protein transport protein Sec24D; AltName:...  41.6    0.004
+B1VPF0.1 RecName: Full=Chromosomal replication initiator protein ...  41.2    0.004
+P30204.3 RecName: Full=Macrophage scavenger receptor types I and ...  41.2    0.004
+A5PMY6.1 RecName: Full=Collectin-12 [Danio rerio]                     41.2    0.004
+O04133.1 RecName: Full=Protein SRC2; AltName: Full=Protein SOYBEA...  40.9    0.005
+Q9M081.3 RecName: Full=Protein transport protein SEC24 C; AltName...  41.2    0.005
+Q00078.1 RecName: Full=Protein kinase C-like [Aspergillus niger]      41.2    0.005
+A8IG20.1 RecName: Full=Translation initiation factor IF-2 [Azorhi...  40.9    0.005
+P04922.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  40.5    0.005
+Q16U49.2 RecName: Full=Mediator of RNA polymerase II transcriptio...  40.9    0.006
+Q9Y6I3.2 RecName: Full=Epsin-1; AltName: Full=EH domain-binding m...  40.9    0.006
+P03204.1 RecName: Full=Epstein-Barr nuclear antigen 6; Short=EBNA...  40.9    0.006
+O02328.2 RecName: Full=Eukaryotic translation initiation factor 3...  40.9    0.006
+Q6ZMY3.1 RecName: Full=SPOC domain-containing protein 1 [Homo sap...  40.9    0.006
+Q6NGN2.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  40.5    0.007
+P28466.2 RecName: Full=Protein Wnt-5; AltName: Full=dWnt-3; AltNa...  40.5    0.007
+Q8WUM4.1 RecName: Full=Programmed cell death 6-interacting protei...  40.5    0.007
+Q9FQ03.1 RecName: Full=5'-3' exoribonuclease 3; Short=AtXRN3; Alt...  40.5    0.008
+Q6A7M5.1 RecName: Full=Translation initiation factor IF-2 [Cutiba...  40.5    0.008
+P35074.2 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  40.5    0.008
+P34109.2 RecName: Full=Myosin ID heavy chain [Dictyostelium disco...  40.5    0.009
+P39053.2 RecName: Full=Dynamin-1; AltName: Full=Dynamin; AltName:...  40.1    0.009
+Q8MTI2.1 RecName: Full=Putative surface protein bspA-like; AltNam...  40.1    0.009
+Q13635.2 RecName: Full=Protein patched homolog 1; Short=PTC; Shor...  40.1    0.010
+P0CX74.1 RecName: Full=Transposon Ty1-JR1 Gag polyprotein; AltNam...  39.7    0.010
+P12111.5 RecName: Full=Collagen alpha-3(VI) chain; Flags: Precurs...  40.1    0.010
+Q6BI95.2 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  40.1    0.011
+Q4P8R9.1 RecName: Full=Polyadenylate-binding protein 1; Short=PAB...  40.1    0.011
+Q9UJ55.2 RecName: Full=MAGE-like protein 2; AltName: Full=Necdin-...  40.1    0.011
+Q04706.1 RecName: Full=Transposon Ty1-ML1 Gag polyprotein; AltNam...  39.7    0.011
+A7E305.1 RecName: Full=Zinc finger SWIM domain-containing protein...  40.1    0.011
+A1CRM1.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  40.1    0.011
+Q9VT65.2 RecName: Full=Calpain-B; AltName: Full=Calcium-activated...  40.1    0.011
+P0CX70.1 RecName: Full=Transposon Ty1-DR6 Gag polyprotein; AltNam...  39.7    0.011
+Q12441.1 RecName: Full=Transposon Ty1-DR3 Gag polyprotein; AltNam...  39.7    0.011
+Q6Q5H1.2 RecName: Full=Transposon Ty1-PR3 Gag polyprotein; AltNam...  39.7    0.012
+P0C2I8.1 RecName: Full=Transposon Ty1-LR4 Gag polyprotein; AltNam...  39.7    0.012
+Q9LFT8.1 RecName: Full=Cyclin-dependent kinase C-1; Short=CDKC;1 ...  39.7    0.012
+P21575.2 RecName: Full=Dynamin-1; AltName: Full=B-dynamin; AltNam...  39.7    0.012
+Q92392.1 RecName: Full=Transposon Ty1-OL Gag polyprotein; AltName...  39.7    0.012
+Q9WU78.3 RecName: Full=Programmed cell death 6-interacting protei...  39.7    0.012
+O74302.1 RecName: Full=Transposon Ty1-DR4 Gag polyprotein; AltNam...  39.7    0.012
+Q05193.2 RecName: Full=Dynamin-1; AltName: Full=Dynamin; AltName:...  39.7    0.012
+B8DW43.1 RecName: Full=Translation initiation factor IF-2 [Bifido...  39.7    0.013
+P0C2I4.1 RecName: Full=Transposon Ty1-H Gag polyprotein; AltName:...  39.7    0.013
+Q94AI7.1 RecName: Full=Protein TOPLESS; AltName: Full=WUS-interac...  39.7    0.014
+Q12485.1 RecName: Full=Transposon Ty1-GR2 Gag polyprotein; AltNam...  39.3    0.014
+P0CX65.1 RecName: Full=Transposon Ty1-DR5 Gag polyprotein; AltNam...  39.3    0.014
+P08405.2 RecName: Full=Transposon TyH3 Gag polyprotein; AltName: ...  39.3    0.014
+A0A0J9U3L6.1 RecName: Full=Velvet complex subunit B [Fusarium oxy...  39.3    0.014
+Q67P86.1 RecName: Full=Translation initiation factor IF-2 [Symbio...  39.7    0.015
+Q0PVD8.1 RecName: Full=Protein transport protein SEC24 [Komagatae...  39.7    0.015
+P0CX59.1 RecName: Full=Transposon Ty1-OR Gag polyprotein; AltName...  39.3    0.016
+Q12217.1 RecName: Full=Transposon Ty1-BR Gag polyprotein; AltName...  39.3    0.016
+Q03856.1 RecName: Full=Transposon Ty1-DR1 Gag polyprotein; AltNam...  39.3    0.016
+O94979.3 RecName: Full=Protein transport protein Sec31A; AltName:...  39.3    0.017
+Q0CJU8.1 RecName: Full=Class E vacuolar protein-sorting machinery...  39.3    0.017
+Q9UQ16.4 RecName: Full=Dynamin-3; AltName: Full=Dynamin, testicul...  39.3    0.017
+A6WWW5.1 RecName: Full=Translation initiation factor IF-2 [Brucel...  39.3    0.017
+P97384.2 RecName: Full=Annexin A11; AltName: Full=Annexin XI; Alt...  39.3    0.018
+A0PQC4.1 RecName: Full=Translation initiation factor IF-2 [Mycoba...  39.3    0.019
+Q47U23.1 RecName: Full=Chromosomal replication initiator protein ...  39.3    0.019
+Q0AYI8.1 RecName: Full=Translation initiation factor IF-2 [Syntro...  39.3    0.019
+Q9QZA2.2 RecName: Full=Programmed cell death 6-interacting protei...  39.3    0.019
+A6ZRG7.1 RecName: Full=CCR4-NOT transcriptional complex subunit C...  39.3    0.020
+Q2UY11.1 RecName: Full=Collagen alpha-1(XXVIII) chain; Flags: Pre...  39.3    0.021
+O49429.1 RecName: Full=Multiple organellar RNA editing factor 1, ...  38.9    0.022
+O95622.3 RecName: Full=Adenylate cyclase type 5; AltName: Full=AT...  38.9    0.022
+Q9JIK1.1 RecName: Full=Cadherin-related family member 5; AltName:...  38.9    0.023
+Q12085.1 RecName: Full=Transposon Ty1-GR1 Gag polyprotein; AltNam...  38.9    0.023
+Q08DF4.1 RecName: Full=Dynamin-1; AltName: Full=Dynamin [Bos taurus]  38.9    0.023
+A2C6Q5.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  38.9    0.024
+P20785.1 RecName: Full=Collagen alpha-1(VI) chain; Flags: Precurs...  38.9    0.024
+A4RF61.2 RecName: Full=Class E vacuolar protein-sorting machinery...  38.9    0.025
+P47099.1 RecName: Full=Transposon Ty1-JR2 Gag polyprotein; AltNam...  38.6    0.025
+J9VS56.1 RecName: Full=Annexin C1 [Cryptococcus neoformans H99]       38.6    0.025
+Q92611.1 RecName: Full=ER degradation-enhancing alpha-mannosidase...  38.9    0.026
+B9GE13.1 RecName: Full=Kinesin-like protein KIN-12F [Oryza sativa...  38.9    0.027
+P19835.3 RecName: Full=Bile salt-activated lipase; Short=BAL; Alt...  38.9    0.027
+Q4PEQ5.1 RecName: Full=Metacaspase-1; Flags: Precursor [Mycosarco...  38.6    0.027
+P0CX57.1 RecName: Full=Transposon Ty1-A Gag polyprotein; AltName:...  38.6    0.028
+B8XGQ4.1 RecName: Full=Subtilisin-like protease 1; Flags: Precurs...  38.6    0.028
+Q2UN81.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  38.6    0.028
+Q99490.3 RecName: Full=Arf-GAP with GTPase, ANK repeat and PH dom...  38.9    0.029
+B6VA84.1 RecName: Full=Subtilisin-like protease 1; Flags: Precurs...  38.6    0.029
+P17599.2 RecName: Full=Synapsin-1; AltName: Full=Synapsin I [Bos ...  38.6    0.029
+A1CZE5.1 RecName: Full=Chromatin-remodeling ATPase INO80; AltName...  38.9    0.029
+P06489.1 RecName: Full=Alkaline nuclease [Human alphaherpesvirus 2]   38.6    0.029
+Q8C6K9.2 RecName: Full=Collagen alpha-6(VI) chain; Flags: Precurs...  38.9    0.030
+Q99337.1 RecName: Full=Transposon Ty1-NL2 Gag-Pol polyprotein; Al...  38.6    0.031
+A0QLI5.1 RecName: Full=Putative NAD(+)--arginine ADP-ribosyltrans...  38.6    0.031
+A7E2V4.1 RecName: Full=Zinc finger SWIM domain-containing protein...  38.6    0.033
+Q2UF60.2 RecName: Full=Protein transport protein sec31 [Aspergill...  38.6    0.034
+Q14151.1 RecName: Full=Scaffold attachment factor B2; Short=SAF-B...  38.6    0.034
+F4I1T7.1 RecName: Full=Nuclear pore complex protein NUP214; AltNa...  38.6    0.034
+B2AFZ7.1 RecName: Full=Chromosomal replication initiator protein ...  38.6    0.035
+Q00131.1 RecName: Full=Uncharacterized protein ORF28 [Ictalurid h...  38.2    0.035
+Q5VST9.4 RecName: Full=Obscurin; AltName: Full=Obscurin-RhoGEF; A...  38.6    0.037
+P31209.2 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  38.2    0.038
+Q04400.2 RecName: Full=Adenylate cyclase type 5; AltName: Full=AT...  38.6    0.038
+P84309.2 RecName: Full=Adenylate cyclase type 5; AltName: Full=AT...  38.6    0.038
+Q9ZQE5.2 RecName: Full=Pentatricopeptide repeat-containing protei...  38.2    0.039
+Q8C9B9.4 RecName: Full=Death-inducer obliterator 1; Short=DIO-1; ...  38.6    0.039
+P20073.3 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  38.2    0.040
+Q9PU36.1 RecName: Full=Protein piccolo; AltName: Full=Aczonin [Ga...  38.2    0.043
+B8ZRT4.1 RecName: Full=Translation initiation factor IF-2 [Mycoba...  38.2    0.044
+Q9QUG3.1 RecName: Full=Prion-like protein doppel; AltName: Full=D...  37.0    0.044
+P19334.3 RecName: Full=Transient receptor potential protein [Dros...  38.2    0.045
+Q1DXH0.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  38.2    0.045
+Q1IIT3.1 RecName: Full=Translation initiation factor IF-2 [Candid...  38.2    0.046
+Q8IUR5.3 RecName: Full=Protein O-mannosyl-transferase TMTC1; AltN...  38.2    0.046
+Q4X0M4.1 RecName: Full=Protein transport protein sec31 [Aspergill...  38.2    0.046
+A1C9W6.1 RecName: Full=Chromatin-remodeling ATPase INO80 [Aspergi...  38.2    0.048
+A7Z019.1 RecName: Full=SWI/SNF-related matrix-associated actin-de...  38.2    0.048
+A3PEY3.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  38.2    0.048
+Q8TFZ1.4 RecName: Full=5'-3' exoribonuclease 2 [Aspergillus fumig...  38.2    0.048
+Q5ZI08.1 RecName: Full=Transcription elongation factor SPT5; AltN...  38.2    0.048
+Q9BTC0.5 RecName: Full=Death-inducer obliterator 1; Short=DIO-1; ...  38.2    0.049
+O00267.1 RecName: Full=Transcription elongation factor SPT5; Shor...  38.2    0.051
+P53836.1 RecName: Full=CCR4-NOT transcriptional complex subunit C...  37.8    0.052
+Q5WFU2.1 RecName: Full=Translation initiation factor IF-2 [Shouch...  37.8    0.053
+O22173.1 RecName: Full=Polyadenylate-binding protein 4; Short=PAB...  37.8    0.053
+Q9Z2Q1.2 RecName: Full=Protein transport protein Sec31A; AltName:...  37.8    0.054
+O39928.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  37.8    0.055
+Q851R2.1 RecName: Full=Protein argonaute MEL1; AltName: Full=Prot...  37.8    0.056
+O91936.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  37.8    0.061
+Q8JZP2.2 RecName: Full=Synapsin-3; AltName: Full=Synapsin III [Mu...  37.8    0.061
+P55012.2 RecName: Full=Solute carrier family 12 member 2; AltName...  37.8    0.061
+O55201.1 RecName: Full=Transcription elongation factor SPT5; AltN...  37.8    0.062
+O15162.1 RecName: Full=Phospholipid scramblase 1; Short=PL scramb...  37.4    0.064
+Q12112.1 RecName: Full=Transposon Ty1-NL1 Gag-Pol polyprotein; Al...  37.8    0.065
+Q9JMH4.1 RecName: Full=Collagen alpha-1(XVII) chain; AltName: Ful...  37.8    0.066
+E7F1H9.1 RecName: Full=YTH domain-containing family protein 2 [Da...  37.4    0.066
+C1F697.1 RecName: Full=Translation initiation factor IF-2 [Acidob...  37.8    0.068
+Q4IL82.1 RecName: Full=Chromatin-remodeling ATPase INO80 [Fusariu...  37.8    0.069
+Q6P0D1.1 RecName: Full=Zinc transporter 6; Short=ZnT-6; AltName: ...  37.4    0.070
+P08672.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  37.4    0.070
+Q5U405.2 RecName: Full=Transmembrane protease serine 13; AltName:...  37.4    0.070
+Q5XET5.1 RecName: Full=Protein HESO1; AltName: Full=HEN1 suppress...  37.4    0.071
+P9WEM4.1 RecName: Full=Chitin synthase regulator SKT5 [Malassezia...  37.4    0.071
+O92532.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  37.8    0.072
+Q9NZT2.3 RecName: Full=Opioid growth factor receptor; Short=OGFr;...  37.4    0.072
+Q05140.1 RecName: Full=Clathrin coat assembly protein AP180; AltN...  37.4    0.073
+Q9Y2H5.4 RecName: Full=Pleckstrin homology domain-containing fami...  37.4    0.074
+Q5RE34.1 RecName: Full=Regulator of telomere elongation helicase ...  37.4    0.075
+Q5R405.1 RecName: Full=Transcription elongation factor SPT5; AltN...  37.4    0.075
+P11274.2 RecName: Full=Breakpoint cluster region protein; AltName...  37.4    0.075
+A5DB75.2 RecName: Full=Protein transport protein SEC31 [Meyerozym...  37.4    0.077
+Q8NP40.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  37.4    0.080
+A4QEZ2.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  37.4    0.080
+O56860.1 RecName: Full=Gag polyprotein; Contains: RecName: Full=G...  37.4    0.080
+Q4R5L5.1 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  37.0    0.084
+Q84PB3.2 RecName: Full=Eukaryotic translation initiation factor i...  37.4    0.084
+B1H1X4.1 RecName: Full=Serrate RNA effector molecule homolog A; A...  37.4    0.085
+Q9UKF5.3 RecName: Full=Disintegrin and metalloproteinase domain-c...  37.4    0.085
+Q17QD8.1 RecName: Full=G-protein coupled receptor 37-like 1; AltN...  37.0    0.085
+A6TH85.1 RecName: Full=DNA mismatch repair protein MutL [Klebsiel...  37.0    0.085
+A4RD35.1 RecName: Full=Protein transport protein SEC31 [Pyricular...  37.4    0.086
+P27214.1 RecName: Full=Annexin A11; AltName: Full=Annexin XI; Alt...  37.0    0.088
+O14647.2 RecName: Full=Chromodomain-helicase-DNA-binding protein ...  37.4    0.091
+P15989.2 RecName: Full=Collagen alpha-3(VI) chain; Flags: Precurs...  37.4    0.093
+Q80VP1.3 RecName: Full=Epsin-1; AltName: Full=EPS-15-interacting ...  37.0    0.095
+Q04118.3 RecName: Full=Basic salivary proline-rich protein 3; Alt...  36.6    0.098
+Q8BRH4.2 RecName: Full=Histone-lysine N-methyltransferase 2C; Sho...  37.0    0.099
+Q6LA43.2 RecName: Full=Two-component response regulator-like APRR...  37.0    0.10 
+D4AQG0.2 RecName: Full=Subtilisin-like protease 10; Flags: Precur...  37.0    0.10 
+Q07DZ5.1 RecName: Full=Cortactin-binding protein 2; Short=CortBP2...  37.0    0.10 
+Q9UMD9.3 RecName: Full=Collagen alpha-1(XVII) chain; AltName: Ful...  37.0    0.10 
+Q12906.3 RecName: Full=Interleukin enhancer-binding factor 3; Alt...  37.0    0.11 
+Q2UK72.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  37.0    0.11 
+Q7S6N6.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  37.0    0.11 
+Q8IU68.1 RecName: Full=Transmembrane channel-like protein 8; AltN...  37.0    0.11 
+Q5M7N9.1 RecName: Full=Extended synaptotagmin-3; Short=E-Syt3 [Xe...  37.0    0.11 
+O94913.3 RecName: Full=Pre-mRNA cleavage complex 2 protein Pcf11;...  37.0    0.11 
+Q9LT25.1 RecName: Full=Pre-mRNA-processing protein 40C; Short=AtP...  37.0    0.11 
+D4DIS6.1 RecName: Full=Subtilisin-like protease 10; Flags: Precur...  36.6    0.12 
+Q9AC25.2 RecName: Full=Translation initiation factor IF-2 [Caulob...  37.0    0.12 
+Q9CD58.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [M...  37.0    0.12 
+Q3ZBG9.1 RecName: Full=Phospholipid scramblase 2; Short=PL scramb...  36.6    0.12 
+Q641F3.1 RecName: Full=Collagen alpha-1(XXI) chain; Flags: Precur...  37.0    0.12 
+Q6BUQ2.2 RecName: Full=Myosin-1; AltName: Full=Class I unconventi...  37.0    0.12 
+A8G6Z5.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  37.0    0.12 
+Q99PP2.3 RecName: Full=Zinc finger protein 318; AltName: Full=Tes...  37.0    0.12 
+Q913V3.1 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  37.0    0.12 
+Q3UHH1.1 RecName: Full=Zinc finger SWIM domain-containing protein...  37.0    0.13 
+Q8IW93.1 RecName: Full=Rho guanine nucleotide exchange factor 19;...  36.6    0.13 
+E9Q4N7.2 RecName: Full=AT-rich interactive domain-containing prot...  37.0    0.13 
+Q96P44.1 RecName: Full=Collagen alpha-1(XXI) chain; Flags: Precur...  36.6    0.13 
+Q08877.2 RecName: Full=Dynamin-3; AltName: Full=Dynamin, testicul...  36.6    0.13 
+P08247.3 RecName: Full=Synaptophysin; AltName: Full=Major synapti...  36.2    0.13 
+Q6CC84.1 RecName: Full=Transcription elongation factor SPT5; AltN...  36.6    0.13 
+A0LV27.1 RecName: Full=Translation initiation factor IF-2 [Acidot...  36.6    0.13 
+O70441.1 RecName: Full=Synapsin-3; AltName: Full=Synapsin III [Ra...  36.6    0.14 
+Q8BZ98.1 RecName: Full=Dynamin-3 [Mus musculus]                       36.6    0.14 
+Q5VT97.2 RecName: Full=Rho GTPase-activating protein SYDE2; AltNa...  36.6    0.14 
+Q81754.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  36.6    0.14 
+O43310.1 RecName: Full=CBP80/20-dependent translation initiation ...  36.6    0.14 
+A6H7I5.1 RecName: Full=Dynamin-2 [Bos taurus]                         36.6    0.14 
+A6NNT2.3 RecName: Full=Uncharacterized protein C16orf96 [Homo sap...  36.6    0.14 
+Q32KV8.1 RecName: Full=Zinc finger protein 414 [Bos taurus]           36.2    0.15 
+Q5TAX3.3 RecName: Full=Terminal uridylyltransferase 4; Short=TUTa...  36.6    0.15 
+P51531.2 RecName: Full=SWI/SNF-related matrix-associated actin-de...  36.6    0.15 
+Q9WMX2.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  36.6    0.16 
+Q2HH63.1 RecName: Full=Protein transport protein SEC24 [Chaetomiu...  36.2    0.16 
+A1CUC3.1 RecName: Full=Protein transport protein sec24 [Aspergill...  36.2    0.16 
+Q61091.2 RecName: Full=Frizzled-8; Short=Fz-8; Short=mFz8; Flags:...  36.2    0.17 
+Q9FJR0.2 RecName: Full=Regulator of nonsense transcripts 1 homolo...  36.2    0.17 
+A5CSZ4.1 RecName: Full=Translation initiation factor IF-2 [Clavib...  36.2    0.17 
+Q8K1N4.1 RecName: Full=Spermatogenesis-associated serine-rich pro...  36.2    0.17 
+E9QMW4.1 RecName: Full=Uncharacterized protein C16orf96 homolog [...  36.2    0.17 
+Q801S8.1 RecName: Full=Collagen alpha-1(VI) chain; Flags: Precurs...  36.2    0.17 
+Q4IR09.1 RecName: Full=mRNA 3'-end-processing protein RNA14 [Fusa...  36.2    0.17 
+Q9M291.3 RecName: Full=Protein transport protein SEC24 B; AltName...  36.2    0.17 
+P06729.2 RecName: Full=T-cell surface antigen CD2; AltName: Full=...  35.9    0.18 
+Q7V5M4.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  36.2    0.18 
+A5DP36.2 RecName: Full=Actin cytoskeleton-regulatory complex prot...  36.2    0.18 
+Q1KKT4.1 RecName: Full=Endoplasmic reticulum junction formation p...  35.9    0.18 
+Q6PEE2.2 RecName: Full=CBP80/20-dependent translation initiation ...  36.2    0.19 
+P16356.3 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  36.2    0.19 
+P28329.4 RecName: Full=Choline O-acetyltransferase; Short=CHOACTa...  36.2    0.19 
+Q9NRM7.2 RecName: Full=Serine/threonine-protein kinase LATS2; Alt...  36.2    0.19 
+Q8VYU4.2 RecName: Full=Carbon catabolite repressor protein 4 homo...  36.2    0.19 
+Q76NI1.2 RecName: Full=Kinase non-catalytic C-lobe domain-contain...  36.2    0.19 
+P90866.4 RecName: Full=Cyclin-dependent kinase 8; AltName: Full=C...  36.2    0.20 
+Q0CA78.1 RecName: Full=Chromatin-remodeling ATPase INO80 [Aspergi...  36.2    0.20 
+Q7KRW8.1 RecName: Full=Pre-mRNA-processing factor 39; AltName: Fu...  36.2    0.21 
+U4PCM1.2 RecName: Full=pre-mRNA 3' end processing protein pfs-2; ...  36.2    0.21 
+Q68FG3.1 RecName: Full=Protein SPT2 homolog; AltName: Full=SPT2 d...  35.9    0.21 
+Q7S4P3.1 RecName: Full=Protein transport protein sec24 [Neurospor...  36.2    0.21 
+Q9HFW2.1 RecName: Full=Serine/threonine-protein kinase CLA4 [Erem...  35.9    0.21 
+P42774.2 RecName: Full=G-box-binding factor 1; Short=AtGBF1; AltN...  35.9    0.21 
+E9PZM4.1 RecName: Full=Chromodomain-helicase-DNA-binding protein ...  36.2    0.22 
+Q4PI89.1 RecName: Full=Transcription elongation factor SPT6; AltN...  36.2    0.22 
+Q5ANA8.1 RecName: Full=Metacaspase-1; Flags: Precursor [Candida a...  35.9    0.22 
+Q9ZH75.1 RecName: Full=Chromosomal replication initiator protein ...  35.9    0.22 
+P71590.1 RecName: Full=FHA domain-containing protein FhaA [Mycoba...  35.9    0.22 
+Q9ULJ6.3 RecName: Full=Zinc finger MIZ domain-containing protein ...  35.9    0.22 
+Q6P1E1.1 RecName: Full=Zinc finger MIZ domain-containing protein ...  35.9    0.22 
+Q96JH8.5 RecName: Full=Ras-associating and dilute domain-containi...  35.9    0.22 
+Q4WTV7.1 RecName: Full=Chromatin-remodeling ATPase INO80 [Aspergi...  35.9    0.24 
+B0RDY9.1 RecName: Full=Translation initiation factor IF-2 [Clavib...  35.9    0.24 
+C5BWS3.1 RecName: Full=Translation initiation factor IF-2 [Beuten...  35.9    0.24 
+Q9BYM8.2 RecName: Full=RanBP-type and C3HC4-type zinc finger-cont...  35.9    0.24 
+O04023.1 RecName: Full=Protein SRC2 homolog; Short=AtSRC2 [Arabid...  35.5    0.24 
+Q05856.1 RecName: Full=Small nuclear ribonucleoprotein-associated...  35.1    0.24 
+O92972.2 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  35.9    0.24 
+Q9ET78.2 RecName: Full=Junctophilin-2; Short=JP-2; AltName: Full=...  35.9    0.26 
+E9PV24.1 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  35.9    0.26 
+Q9UPA5.4 RecName: Full=Protein bassoon; AltName: Full=Zinc finger...  35.9    0.27 
+Q4PHA8.1 RecName: Full=Vacuolar protein-sorting protein BRO1; Alt...  35.9    0.27 
+P9WQN2.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [M...  35.9    0.27 
+A5U8T5.1 RecName: Full=ATP-dependent zinc metalloprotease FtsH [M...  35.9    0.28 
+Q5AI15.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  35.5    0.28 
+Q5H9R4.3 RecName: Full=Armadillo repeat-containing X-linked prote...  35.9    0.28 
+Q38C92.1 RecName: Full=Post-transcriptional regulator MKT1L; AltN...  35.9    0.28 
+A6QPB3.1 RecName: Full=Collagen alpha-1(XVII) chain; AltName: Ful...  35.9    0.28 
+Q8R105.1 RecName: Full=Vacuolar protein sorting-associated protei...  35.5    0.28 
+O39929.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  35.9    0.29 
+Q5RAG2.2 RecName: Full=Extended synaptotagmin-1; Short=E-Syt1 [Po...  35.9    0.29 
+P27902.1 RecName: Full=Chromosomal replication initiator protein ...  35.5    0.29 
+A5D8V6.2 RecName: Full=Vacuolar protein sorting-associated protei...  35.5    0.29 
+Q5AAU3.2 RecName: Full=Protein transport protein SEC31 [Candida a...  35.9    0.29 
+E9Q0S6.1 RecName: Full=Tensin-1 [Mus musculus]                        35.9    0.29 
+Q6AG49.1 RecName: Full=Translation initiation factor IF-2 [Leifso...  35.5    0.29 
+P53992.3 RecName: Full=Protein transport protein Sec24C; AltName:...  35.5    0.29 
+Q498S8.1 RecName: Full=Frizzled-8; Short=Fz-8; Flags: Precursor [...  35.5    0.30 
+A1DFP5.1 RecName: Full=Vacuolar protein sorting-associated protei...  35.5    0.30 
+Q9Y5B6.2 RecName: Full=PAX3- and PAX7-binding protein 1; AltName:...  35.5    0.31 
+F4JAU2.1 RecName: Full=SAC3 family protein B [Arabidopsis thaliana]   35.5    0.31 
+A7YY35.2 RecName: Full=Uncharacterized protein KIAA2012 homolog [...  35.5    0.33 
+Q6INH5.1 RecName: Full=Serrate RNA effector molecule homolog B; A...  35.5    0.33 
+I1S0T9.1 RecName: Full=Chitin synthase 1; AltName: Full=Chitin-UD...  35.5    0.33 
+D4DIW9.1 RecName: Full=Subtilisin-like protease 1; Flags: Precurs...  35.5    0.34 
+Q61548.1 RecName: Full=Clathrin coat assembly protein AP180; AltN...  35.5    0.34 
+Q2HDI2.1 RecName: Full=Myosin-1; AltName: Full=Class I unconventi...  35.5    0.35 
+A5DW14.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  35.5    0.36 
+Q960X8.1 RecName: Full=Hepatocyte growth factor-regulated tyrosin...  35.5    0.36 
+P39060.5 RecName: Full=Collagen alpha-1(XVIII) chain; Contains: R...  35.5    0.36 
+Q8N1G1.3 RecName: Full=RNA exonuclease 1 homolog; AltName: Full=E...  35.5    0.37 
+A4QUF0.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  35.1    0.38 
+Q70EL4.2 RecName: Full=Ubiquitin carboxyl-terminal hydrolase 43; ...  35.5    0.39 
+Q01956.1 RecName: Full=Voltage-gated potassium channel KCNC3; Alt...  35.1    0.39 
+Q5I2N3.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  35.5    0.39 
+O88935.2 RecName: Full=Synapsin-1; AltName: Full=Synapsin I [Mus ...  35.1    0.39 
+Q6C161.1 RecName: Full=Eukaryotic translation initiation factor 3...  35.1    0.40 
+Q8NFD5.3 RecName: Full=AT-rich interactive domain-containing prot...  35.5    0.40 
+Q873A1.1 RecName: Full=Protein transport protein sec31 [Neurospor...  35.1    0.40 
+P02671.2 RecName: Full=Fibrinogen alpha chain; Contains: RecName:...  35.1    0.41 
+Q6SZ61.1 RecName: Full=T-cell surface antigen CD2; AltName: CD_an...  35.1    0.41 
+Q6MG49.2 RecName: Full=Large proline-rich protein BAG6; AltName: ...  35.1    0.41 
+Q47RV1.1 RecName: Full=Translation initiation factor IF-2 [Thermo...  35.1    0.41 
+Q8K285.2 RecName: Full=F-BAR domain only protein 1 [Mus musculus]     35.1    0.42 
+E1BUG7.3 RecName: Full=Protein SPT2 homolog [Gallus gallus]           35.1    0.42 
+Q05306.1 RecName: Full=Collagen alpha-1(X) chain; Flags: Precurso...  35.1    0.42 
+Q8NAU1.4 RecName: Full=Fibronectin type III domain-containing pro...  34.7    0.43 
+Q2H0S0.1 RecName: Full=Vacuolar membrane-associated protein IML1 ...  35.1    0.43 
+Q12816.3 RecName: Full=Trophinin; AltName: Full=MAGE-D3 antigen [...  35.1    0.44 
+Q10Q62.1 RecName: Full=Putative cyclin-F3-2; Short=CycF3;2 [Oryza...  34.7    0.46 
+Q80TZ3.2 RecName: Full=Auxilin; AltName: Full=DnaJ homolog subfam...  35.1    0.46 
+P35248.1 RecName: Full=Pulmonary surfactant-associated protein D;...  34.7    0.46 
+Q9Z1R2.1 RecName: Full=Large proline-rich protein BAG6; AltName: ...  35.1    0.49 
+Q6C8M8.3 RecName: Full=Sterol 3-beta-glucosyltransferase; AltName...  35.1    0.49 
+Q06002.3 RecName: Full=Filensin; AltName: Full=Beaded filament st...  35.1    0.49 
+Q8BLX7.2 RecName: Full=Collagen alpha-1(XVI) chain; Flags: Precur...  35.1    0.49 
+Q9UL51.3 RecName: Full=Potassium/sodium hyperpolarization-activat...  35.1    0.50 
+Q8G3Y5.1 RecName: Full=Translation initiation factor IF-2 [Bifido...  35.1    0.50 
+Q8VY15.1 RecName: Full=RNA-binding motif protein 25 [Arabidopsis ...  34.7    0.51 
+Q7TQG1.1 RecName: Full=Pleckstrin homology domain-containing fami...  35.1    0.51 
+Q9HBB8.3 RecName: Full=Cadherin-related family member 5; AltName:...  34.7    0.51 
+A1CH78.1 RecName: Full=ATP-dependent RNA helicase ded1 [Aspergill...  34.7    0.51 
+A9WGP6.1 RecName: Full=Translation initiation factor IF-2 [Chloro...  34.7    0.53 
+Q12470.1 RecName: Full=Transposon Ty1-NL2 Gag polyprotein; AltNam...  34.7    0.53 
+A4QTV1.1 RecName: Full=Vacuolar protein sorting-associated protei...  34.7    0.53 
+Q6C2T4.1 RecName: Full=Protein transport protein SEC24 [Yarrowia ...  34.7    0.53 
+Q6PDK2.2 RecName: Full=Histone-lysine N-methyltransferase 2D; Sho...  35.1    0.53 
+Q5DTK1.3 RecName: Full=Chondroitin sulfate synthase 3; AltName: F...  34.7    0.55 
+Q8C2K5.1 RecName: Full=RAS protein activator like-3 [Mus musculus]    34.7    0.55 
+Q9P2D1.3 RecName: Full=Chromodomain-helicase-DNA-binding protein ...  34.7    0.55 
+D4AKU9.2 RecName: Full=Subtilisin-like protease 1; Flags: Precurs...  34.7    0.55 
+P98086.2 RecName: Full=Complement C1q subcomponent subunit A; Fla...  34.3    0.56 
+A9LNK9.1 RecName: Full=30-kDa cleavage and polyadenylation specif...  34.7    0.56 
+P02674.2 RecName: Full=Fibrinogen alpha-1 chain; Contains: RecNam...  34.7    0.57 
+Q5JK68.1 RecName: Full=Cyclin-dependent kinase C-2; Short=CDKC;2 ...  34.7    0.57 
+O88339.1 RecName: Full=Epsin-1; AltName: Full=EPS-15-interacting ...  34.7    0.58 
+O96013.1 RecName: Full=Serine/threonine-protein kinase PAK 4; Alt...  34.7    0.59 
+P34545.6 RecName: Full=Protein cbp-1 [Caenorhabditis elegans]         34.7    0.60 
+Q6CEV2.1 RecName: Full=COPII coat assembly protein SEC16; AltName...  34.7    0.60 
+Q0U6X7.1 RecName: Full=Class E vacuolar protein-sorting machinery...  34.7    0.60 
+P39052.1 RecName: Full=Dynamin-2 [Rattus norvegicus]                  34.7    0.61 
+Q8VCB2.1 RecName: Full=Mediator of RNA polymerase II transcriptio...  34.7    0.62 
+Q9GLW0.1 RecName: Full=Progesterone receptor; Short=PR; AltName: ...  34.7    0.63 
+A6NMZ7.2 RecName: Full=Collagen alpha-6(VI) chain; Flags: Precurs...  34.7    0.63 
+A4QUL1.1 RecName: Full=Protein transport protein SEC24 [Pyricular...  34.7    0.63 
+Q75A30.2 RecName: Full=Protein transport protein SEC31 [Eremothec...  34.7    0.64 
+P17600.3 RecName: Full=Synapsin-1; AltName: Full=Brain protein 4....  34.7    0.65 
+Q96PV6.3 RecName: Full=Leukocyte receptor cluster member 8 [Homo ...  34.3    0.66 
+Q9XVI2.1 RecName: Full=Beta-catenin homolog sys-1; AltName: Full=...  34.3    0.67 
+P78706.2 RecName: Full=Transcriptional repressor rco-1 [Neurospor...  34.3    0.67 
+P15711.1 RecName: Full=104 kDa microneme/rhoptry antigen; AltName...  34.7    0.67 
+Q9JKD8.1 RecName: Full=T-box transcription factor TBX21; Short=T-...  34.3    0.68 
+P02894.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  34.3    0.70 
+Q9BGL9.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  33.9    0.71 
+Q9D7W5.1 RecName: Full=Mediator of RNA polymerase II transcriptio...  33.9    0.72 
+Q17460.1 RecName: Full=Cuticle collagen 10; Flags: Precursor [Cae...  33.9    0.72 
+P53772.1 RecName: Full=Homeobox protein DLL homolog [Branchiostom...  33.9    0.72 
+Q28668.1 RecName: Full=Collagen alpha-2(I) chain; AltName: Full=A...  34.3    0.73 
+Q9GPR3.1 RecName: Full=TM2 domain-containing protein DDB_G0277895...  33.2    0.73 
+P39061.4 RecName: Full=Collagen alpha-1(XVIII) chain; Contains: R...  34.3    0.74 
+Q8N8A6.3 RecName: Full=ATP-dependent RNA helicase DDX51; AltName:...  34.3    0.75 
+P09951.3 RecName: Full=Synapsin-1; AltName: Full=Synapsin I [Ratt...  34.3    0.76 
+P09346.1 RecName: Full=Knob-associated histidine-rich protein; Sh...  34.3    0.76 
+Q5R452.1 RecName: Full=Scaffold attachment factor B1; Short=SAF-B...  34.3    0.77 
+Q21955.3 RecName: Full=Mediator of RNA polymerase II transcriptio...  34.3    0.78 
+Q8IZD2.1 RecName: Full=Inactive histone-lysine N-methyltransferas...  34.3    0.80 
+Q8R4X3.3 RecName: Full=RNA-binding protein 12; AltName: Full=RNA-...  34.3    0.81 
+Q7S4N5.2 RecName: Full=Metacaspase-1B; Flags: Precursor [Neurospo...  33.9    0.81 
+P13817.1 RecName: Full=Knob-associated histidine-rich protein; Sh...  33.9    0.81 
+Q992J0.1 RecName: Full=RNA-directed RNA polymerase; Short=RdRp; A...  34.3    0.82 
+Q6ICG8.1 RecName: Full=Postacrosomal sheath WW domain-binding pro...  33.9    0.83 
+Q13563.3 RecName: Full=Polycystin-2; Short=PC2; AltName: Full=Aut...  34.3    0.84 
+Q7U095.1 RecName: Full=Serine/threonine-protein kinase PknH [Myco...  34.3    0.84 
+Q9UEW3.1 RecName: Full=Macrophage receptor MARCO; AltName: Full=M...  33.9    0.84 
+Q03391.3 RecName: Full=Glutamate receptor ionotropic, NMDA 2D; Sh...  34.3    0.84 
+O14924.1 RecName: Full=Regulator of G-protein signaling 12; Short...  34.3    0.87 
+Q5RJI5.1 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  33.9    0.89 
+Q4WP03.1 RecName: Full=Chromatin modification-related protein eaf...  34.3    0.89 
+Q22307.3 RecName: Full=ATP-dependent RNA helicase A; AltName: Ful...  34.3    0.89 
+Q15424.4 RecName: Full=Scaffold attachment factor B1; Short=SAF-B...  34.3    0.89 
+P47236.1 RecName: Full=Paired box protein Pax-1 [Gallus gallus]       33.5    0.89 
+Q5Z3Z8.1 RecName: Full=Chromosomal replication initiator protein ...  33.9    0.92 
+A9BCI5.1 RecName: Full=Translation initiation factor IF-2 [Prochl...  33.9    0.92 
+E7EML9.3 RecName: Full=Serine protease 44; AltName: Full=Testis s...  33.9    0.92 
+Q25060.1 RecName: Full=LWamide neuropeptides; Contains: RecName: ...  33.9    0.92 
+Q9DC04.2 RecName: Full=Regulator of G-protein signaling 3; Short=...  33.9    0.92 
+A6QQ91.1 RecName: Full=RAS protein activator like-3 [Bos taurus]      33.9    0.93 
+P55875.1 RecName: Full=Translation initiation factor IF-2 [Stigma...  33.9    0.93 
+Q53LP3.1 RecName: Full=Ankyrin repeat domain-containing protein S...  33.9    0.96 
+Q9WTR2.4 RecName: Full=Mitogen-activated protein kinase kinase ki...  33.9    0.97 
+Q5R9T2.1 RecName: Full=Vacuolar protein sorting-associated protei...  33.5    0.98 
+Q62415.2 RecName: Full=Apoptosis-stimulating of p53 protein 1; Al...  33.9    0.98 
+Q5DRF1.1 RecName: Full=Protocadherin alpha-13; Short=PCDH-alpha-1...  33.9    1.0  
+Q9Y5I0.1 RecName: Full=Protocadherin alpha-13; Short=PCDH-alpha-1...  33.9    1.0  
+A2BH40.1 RecName: Full=AT-rich interactive domain-containing prot...  33.9    1.0  
+Q4P9K4.1 RecName: Full=Protein transport protein SEC24 [Mycosarco...  33.9    1.0  
+Q7S3C4.3 RecName: Full=Transcription elongation factor spt5; AltN...  33.9    1.0  
+P39054.2 RecName: Full=Dynamin-2; AltName: Full=Dynamin UDNM [Mus...  33.9    1.1  
+P25439.2 RecName: Full=ATP-dependent helicase brm; AltName: Full=...  33.9    1.1  
+O80910.1 RecName: Full=TOM1-like protein 6 [Arabidopsis thaliana]     33.9    1.1  
+Q12391.1 RecName: Full=Transposon Ty1-NL1 Gag polyprotein; AltNam...  33.5    1.1  
+P38968.3 RecName: Full=Protein transport protein SEC31; AltName: ...  33.9    1.1  
+Q13472.1 RecName: Full=DNA topoisomerase 3-alpha; AltName: Full=D...  33.9    1.1  
+Q63801.1 RecName: Full=Transcription initiation factor TFIID subu...  33.9    1.1  
+Q5ZK88.1 RecName: Full=Paraspeckle component 1 [Gallus gallus]        33.5    1.1  
+A6QQP7.1 RecName: Full=Dysferlin; AltName: Full=Dystrophy-associa...  33.9    1.1  
+Q6UXA7.3 RecName: Full=Uncharacterized protein C6orf15; AltName: ...  33.5    1.1  
+P0CQ88.1 RecName: Full=Pre-mRNA-splicing ATP-dependent RNA helica...  33.5    1.2  
+Q99PI8.1 RecName: Full=Reticulon-4 receptor; AltName: Full=Nogo r...  33.5    1.2  
+Q86XZ4.1 RecName: Full=Spermatogenesis-associated serine-rich pro...  33.5    1.2  
+Q17FR9.1 RecName: Full=Serrate RNA effector molecule homolog; Alt...  33.5    1.2  
+O89113.1 RecName: Full=Immediate early response gene 5 protein [M...  33.5    1.2  
+Q503S1.1 RecName: Full=Fidgetin [Danio rerio]                         33.5    1.2  
+P23206.1 RecName: Full=Collagen alpha-1(X) chain; Flags: Precurso...  33.5    1.2  
+Q99M75.2 RecName: Full=Reticulon-4 receptor; AltName: Full=Nogo r...  33.5    1.2  
+Q9H1D0.3 RecName: Full=Transient receptor potential cation channe...  33.5    1.2  
+J9VND4.2 RecName: Full=PAB1-binding protein 1; AltName: Full=Poly...  33.5    1.3  
+Q5VUA4.2 RecName: Full=Zinc finger protein 318; AltName: Full=End...  33.9    1.3  
+Q9BYE2.5 RecName: Full=Transmembrane protease serine 13; AltName:...  33.5    1.3  
+Q2PS20.1 RecName: Full=Junctophilin-2; Short=JP-2; AltName: Full=...  33.5    1.3  
+Q4WHN8.1 RecName: Full=Vacuolar protein sorting-associated protei...  33.5    1.3  
+Q2UGU3.1 RecName: Full=Transcription elongation factor spt5; AltN...  33.5    1.3  
+A1DP06.1 RecName: Full=Protein transport protein SEC24 [Aspergill...  33.5    1.3  
+Q0CP15.1 RecName: Full=Stress response protein nst1 [Aspergillus ...  33.5    1.3  
+P40144.1 RecName: Full=Adenylate cyclase type 5; AltName: Full=AT...  33.5    1.4  
+Q8TDC3.2 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  33.5    1.4  
+B1VGC2.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  33.5    1.4  
+Q07092.2 RecName: Full=Collagen alpha-1(XVI) chain; Flags: Precur...  33.5    1.4  
+A1D731.1 RecName: Full=Stress response protein nst1 [Aspergillus ...  33.5    1.4  
+Q63870.3 RecName: Full=Collagen alpha-1(VII) chain; AltName: Full...  33.5    1.4  
+Q82FD8.1 RecName: Full=Chromosomal replication initiator protein ...  33.5    1.4  
+Q65XV7.1 RecName: Full=Replication protein A 70 kDa DNA-binding s...  33.5    1.4  
+G4MZJ4.1 RecName: Full=Xylanolytic transcriptional activator xlnR...  33.5    1.5  
+Q1E1H4.2 RecName: Full=Stress response protein NST1 [Coccidioides...  33.5    1.5  
+Q9BXX0.3 RecName: Full=EMILIN-2; AltName: Full=Elastin microfibri...  33.5    1.5  
+Q9Z0T6.2 RecName: Full=Polycystin family receptor for egg jelly; ...  33.5    1.5  
+Q1D568.1 RecName: Full=DNA mismatch repair protein MutL [Myxococc...  33.2    1.5  
+Q1IHW4.1 RecName: Full=Small ribosomal subunit protein bS18; AltN...  32.0    1.5  
+A3LXL0.1 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  33.2    1.6  
+Q5U3G1.1 RecName: Full=Collectin-11; Flags: Precursor [Danio rerio]   32.8    1.6  
+Q9UUI3.2 RecName: Full=Pre-mRNA-splicing factor sap145; AltName: ...  33.2    1.6  
+Q9Y233.2 RecName: Full=cAMP and cAMP-inhibited cGMP 3',5'-cyclic ...  33.5    1.6  
+O60641.2 RecName: Full=Clathrin coat assembly protein AP180; AltN...  33.2    1.6  
+A0A0A7HMS2.1 RecName: Full=Conidiophore development regulator aba...  33.2    1.6  
+G5EEL0.1 RecName: Full=LIM domain-binding protein 1 [Caenorhabdit...  33.2    1.6  
+Q60467.1 RecName: Full=Collagen alpha-1(V) chain; Flags: Precurso...  33.5    1.6  
+Q9KRD1.1 RecName: Full=UPF0313 protein VC_1711 [Vibrio cholerae O...  33.2    1.6  
+O88207.2 RecName: Full=Collagen alpha-1(V) chain; Flags: Precurso...  33.5    1.7  
+A5D9M6.1 RecName: Full=Large proline-rich protein BAG6; AltName: ...  33.2    1.7  
+O43182.3 RecName: Full=Rho GTPase-activating protein 6; AltName: ...  33.2    1.7  
+P54282.1 RecName: Full=Voltage-dependent P/Q-type calcium channel...  33.5    1.7  
+Q9JI03.1 RecName: Full=Collagen alpha-1(V) chain; Flags: Precurso...  33.5    1.7  
+P22147.1 RecName: Full=5'-3' exoribonuclease 1; AltName: Full=DNA...  33.2    1.7  
+U6A492.1 RecName: Full=Nuclear receptor coactivator 5 [Schmidtea ...  33.2    1.7  
+Q8VI59.2 RecName: Full=Pecanex-like protein 3; AltName: Full=Peca...  33.2    1.7  
+P52912.1 RecName: Full=Cytotoxic granule associated RNA binding p...  33.2    1.7  
+Q20497.2 RecName: Full=Mediator of RNA polymerase II transcriptio...  33.5    1.7  
+Q17459.2 RecName: Full=Putative cuticle collagen 145; Flags: Prec...  32.8    1.7  
+Q4ZJM7.2 RecName: Full=Otolin-1; Flags: Precursor [Mus musculus]      33.2    1.7  
+O95428.4 RecName: Full=Papilin; Flags: Precursor [Homo sapiens]       33.2    1.8  
+Q6MMS6.1 RecName: Full=Translation initiation factor IF-2 [Bdello...  33.2    1.8  
+Q640Z6.1 RecName: Full=Nuclear pore complex protein Nup153; AltNa...  33.2    1.8  
+Q0CQL9.1 RecName: Full=Metacaspase-1B; Flags: Precursor [Aspergil...  32.8    1.8  
+O93927.3 RecName: Full=1,3-beta-glucan synthase component FKS1 [C...  33.2    1.8  
+A1SLK7.1 RecName: Full=Translation initiation factor IF-2 [Nocard...  33.2    1.8  
+Q2TBN1.1 RecName: Full=SWI/SNF-related matrix-associated actin-de...  33.2    1.8  
+A3LSY7.1 RecName: Full=Metacaspase-1; Flags: Precursor [Scheffers...  32.8    1.8  
+A2R9H9.1 RecName: Full=Chromatin-remodeling ATPase INO80 [Aspergi...  33.2    1.9  
+Q98ET0.1 RecName: Full=Protease HtpX homolog [Mesorhizobium japon...  32.8    1.9  
+Q91ZR5.1 RecName: Full=Cation channel sperm-associated protein 1;...  33.2    2.0  
+Q7Z5N4.3 RecName: Full=Protein sidekick-1; Flags: Precursor [Homo...  33.2    2.1  
+Q80ZF0.1 RecName: Full=Collagen alpha-1(XXVII) chain; Flags: Prec...  33.2    2.1  
+Q2UCB7.1 RecName: Full=Metacaspase-1B; Flags: Precursor [Aspergil...  32.8    2.1  
+Q10998.2 RecName: Full=Cerebral peptide 1; Short=CP1; AltName: Fu...  32.4    2.1  
+A2QW93.1 RecName: Full=Class E vacuolar protein-sorting machinery...  32.8    2.1  
+Q752V4.1 RecName: Full=Protein transport protein SEC9 [Eremotheci...  32.8    2.1  
+Q6CWW9.1 RecName: Full=Transcription elongation factor SPT5; AltN...  32.8    2.2  
+Q9JKS4.1 RecName: Full=LIM domain-binding protein 3; AltName: Ful...  32.8    2.2  
+A5D7L8.1 RecName: Full=PGC-1 and ERR-induced regulator in muscle ...  32.8    2.2  
+P0C7T7.1 RecName: Full=Putative uncharacterized protein FRMD6-AS1...  32.8    2.2  
+Q9HBL0.3 RecName: Full=Tensin-1 [Homo sapiens]                        33.2    2.2  
+A8XV36.1 RecName: Full=Cuticle collagen 144; Flags: Precursor [Ca...  32.4    2.2  
+Q4WVG0.1 RecName: Full=Protein kinase C [Aspergillus fumigatus Af...  32.8    2.2  
+Q9ULI4.3 RecName: Full=Kinesin-like protein KIF26A [Homo sapiens]     33.2    2.2  
+Q4X0Z5.1 RecName: Full=Vacuolar protein-sorting protein bro1; Alt...  32.8    2.2  
+Q69Z89.2 RecName: Full=Ras-associating and dilute domain-containi...  32.8    2.2  
+Q9SFU0.2 RecName: Full=Protein transport protein SEC24 A; Short=A...  32.8    2.2  
+Q8CA71.1 RecName: Full=Protein shisa-4; AltName: Full=Transmembra...  32.4    2.2  
+G3MY25.2 RecName: Full=Tigger transposable element-derived protei...  32.8    2.2  
+Q5QNQ9.1 RecName: Full=Collagen alpha-1(XXVII) chain; Flags: Prec...  32.8    2.2  
+B2DD29.1 RecName: Full=Serine/threonine-protein kinase BRSK1; Alt...  32.8    2.3  
+A1DHK2.1 RecName: Full=Protein transport protein sec31 [Aspergill...  32.8    2.3  
+Q6BZG0.2 RecName: Full=Transcription elongation factor SPT5; AltN...  32.8    2.3  
+Q9LU44.1 RecName: Full=Splicing factor-like protein 1; Short=AtSF...  32.8    2.3  
+Q8BTW9.1 RecName: Full=Serine/threonine-protein kinase PAK 4; Alt...  32.8    2.4  
+P49796.2 RecName: Full=Regulator of G-protein signaling 3; Short=...  32.8    2.4  
+P20072.2 RecName: Full=Annexin A7; AltName: Full=Annexin VII; Alt...  32.8    2.4  
+P35223.1 RecName: Full=Catenin beta; AltName: Full=Beta-catenin [...  32.8    2.4  
+Q86XT2.2 RecName: Full=Vacuolar protein sorting-associated protei...  32.4    2.4  
+Q9HCJ0.4 RecName: Full=Trinucleotide repeat-containing gene 6C pr...  32.8    2.5  
+Q0CTN3.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  32.4    2.5  
+P41073.1 RecName: Full=Zinc finger protein on ecdysone puffs [Dro...  32.8    2.5  
+Q5PQ53.1 RecName: Full=Peflin; AltName: Full=PEF protein with a l...  32.4    2.5  
+Q61026.3 RecName: Full=Nuclear receptor coactivator 2; Short=NCoA...  32.8    2.5  
+Q62311.1 RecName: Full=Transcription initiation factor TFIID subu...  32.8    2.5  
+Q93052.1 RecName: Full=Lipoma-preferred partner; AltName: Full=LI...  32.8    2.5  
+Q1XI13.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  32.4    2.6  
+Q8K327.1 RecName: Full=Chromosome alignment-maintaining phosphopr...  32.8    2.6  
+Q6BRR2.2 RecName: Full=Protein transport protein SEC31 [Debaryomy...  32.8    2.6  
+P08677.2 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  32.4    2.6  
+Q7S5D9.3 RecName: Full=ATP-dependent RNA helicase dhh1; AltName: ...  32.8    2.6  
+Q75B43.1 RecName: Full=Metacaspase-1; Flags: Precursor [Eremothec...  32.4    2.6  
+P63128.3 RecName: Full=Endogenous retrovirus group K member 9 Pol...  32.8    2.6  
+Q4PJW2.1 RecName: Full=Nuclear receptor coactivator 1; Short=NCoA...  32.8    2.6  
+Q15596.2 RecName: Full=Nuclear receptor coactivator 2; Short=NCoA...  32.8    2.6  
+O14994.2 RecName: Full=Synapsin-3; AltName: Full=Synapsin III [Ho...  32.4    2.6  
+Q8NEZ4.3 RecName: Full=Histone-lysine N-methyltransferase 2C; Sho...  32.8    2.7  
+Q96JM3.2 RecName: Full=Chromosome alignment-maintaining phosphopr...  32.8    2.7  
+Q86B20.1 RecName: Full=Eukaryotic translation initiation factor 3...  32.8    2.7  
+P17657.2 RecName: Full=Cuticle collagen dpy-13; AltName: Full=Pro...  32.4    2.7  
+F1LQ48.2 RecName: Full=Heterogeneous nuclear ribonucleoprotein L;...  32.4    2.7  
+Q6FRZ5.1 RecName: Full=Transcription elongation factor SPT5; AltN...  32.8    2.7  
+P27619.2 RecName: Full=Dynamin; AltName: Full=Protein shibire; Al...  32.8    2.7  
+Q6DGN6.2 RecName: Full=Protein SPT2 homolog; AltName: Full=SPT2 d...  32.4    2.8  
+Q9SB63.2 RecName: Full=Protein MODIFIER OF SNC1 1; AltName: Full=...  32.8    2.8  
+Q01285.3 RecName: Full=Chitin synthase 4; AltName: Full=Chitin-UD...  32.8    2.9  
+Q5TP13.3 RecName: Full=Mediator of RNA polymerase II transcriptio...  32.4    2.9  
+J9VX63.1 RecName: Full=C2H2 finger domain transcription factor US...  32.4    2.9  
+Q9JIL3.2 RecName: Full=Interleukin enhancer-binding factor 3 [Rat...  32.4    2.9  
+Q6BSD6.2 RecName: Full=Vacuolar protein sorting-associated protei...  32.4    2.9  
+A6SDT7.2 RecName: Full=Metacaspase-1; Flags: Precursor [Botrytis ...  32.4    2.9  
+P62684.3 RecName: Full=Endogenous retrovirus group K member 113 G...  32.4    3.0  
+A5YVF1.1 RecName: Full=Protein SUPPRESSOR OF GENE SILENCING 3; Al...  32.4    3.0  
+Q87N95.1 RecName: Full=UPF0313 protein VP1980 [Vibrio parahaemoly...  32.4    3.0  
+Q49378.2 RecName: Full=P32 adhesin; AltName: Full=Cytadhesin P32 ...  32.0    3.0  
+P70365.2 RecName: Full=Nuclear receptor coactivator 1; Short=NCoA...  32.4    3.0  
+Q3UPL0.2 RecName: Full=Protein transport protein Sec31A; AltName:...  32.4    3.1  
+Q96UX3.1 RecName: Full=cAMP-dependent protein kinase regulatory s...  32.4    3.1  
+P47845.2 RecName: Full=Galectin-3; Short=Gal-3; AltName: Full=35 ...  32.0    3.1  
+Q9FYE4.1 RecName: Full=Probable calcium-binding protein CML50; Al...  32.0    3.1  
+Q9H3T2.4 RecName: Full=Semaphorin-6C; AltName: Full=Semaphorin-Y;...  32.4    3.2  
+F1LTE0.2 RecName: Full=Protein TANC2 [Rattus norvegicus]              32.4    3.2  
+Q9QZL0.2 RecName: Full=Receptor-interacting serine/threonine-prot...  32.4    3.2  
+Q6NLP2.1 RecName: Full=Translation initiation factor IF3-1, mitoc...  32.4    3.2  
+P58195.1 RecName: Full=Phospholipid scramblase 1; Short=PL scramb...  32.0    3.3  
+A0MSJ1.1 RecName: Full=Collagen alpha-1(XXVII) chain B; Flags: Pr...  32.4    3.3  
+P53771.1 RecName: Full=Homeobox protein box-5; AltName: Full=NvHb...  32.0    3.4  
+C7DZK3.1 RecName: Full=Collagen alpha-1(XXVII) chain A; Flags: Pr...  32.4    3.4  
+J4WMI6.1 RecName: Full=Class II hydrophobin C; Flags: Precursor [...  32.0    3.4  
+Q8FPA7.1 RecName: Full=Translation initiation factor IF-2 [Coryne...  32.4    3.5  
+A0FGR8.1 RecName: Full=Extended synaptotagmin-2; Short=E-Syt2; Al...  32.4    3.5  
+Q2UY09.2 RecName: Full=Collagen alpha-1(XXVIII) chain; Flags: Pre...  32.4    3.5  
+Q2GZN9.1 RecName: Full=Stress response protein NST1 [Chaetomium g...  32.4    3.5  
+Q15788.3 RecName: Full=Nuclear receptor coactivator 1; Short=NCoA...  32.4    3.5  
+Q8IWX8.3 RecName: Full=Calcium homeostasis endoplasmic reticulum ...  32.4    3.6  
+Q1E6U9.2 RecName: Full=Protein transport protein SEC24 [Coccidioi...  32.4    3.6  
+Q8CGZ0.1 RecName: Full=Calcium homeostasis endoplasmic reticulum ...  32.4    3.6  
+O65934.1 RecName: Full=ABC transporter ATP-binding/permease prote...  32.4    3.7  
+A0QQF4.1 RecName: Full=Trehalose monomycolate transport factor A;...  32.0    3.7  
+Q8BFW7.1 RecName: Full=Lipoma-preferred partner homolog [Mus musc...  32.0    3.8  
+Q8BUM9.2 RecName: Full=Ubiquitin carboxyl-terminal hydrolase 43; ...  32.0    3.8  
+A6NHN0.1 RecName: Full=Otolin-1; Flags: Precursor [Homo sapiens]      32.0    3.8  
+Q5BCN2.1 RecName: Full=Transcription elongation factor spt5; AltN...  32.0    3.9  
+Q61466.3 RecName: Full=SWI/SNF-related matrix-associated actin-de...  32.0    3.9  
+Q6NZN1.1 RecName: Full=Peroxisome proliferator-activated receptor...  32.0    3.9  
+G3MZY8.2 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  32.0    4.0  
+P08775.3 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  32.0    4.0  
+P24928.2 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  32.0    4.0  
+P11414.2 RecName: Full=DNA-directed RNA polymerase II subunit RPB...  32.0    4.0  
+Q4WXQ7.1 RecName: Full=Stress response protein nst1 [Aspergillus ...  32.0    4.1  
+O75154.1 RecName: Full=Rab11 family-interacting protein 3; Short=...  32.0    4.1  
+Q5B630.2 RecName: Full=Polyadenylate-binding protein, cytoplasmic...  32.0    4.1  
+Q59LF3.2 RecName: Full=Regulator of cytoskeleton and endocytosis ...  32.0    4.2  
+P34340.1 RecName: Full=Putative cuticle collagen 90 [Caenorhabdit...  31.6    4.2  
+Q4P333.1 RecName: Full=Chitin synthase 7; AltName: Full=Chitin-UD...  32.0    4.3  
+Q30D77.2 RecName: Full=Collagen alpha-1(XXIV) chain; Flags: Precu...  32.0    4.3  
+Q9SIV5.3 RecName: Full=Zinc finger CCCH domain-containing protein...  32.0    4.3  
+B2CQK1.1 RecName: Full=Velvet complex subunit RYP3 [Histoplasma c...  31.6    4.3  
+P14784.1 RecName: Full=Interleukin-2 receptor subunit beta; Short...  32.0    4.4  
+Q02290.1 RecName: Full=Endo-1,4-beta-xylanase B; Short=Xylanase B...  32.0    4.5  
+A5E866.1 RecName: Full=Translation initiation factor IF-2 [Bradyr...  32.0    4.5  
+Q38J84.1 RecName: Full=Interleukin-2 receptor subunit beta; Short...  32.0    4.6  
+Q0U4Z8.1 RecName: Full=Vacuolar protein sorting-associated protei...  32.0    4.6  
+P78325.2 RecName: Full=Disintegrin and metalloproteinase domain-c...  32.0    4.7  
+Q0VF58.2 RecName: Full=Collagen alpha-1(XIX) chain; AltName: Full...  32.0    4.8  
+Q2T9P9.1 RecName: Full=Coiled-coil domain-containing glutamate-ri...  31.6    4.8  
+O60346.3 RecName: Full=PH domain leucine-rich repeat-containing p...  32.0    4.8  
+Q9VWN9.2 RecName: Full=Zinc finger SWIM domain-containing protein...  32.0    4.9  
+Q0VDD7.2 RecName: Full=Break repair meiotic recombinase recruitme...  31.6    5.0  
+A5PLN7.2 RecName: Full=Protein FAM149A [Homo sapiens]                 31.6    5.0  
+P12114.2 RecName: Full=Cuticle collagen sqt-1; AltName: Full=Prot...  31.6    5.1  
+Q8N398.3 RecName: Full=von Willebrand factor A domain-containing ...  32.0    5.1  
+Q9N0E3.1 RecName: Full=Reticulon-4 receptor; AltName: Full=Nogo r...  31.6    5.1  
+Q3UHD9.1 RecName: Full=Arf-GAP with GTPase, ANK repeat and PH dom...  32.0    5.1  
+Q4WAR8.1 RecName: Full=Transcriptional activator somA [Aspergillu...  31.6    5.1  
+Q9BZR6.1 RecName: Full=Reticulon-4 receptor; AltName: Full=Nogo r...  31.6    5.1  
+O14686.2 RecName: Full=Histone-lysine N-methyltransferase 2D; Sho...  32.0    5.1  
+Q8CGU4.1 RecName: Full=Arf-GAP with GTPase, ANK repeat and PH dom...  31.6    5.1  
+P63145.2 RecName: Full=Endogenous retrovirus group K member 24 Ga...  31.6    5.2  
+G4NF05.1 RecName: Full=Cell pattern formation-associated protein ...  31.6    5.2  
+A5PN28.1 RecName: Full=Otolin-1-A; AltName: Full=zOtolin1; Flags:...  31.6    5.3  
+P27959.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  31.6    5.3  
+P02457.3 RecName: Full=Collagen alpha-1(I) chain; AltName: Full=A...  31.6    5.3  
+Q58Z64.1 RecName: Full=ATP-dependent RNA helicase VAD1; AltName: ...  31.6    5.4  
+A4RE77.1 RecName: Full=Myosin-1; AltName: Full=Class I unconventi...  31.6    5.5  
+P02463.4 RecName: Full=Collagen alpha-1(IV) chain; Contains: RecN...  31.6    5.5  
+Q7LDI9.3 RecName: Full=Endogenous retrovirus group K member 6 Gag...  31.6    5.5  
+P62683.2 RecName: Full=Endogenous retrovirus group K member 21 Ga...  31.6    5.5  
+P10163.4 RecName: Full=Basic salivary proline-rich protein 4; Sho...  31.2    5.5  
+Q9WUI9.1 RecName: Full=Nuclear receptor coactivator 2; Short=NCoA...  31.6    5.5  
+Q4GZT3.1 RecName: Full=Polycystin-2; AltName: Full=Polycystic kid...  31.6    5.6  
+Q03110.1 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  31.6    5.6  
+Q9IVZ8.2 RecName: Full=Pro-secreted protein ORF2; AltName: Full=P...  31.6    5.7  
+P63126.2 RecName: Full=Endogenous retrovirus group K member 9 Gag...  31.6    5.7  
+Q6P4Z2.1 RecName: Full=Collagen alpha-1(II) chain; AltName: Full=...  31.6    5.7  
+B2AWS3.2 RecName: Full=Actin cytoskeleton-regulatory complex prot...  31.6    5.8  
+P91573.2 RecName: Full=Warthog protein 6; Contains: RecName: Full...  31.6    5.8  
+Q9ESZ0.2 RecName: Full=DNA repair protein XRCC1; AltName: Full=X-...  31.6    5.9  
+Q9Z1X4.2 RecName: Full=Interleukin enhancer-binding factor 3 [Mus...  31.6    5.9  
+A0JNA2.1 RecName: Full=Seizure protein 6 homolog; Short=SEZ-6; Fl...  31.6    5.9  
+Q26264.1 RecName: Full=41 kDa spicule matrix protein; AltName: Fu...  31.2    5.9  
+A1CQZ0.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  31.2    6.0  
+Q870V7.1 RecName: Full=Protein PNS1 [Neurospora crassa OR74A]         31.6    6.0  
+Q02926.1 RecName: Full=Ribonucleoprotein RB97D [Drosophila melano...  31.2    6.0  
+O97581.1 RecName: Full=LIM/homeobox protein Lhx3; Short=LIM homeo...  31.2    6.1  
+A4IFM7.1 RecName: Full=Myosin light chain kinase 2, skeletal/card...  31.6    6.1  
+Q7TSH3.1 RecName: Full=Zinc finger protein 516 [Mus musculus]         31.6    6.1  
+Q2GXM1.1 RecName: Full=COPII coat assembly protein SEC16; AltName...  31.6    6.1  
+Q7ZXV8.1 RecName: Full=BUB3-interacting and GLEBS motif-containin...  31.2    6.2  
+P35799.1 RecName: Full=Cuticle collagen dpy-2; AltName: Full=Prot...  31.2    6.2  
+B0CXQ2.1 RecName: Full=Velvet complex subunit B [Laccaria bicolor...  31.2    6.3  
+Q96T25.3 RecName: Full=Zinc finger protein ZIC 5; AltName: Full=Z...  31.6    6.3  
+P13826.2 RecName: Full=Circumsporozoite protein; Short=CS; Contai...  31.2    6.4  
+B0XN24.1 RecName: Full=Mitochondrial distribution and morphology ...  31.2    6.4  
+P95619.1 RecName: Full=Acyclic carotenoid 1,2-hydratase; AltName:...  31.2    6.5  
+P31483.3 RecName: Full=Cytotoxic granule associated RNA binding p...  31.2    6.5  
+P0CR40.1 RecName: Full=Protein transport protein SEC24 [Cryptococ...  31.6    6.5  
+Q91717.2 RecName: Full=Collagen alpha-1(II) chain; AltName: Full=...  31.6    6.6  
+P42731.1 RecName: Full=Polyadenylate-binding protein 2; Short=PAB...  31.2    6.6  
+Q03570.6 RecName: Full=Mediator of RNA polymerase II transcriptio...  31.6    6.6  
+P0CR41.1 RecName: Full=Protein transport protein SEC24 [Cryptococ...  31.6    6.6  
+Q04ZJ5.1 RecName: Full=Translation initiation factor IF-2 [Leptos...  31.2    6.6  
+Q14684.3 RecName: Full=Ribosomal RNA processing protein 1 homolog...  31.2    6.6  
+Q8CI61.2 RecName: Full=BAG family molecular chaperone regulator 4...  31.2    6.6  
+Q6DC93.1 RecName: Full=Peflin; AltName: Full=PEF protein with a l...  30.8    6.7  
+A8XV37.2 RecName: Full=Putative cuticle collagen 145; Flags: Prec...  31.2    6.7  
+Q9UKU6.2 RecName: Full=Thyrotropin-releasing hormone-degrading ec...  31.2    6.8  
+Q7XSA2.3 RecName: Full=Protein argonaute 1B; Short=OsAGO1b [Oryza...  31.2    6.8  
+O77700.2 RecName: Full=Alpha-2B adrenergic receptor; AltName: Ful...  31.2    6.8  
+G0SBS8.1 RecName: Full=Nucleoporin NUP159; AltName: Full=Nuclear ...  31.6    6.9  
+P87378.1 RecName: Full=Adapter molecule crk; AltName: Full=CRK2; ...  30.8    6.9  
+Q1E0A3.1 RecName: Full=Metacaspase-1; Flags: Precursor [Coccidioi...  31.2    7.0  
+Q96BH1.1 RecName: Full=E3 ubiquitin-protein ligase RNF25; AltName...  31.2    7.1  
+P37705.1 RecName: Full=Glycine-rich protein A3 [Daucus carota]        30.8    7.1  
+Q8K4P0.1 RecName: Full=pre-mRNA 3' end processing protein WDR33; ...  31.2    7.3  
+B9FXV5.2 RecName: Full=Eukaryotic translation initiation factor 4...  31.2    7.3  
+Q4ZJN1.1 RecName: Full=Complement C1q and tumor necrosis factor-r...  30.8    7.4  
+B2RWS6.2 RecName: Full=Histone acetyltransferase p300; Short=p300...  31.2    7.5  
+Q3UG20.2 RecName: Full=Inactive histone-lysine N-methyltransferas...  31.2    7.5  
+A1CEK6.1 RecName: Full=Class E vacuolar protein-sorting machinery...  31.2    7.6  
+Q04U31.1 RecName: Full=Translation initiation factor IF-2 [Leptos...  31.2    7.6  
+A1Z7G7.2 RecName: Full=Latrophilin Cirl [Drosophila melanogaster]     31.2    7.6  
+A1DA48.1 RecName: Full=Neutral protease 2 homolog NFIA_031120; Al...  31.2    7.7  
+Q8RXF1.2 RecName: Full=Probable splicing factor 3A subunit 1 [Ara...  31.2    7.7  
+Q2UMM2.1 RecName: Full=Transcription activator of gluconeogenesis...  31.2    7.7  
+Q09455.1 RecName: Full=Cuticle collagen 39; Flags: Precursor [Cae...  30.8    7.8  
+Q9UKN7.2 RecName: Full=Unconventional myosin-XV; AltName: Full=Un...  31.2    7.8  
+Q4WP96.1 RecName: Full=Transcription elongation factor spt5; AltN...  31.2    7.9  
+O95835.1 RecName: Full=Serine/threonine-protein kinase LATS1; Alt...  31.2    8.0  
+Q9HZ55.1 RecName: Full=Ribosomal large subunit pseudouridine synt...  30.8    8.0  
+A4QNR8.1 RecName: Full=Leukocyte receptor cluster member 8 homolo...  31.2    8.0  
+P32027.2 RecName: Full=Fork head domain-containing protein crocod...  31.2    8.0  
+B2RUR8.1 RecName: Full=OTU domain-containing protein 7B; AltName:...  31.2    8.1  
+P10238.1 RecName: Full=mRNA export factor; AltName: Full=Immediat...  30.8    8.3  
+Q9R050.1 RecName: Full=Single-stranded DNA-binding protein 3; Alt...  30.8    8.3  
+Q6ZR98.2 RecName: Full=Putative inactive serine protease 43; Flag...  30.8    8.3  
+A2RB75.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  30.8    8.4  
+Q12GW5.1 RecName: Full=Small ribosomal subunit protein uS3; AltNa...  30.8    8.5  
+P49797.2 RecName: Full=Regulator of G-protein signaling 3; Short=...  31.2    8.6  
+Q3TKT4.1 RecName: Full=SWI/SNF-related matrix-associated actin-de...  31.2    8.6  
+Q8K1P7.1 RecName: Full=SWI/SNF-related matrix-associated actin-de...  31.2    8.6  
+Q9H0L4.1 RecName: Full=Cleavage stimulation factor subunit 2 tau ...  30.8    8.6  
+Q04205.3 RecName: Full=Tensin-1 [Gallus gallus]                       31.2    8.6  
+Q04857.1 RecName: Full=Collagen alpha-1(VI) chain; Flags: Precurs...  31.2    8.7  
+P62685.2 RecName: Full=Endogenous retrovirus group K member 8 Gag...  30.8    8.8  
+B4P3A0.1 RecName: Full=Latrophilin Cirl [Drosophila yakuba]           31.2    8.9  
+P50569.1 RecName: Full=Steroidogenic factor 1; Short=SF-1; Short=...  30.8    8.9  
+Q01404.4 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  30.8    9.0  
+Q60632.2 RecName: Full=COUP transcription factor 1; Short=COUP-TF...  30.8    9.1  
+Q8CBY3.1 RecName: Full=Leukocyte receptor cluster member 8 homolo...  30.8    9.2  
+A4X4N7.1 RecName: Full=Translation initiation factor IF-2 [Salini...  30.8    9.2  
+Q8BM15.1 RecName: Full=Uncharacterized protein C6orf15 homolog; A...  30.8    9.5  
+A1D3V4.2 RecName: Full=Metacaspase-1A; Flags: Precursor [Aspergil...  30.8    9.5  
+Q9UQ90.2 RecName: Full=Mitochondrial inner membrane m-AAA proteas...  30.8    9.6  
+Q01403.3 RecName: Full=Genome polyprotein; Contains: RecName: Ful...  30.8    9.7  
+P05453.1 RecName: Full=Eukaryotic peptide chain release factor GT...  30.8    9.7  
+Q9JMC1.1 RecName: Full=Phosphatidylinositol 4,5-bisphosphate 5-ph...  30.8    9.8  
+Q75VX8.3 RecName: Full=GRB2-associated and regulator of MAPK prot...  30.8    10.0 
+
+
+
+Lambda      K        H        a         alpha
+   0.317    0.127    0.343    0.792     4.96 
+
+Gapped
+Lambda      K        H        a         alpha    sigma
+   0.267   0.0388    0.140     1.90     42.6     43.6 
+
+Effective search space used: 13788110060
+
+
+  Database: Non-redundant UniProtKB/SwissProt sequences
+    Posted date:  Jun 29, 2025  4:54 AM
+  Number of letters in database: 184,945,355
+  Number of sequences in database:  485,565
+
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Neighboring words threshold: 11
+Window for multiple hits: 40

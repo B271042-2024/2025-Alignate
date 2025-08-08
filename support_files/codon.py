@@ -85,7 +85,8 @@ class AlignmentWorker(QThread):
             # MAFFT 
             if self.button_aln.text() == 'MAFFT':
                 print('#  Running MAFFT v7.526	(parameters: --anysymbol, --genafpair,--maxiterate 10000)...')
-                mafft_path = "./external_tools/mafft_linux/mafft"
+#                mafft_path = "./external_tools/mafft_linux/mafft"
+                mafft_path = "./external_tools/mafft_linux/mafft_7_525_withoutextensions/core/mafft"
                 with open(self.aligned_aa_output_file, 'w') as out:
                     subprocess.run([mafft_path, '--anysymbol', '--genafpair', '--maxiterate', '10000', aa_output_file], check=True, stdout=out, stderr=subprocess.DEVNULL)
             # ClustalO
@@ -2308,7 +2309,7 @@ class codon(QWidget):
         ax.set_xticks([pos + (num_props / 2 - 0.5) * width for pos in x])
         ax.set_xticklabels(species, rotation=45, ha='right')
         ax.set_ylabel('% Amino Acid Property Composition')
-        ax.set_title('Amino Acid Property Distribution Across Species in Prion Proteins')
+        ax.set_title('Amino Acid Property Distribution')
 #        ax.legend(title='Amino Acid Property')
         ax.legend(title='Amino Acid Property', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
 
@@ -2421,9 +2422,11 @@ class codon(QWidget):
 
         # ---3 Extract data from output: horiz file
         if not os.path.exists(horiz_file):
-            raise FileNotFoundError(f"Expected output file {horiz_file} not found!")
+            raise FileNotFoundError(f"Expected output file {horiz_file} not found!\n\nPlease ensure local PSIPRED is installed.")
+
         with open(horiz_file, "r") as f:
             self.prediction_text = f.read()
+
         return self.prediction_text
 
 

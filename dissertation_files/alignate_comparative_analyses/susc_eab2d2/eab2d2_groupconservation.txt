@@ -1,0 +1,5 @@
+Ovis_aries_Scrapie	91%
+Homo_sapiens_CJD_BSE	84.9%
+Felis_catus_FSE_BSE	84.9%
+Cervus_canadensis_CWD	91.4%
+Odocoileus_hemionus_CWD	91.4%

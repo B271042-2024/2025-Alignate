@@ -1,0 +1,16 @@
+# Conservation Threshold: 49 +/-10
+Position	Felis_catus_FSE_BSE_seq1	Felis_catus_FSE_BSE_seq2	Felis_catus_FSE_BSE_seq3	Felis_catus_FSE_BSE_seq4	Felis_catus_FSE_BSE_seq5	Felis_catus_FSE_BSE_seq6	Felis_catus_FSE_BSE_seq7	Felis_catus_FSE_BSE_seq8	Felis_catus_FSE_BSE_seq9	Felis_catus_FSE_BSE_seq10	Felis_catus_FSE_BSE_seq11	Felis_catus_FSE_BSE_seq12	Felis_catus_FSE_BSE_seq13	Felis_catus_FSE_BSE_seq14	Felis_catus_FSE_BSE_seq15	Felis_catus_FSE_BSE_seq16	Felis_catus_FSE_BSE_seq17	Felis_catus_FSE_BSE_seq18	Felis_catus_FSE_BSE_seq19	Felis_catus_FSE_BSE_seq20	Felis_catus_FSE_BSE_seq21	Canis_lupus_familiaris_seq1	Canis_lupus_familiaris_seq2	Canis_lupus_familiaris_seq3	Canis_lupus_familiaris_seq4	Canis_lupus_familiaris_seq5	Canis_lupus_familiaris_seq6	Canis_lupus_familiaris_seq7	Canis_lupus_familiaris_seq8	Canis_lupus_familiaris_seq9	Canis_lupus_familiaris_seq10	Canis_lupus_familiaris_seq11	Canis_lupus_familiaris_seq12	Canis_lupus_familiaris_seq13	Canis_lupus_familiaris_seq14	Canis_lupus_familiaris_seq15	Canis_lupus_familiaris_seq16	Canis_lupus_familiaris_seq17	Canis_lupus_familiaris_seq18	Canis_lupus_familiaris_seq19	Canis_lupus_familiaris_seq20	Canis_lupus_familiaris_seq21
+4	-	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	S	G	-	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S
+12	-	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	-	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L
+31	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
+37	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G
+93	A	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	A	A	A	G	A	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G
+103	T	T	T	T	T	T	T	T	T	T	T	T	T	T	T	T	T	T	T	S	T	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S
+105	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	S	G	S	S	S	S	G	G	G	S	S	S	S	S	S	S	G	S	S	S	S	S	S
+111	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	S	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N
+120	M	M	M	M	M	M	M	M	M	M	M	M	M	M	M	M	M	M	M	V	M	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V
+167	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	N	E	D	D	D	D	D	E	D	D	D	D	D	D	D	E	D	D	E	D	D	D
+185	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	H	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R
+193	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	R	K	R	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K	K
+252	-	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	L	I	L	-	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I	I
+260	-	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	G	V	G	-	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V	V
