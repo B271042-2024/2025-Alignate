@@ -13,19 +13,27 @@ import matplotlib.colors as mcolors
 from io import BytesIO
 from collections import Counter
 
+# from files
 from drawingcanvas import DrawingCanvas
 from ruler import ruler, ClickableLabel
 
+#begin system coding
 warnings.filterwarnings("ignore", category=BiopythonDeprecationWarning)
 
 
 
-
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________1-1 CLASS: Toolbar - Codon
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
 class AlignmentWorker(QThread):
     finished = Signal(list)
     error = Signal(str)
     aligned_aa_signal = Signal(str)
 
+#_______________________________________________________________________________________________1 DEF: main
+#_______________________________________________________________________________________________
     def __init__(self, uid, sequences, button_aln, parent=None):
         super().__init__(parent)
         self.sequences = sequences
@@ -33,6 +41,8 @@ class AlignmentWorker(QThread):
         self.output_file = None
         self.uid = uid
 
+#_______________________________________________________________________________________________2 DEF: connect from DEF: run_alignment
+#_______________________________________________________________________________________________
     def run(self):
         aligned_seq = []
 
@@ -85,7 +95,6 @@ class AlignmentWorker(QThread):
             # MAFFT 
             if self.button_aln.text() == 'MAFFT':
                 print('#  Running MAFFT v7.526	(parameters: --anysymbol, --genafpair,--maxiterate 10000)...')
-#                mafft_path = "./external_tools/mafft_linux/mafft"
                 mafft_path = "./external_tools/mafft_linux/mafft_7_525_withoutextensions/core/mafft"
                 with open(self.aligned_aa_output_file, 'w') as out:
                     subprocess.run([mafft_path, '--anysymbol', '--genafpair', '--maxiterate', '10000', aa_output_file], check=True, stdout=out, stderr=subprocess.DEVNULL)
@@ -98,19 +107,15 @@ class AlignmentWorker(QThread):
             # Neither
             else:
                 self.error.emit('Error: Failed to select alignment method. Please contact Alignate.')
-                #QMessageBox.warning(self, 'Error', 'Error: Failed to select alignment method. Please contact Alignate.')
                 return
         except Exception as e:
             self.error.emit(f'{self.button_aln.text()} error: {str(e)}')
-            #QMessageBox.critical(self, f'{self.button_aln.text()} error', str(e))
             return
-
 
 # -------3 Run Alignment: Codon Sequences via tranalign
         tranalign_path = "./external_tools/tranalign/bin/tranalign"
         if not os.path.exists(self.aligned_aa_output_file) or os.path.getsize(self.aligned_aa_output_file) == 0:
             self.error.emit("Aligned amino acid output is missing or empty.")
-            #QMessageBox.warning(self, "Error", "Aligned amino acid output is missing or empty.")
             return
 
         try:
@@ -118,7 +123,6 @@ class AlignmentWorker(QThread):
                 subprocess.run([tranalign_path, '-bsequence' , self.aligned_aa_output_file, '-asequence', fasta_file, '-outseq',  output_file], check=True, stdout=out, stderr=subprocess.DEVNULL)
         except Exception as e:
             self.error.emit(f'Tranalign alignment failed: {str(e)}')
-            #QMessageBox.critical(self, "Tranalign alignment failed.", str(e))
             return
 # ------4 Parse file and get aligned sequences
         for record in SeqIO.parse(output_file, 'fasta'):
@@ -130,8 +134,15 @@ class AlignmentWorker(QThread):
 
 
 
-
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________1-2 CLASS: Toolbar - codon
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
 class AlignmentDialog(QDialog):
+
+#_______________________________________________________________________________________________1 DEF: main
+#_______________________________________________________________________________________________     
     def __init__(self, uid, sequences, button_aln, callback_fn,
                  group=None, layout=None, output_file=None, return_only=False, seq_map=None,
                  parent=None):
@@ -163,9 +174,15 @@ class AlignmentDialog(QDialog):
         self.worker.error.connect(self.show_error)
         self.worker.start()
 
+
+#_______________________________________________________________________________________________2 DEF: set aligned file
+#_______________________________________________________________________________________________  
     def receive_aa_aligned_file(self, aa_path: str):
         self.aa_aligned_path = aa_path
 
+
+#_______________________________________________________________________________________________3 DEF: signal_Done
+#_______________________________________________________________________________________________  
     def on_finished(self, aligned):
         self.accept()
         try:
@@ -182,6 +199,9 @@ class AlignmentDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Callback Error", str(e))
 
+
+#_______________________________________________________________________________________________4 DEF: signal_Error
+#_______________________________________________________________________________________________  
     def show_error(self, message):
         QMessageBox.critical(self, "Alignment Error", message)
         self.reject()
@@ -195,12 +215,10 @@ class AlignmentDialog(QDialog):
 #_______________________________________________________________________________________________2 CLASS: Toolbar - codon
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________
-
-
-
-
-
 class codon(QWidget):
+
+#_______________________________________________________________________________________________1 DEF: main
+#_______________________________________________________________________________________________     
     def __init__(self, base_path, parent=None):
         super().__init__(parent)
         self.base_path = base_path
@@ -334,10 +352,8 @@ class codon(QWidget):
         self.button2_alignall.clicked.connect(self.button2_alignall_clicked)
         self.widget_toggles.append(self.widget_codon_buttons)
 
-#_______________________________________________________________________________________________MAIN DEF___
 #_______________________________________________________________________________________________1 DEF: QC System TCSH
 #_______________________________________________________________________________________________
-
     def show_tcsh_warning(self):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
@@ -359,9 +375,8 @@ class codon(QWidget):
             for idx, group in enumerate(self.groups):
                 self.color_code_seq(mode="group", group_idx=idx)
 
-#_______________________________________________________________________________________________3 DEF: Search Sequence
+#_______________________________________________________________________________________________3 DEF: Toolbar - Search Sequence
 #_______________________________________________________________________________________________
-
     def search_sequences(self, widget_search_seq):
         # 1 Define the target sequence
         search = widget_search_seq.strip().upper()
@@ -411,9 +426,8 @@ class codon(QWidget):
                             label_row[align_idx].setStyleSheet("background: #FFA500;")
 
 
-#_______________________________________________________________________________________________2-1 DEF: MENU2 VIEW
+#_______________________________________________________________________________________________4-1 DEF: MENU VIEW - Toggles
 #_______________________________________________________________________________________________
-
     # 1 SHOW ALL
     def view_show_all(self):
         for widget in self.widget_toggles:
@@ -426,6 +440,8 @@ class codon(QWidget):
             widget.hide()
 
 
+#_______________________________________________________________________________________________4-2 DEF: MENU VIEW - Consensus Mode
+#_______________________________________________________________________________________________
     # 3 ADJUST CONSENSUS MODE
     def adjust_consensusmode(self):
 # --------------------------------------------Main
@@ -465,9 +481,8 @@ class codon(QWidget):
             return threshold
         return None
 
-#_______________________________________________________________________________________________2-2 DEF: MENU2 VIEW
-#_______________________________________________________________________________________________
 
+    # 2 APPLY THRESHOLD TO SEQUENCES
     def apply_new_consensus_threshold(self):
 # . . .  CLEAR GUI . . . # . . . CLEAR DICT . . .
         for group in self.groups:
@@ -534,9 +549,9 @@ class codon(QWidget):
         if hasattr(self, 'prediction_text'):
             self.compute_region_conservation(self.prediction_text)
 
-#_______________________________________________________________________________________________3-1 DEF: Line 1 - Slider + Slider Checkbox
-#_______________________________________________________________________________________________ (Called in DEF: init)
-
+#_______________________________________________________________________________________________5 DEF: Set Conservation Threshold Mode
+#_______________________________________________________________________________________________
+    # ACTIVATE/INACTIVATE CONSERVATION THRESHOLD
     def handle_slider_mode_toggle(self, checked):                                               # Turn the slider fxn ON/OFF                                           
         if checked:
             self.slider_threshold()
@@ -548,18 +563,13 @@ class codon(QWidget):
                     self.color_code_seq(mode="group", group_idx=idx)
 
 
-#_______________________________________________________________________________________________3-2 DEF: Slider
-#_______________________________________________________________________________________________ (Called in DEF: run_alignment)
-
-
-
-
+    # SAVE CONSERVATION DATA INTO A FILE
     def menu1_others_saveconservationfile_clicked(self):
         self.saveconservation = True
         self.slider_threshold()
 
 
-
+    # IF ACTIVATED, APPLY THRESHOLLD TO INTERFACE
     def slider_threshold(self):
         if self.checkboxslider.isChecked():
             threshold = self.slidercon.value()
@@ -640,53 +650,9 @@ class codon(QWidget):
                     self.color_code_seq(mode="group", group_idx=idx)
 
 
-
-    def todel_slider_threshold(self):
-        if self.checkboxslider.isChecked():
-            threshold = self.slidercon.value()
-            lower = threshold - 10
-            upper = threshold + 10
-
-            all_seqs = []
-            for group in self.groups:
-                for entry in group['widget_seq']:
-                    all_seqs.append(entry['seq'])
-
-            if not all_seqs:
-                return
-
-            columns = list(zip(*all_seqs))
-            conservation_scores = []
-            for col in columns:
-                most_common = Counter(col).most_common(1)[0][1]
-                percent = round((most_common / len(col)) * 100)
-                conservation_scores.append(percent)
-
-            for group in self.groups:
-                for entry in group['widget_seq']:
-                    for i, lbl in enumerate(entry['seq_letters']):
-                        if i >= len(conservation_scores):
-                            continue
-                        percent = conservation_scores[i]
-                        bg_color = lbl.property("bg_color") or 'white'    # self.get_existing_bg_color(lbl)
-                        if lower <= percent <= upper:
-                            lbl.setStyleSheet(f'background-color: {bg_color}; color: black;')
-                        else:
-                            lbl.setStyleSheet('color: lightgray;')
-
-        else:
-            if getattr(self, 'is_alignall', False) and hasattr(self, 'seq_map'):
-                self.color_code_seq(seq_map=self.seq_map, mode="all")
-            else:
-                for idx, group in enumerate(self.groups):
-                    self.color_code_seq(mode="group", group_idx=idx)
-
-
-#_______________________________________________________________________________________________4 DEF: Menu - Save Project
+#_______________________________________________________________________________________________6-1 DEF: Menu - Save Project
 #_______________________________________________________________________________________________
-
     def save_project(self):
-
 # ------1 Set directory for saved file        
         file_path, _ = QFileDialog.getSaveFileName(self, 'Save Project', '', 'Alignate Project (*.alignate)')
         if not file_path:
@@ -742,9 +708,8 @@ class codon(QWidget):
 
 
 
-#_______________________________________________________________________________________________5-2 DEF: Menu - Load Project
+#_______________________________________________________________________________________________6-2 DEF: Menu - Load Project
 #_______________________________________________________________________________________________
-
     def load_project(self, file_path: str | None = None):
 
 # ------1 Load file 
@@ -896,12 +861,8 @@ class codon(QWidget):
         QMessageBox.information(self, "Loaded", f"Project loaded from {file_path}")
 
 
-
-
-#_______________________________________________________________________________________________OTHER DEF___
-#_______________________________________________________________________________________________4-1 DEF: Line 1 - +Group
+#_______________________________________________________________________________________________7-1 DEF: Line 1 - +Group
 #_______________________________________________________________________________________________
-
     def button1_addgroup_clicked(self):
 
 # --------------------------------------------Initiation
@@ -936,7 +897,6 @@ class codon(QWidget):
         self.layout_codon_l4_group_l1.setSpacing(0)                                               
         self.widget_codon_l4_group_l1.setLayout(self.layout_codon_l4_group_l1)
         self.layout_codon_l4.addWidget(self.widget_codon_l4_group_l1)
-
 
 
 # --------------------------------------------Sub-elements
@@ -1032,9 +992,8 @@ class codon(QWidget):
         checkbox1_setrefgroup.toggled.connect(lambda checked, this_box=checkbox1_setrefgroup: self.handle_reference_group_toggle(this_box))                                                 # only 1 group is allowed at a time
 
 
-#_______________________________________________________________________________________________4-2 DEF: Line 1 - Exclusive Reference Checkbox
+#_______________________________________________________________________________________________7-2 DEF: Line 1 - Exclusive Reference Checkbox
 #_______________________________________________________________________________________________
-
     def handle_reference_group_toggle(self, selected_checkbox):
         if selected_checkbox.isChecked():
             for group in self.groups:
@@ -1043,9 +1002,8 @@ class codon(QWidget):
                     box.setChecked(False)
 
 
-#_______________________________________________________________________________________________5 DEF: Line 1 - Remove Group
+#_______________________________________________________________________________________________7-3 DEF: Line 1 - -Group
 #_______________________________________________________________________________________________
-
     def button2_removegroup_clicked(self, widget):
 # . . .  CLEAR GUI . . .
         # 1 Remove global consensus
@@ -1073,9 +1031,8 @@ class codon(QWidget):
                 break
 
 
-#_______________________________________________________________________________________________6-1 DEF: Line 1 - Add Sequence
+#_______________________________________________________________________________________________7-4 DEF: Line 1 - +Sequence
 #_______________________________________________________________________________________________
-
     def button3_addseq_clicked(self, layout):
 
 # --------------------------------------------Initiation
@@ -1143,13 +1100,10 @@ class codon(QWidget):
         self.widget_codon_14_group_l1_seq_dialoginput.exec()
 
 
-
-
-#_______________________________________________________________________________________________6-3 DEF: Line 1 - Add Codon & codon Files
+#_______________________________________________________________________________________________7-4 DEF: Line 1 - +Sequence via external File
 #_______________________________________________________________________________________________
-
+    # ADD SEQUENCES TO A DIALOG BOX
     def seqtext_button1file_clicked(self, layout):
-
 # --------------------------------------------Initiation
         self.allinput_header = []
         self.allinput_seq = []
@@ -1303,11 +1257,8 @@ class codon(QWidget):
         self.widget_codon_14_group_l1_seq_dialoginput.accept()
 
 
-
-
-#_______________________________________________________________________________________________6-4 DEF: Line 1 - Filter the added sequences before adding to GUI etc.
+#______________________________________________________________________________________________7-4-3 DEF: Line 1 - Filter seqs before adding to GUI
 #_______________________________________________________________________________________________
-
     def filter_sequences(self, dialog):
         to_remove = [idx for checkbox, idx in self.filter_checkboxes if checkbox.isChecked()]
         for idx in sorted(to_remove, reverse=True):
@@ -1317,11 +1268,8 @@ class codon(QWidget):
         dialog.accept()
 
 
-
-
-#_______________________________________________________________________________________________7 DEF: Line 1 - Remove Sequence
+#_______________________________________________________________________________________________7-4-4 DEF: Line 1 - -Sequences
 #_______________________________________________________________________________________________
-
     def button4_removeseq_clicked(self, layout):
 # . . .  CLEAR GUI . . .
         for group in self.groups:
@@ -1386,14 +1334,11 @@ class codon(QWidget):
         self.seq_rows = [(row, checkbox) for (row, checkbox) in self.seq_rows if (row, checkbox) not in seq_removed]    # used to mark for deletion
 
 
-#_______________________________________________________________________________________________8 DEF: Line 1 - Align sequences
-#__________________________________________________________________________________________ALIGN
-
+#_______________________________________________________________________________________________8-1 DEF: Line 1 - Align sequences
+#__________________________________________________________________________________________
     def button5_align_clicked(self, layout):
-
 # --------------------------------------------Initiation
         self.align_blue = True
-
 # --------------------------------------------Main
         widget_dialogbox_align = QDialog(self)
         widget_dialogbox_align.setStyleSheet('QDialog {background-color: white;}')
@@ -1464,20 +1409,8 @@ class codon(QWidget):
         widget_dialogbox_align.exec()
 
 
-#_______________________________________________________________________________________________8-2 DEF: Line 1 - Align sequences
-#__________________________________________________________________________________________ALIGN
-
-    def toggle_psipred(self):
-        if self.widget_psipred_online.isChecked():
-            self.widget_radiobtns_psipred2.setVisible(False)
-            self.qlineedit_email.setVisible(True)
-        else:
-            self.qlineedit_email.setVisible(False)
-            self.widget_radiobtns_psipred2.setVisible(True)
-
-
-#_______________________________________________________________________________________________9 DEF: 1 Align all sequences
-#__________________________________________________________________________________________ALIGN
+#_______________________________________________________________________________________________8-2 DEF: 1 Align all sequences
+#__________________________________________________________________________________________
     def button2_alignall_clicked(self):
 # --------------------------------------------Others
         # Initiation
@@ -1569,10 +1502,20 @@ class codon(QWidget):
         widget_dialogbox_alignall.exec()
 
 
+#_______________________________________________________________________________________________8-3 DEF: PSIPRED mode (select prior to alignment)
+#__________________________________________________________________________________________
+    def toggle_psipred(self):
+        if self.widget_psipred_online.isChecked():
+            self.widget_radiobtns_psipred2.setVisible(False)
+            self.qlineedit_email.setVisible(True)
+        else:
+            self.qlineedit_email.setVisible(False)
+            self.widget_radiobtns_psipred2.setVisible(True)
 
-#_______________________________________________________________________________________________10-4 DEF: Run Alignment > etc.
+
+#_______________________________________________________________________________________________9 DEF: Run Alignment > etc.
 #_______________________________________________________________________________________________
-
+    # RUN ALIGNMENT
     def run_alignment(self, sequences, group=None, layout=None, button_aln=None, output_file=None, return_only=False, seq_map=None):
 
         self.status.setText('Running . . .')
@@ -1609,9 +1552,9 @@ class codon(QWidget):
         dlg.exec()    
 
 
-
+    # RUN ALIGNMENT DIALOG
+    # CONTINUE RUN ALIGNMENT
     def continue_run_alignment(self, uid, sequences, aligned_seq, group=None, layout=None, button_aln=None, output_file=None, return_only=False, seq_map=None):
-
         print('')
         print('#2 Generating consensus sequences and calculate %Conservation...')
 
@@ -1680,16 +1623,7 @@ class codon(QWidget):
                     1 for i in range(1, len(ref_consensus))  # start at 1
                     if i < len(target_consensus) and ref_consensus[i] == target_consensus[i])
                 percent_conservation = (matches / (len(ref_consensus))) * 100
-                #matches = sum(1 for a, b in zip(ref_consensus, target_consensus) if a == b)
-                #percent_conservation = (matches / len(ref_consensus)) * 100
                 str_percent_conservation = f"{percent_conservation:.3g}%"        # 3sf
-
-
-#                print('continue_run...')
-#                print(f'matches: {matches}')
-#                print(len(ref_consensus))
-#                print('---')
-
 
 # --------------------------------------------Output_files
                 with open(groupconservation_file, 'a') as c:
@@ -1703,10 +1637,8 @@ class codon(QWidget):
                         if label:
                             label.setText(str_percent_conservation)
 
-
             # -- 5 Connect - DEF Color Code & Display on GUI (Aligned Sequences)
             self.color_code_seq(seq_map=self.seq_map, mode="all")
-
 
             # run global consensus to get both global consensus for codon and codon
             # -- 6 Connect - DEF Get & Display on GUI (Global Consensus)
@@ -1774,16 +1706,14 @@ class codon(QWidget):
 
         print('')
         print('Finished.')
-
         self.status.setText('')
 
 # --------------------------------------------Connect
         if self.checkboxslider.isChecked():
             self.slider_threshold()
 
-#_______________________________________________________________________________________________11 Add sequences to GUI (Unaligned & Aligned)
+#_______________________________________________________________________________________________10 Add sequences to GUI (Unaligned & Aligned)
 #_______________________________________________________________________________________________
-
     def add_sequences_toGUI(self, group, layout, seq_name='', seq=''):                 
 # --------------------------------------------Main
         widget_seq = QWidget()
@@ -1835,9 +1765,8 @@ class codon(QWidget):
             self.widget_codon_l4.setMinimumWidth(seq_pixel_length)
 
 
-#_______________________________________________________________________________________________12-1 Get & Display Consensus (by Group)
+#_______________________________________________________________________________________________11 Get & Display Consensus (by Group)
 #_______________________________________________________________________________________________
-
     def get_consensus_aln(self, group, seq_map=None, threshold=None, button_aln=None, sequences=None):
 
         print('#  Generating group consensus') 
@@ -1964,9 +1893,8 @@ class codon(QWidget):
 
 
 
-#_______________________________________________________________________________________________12-1 Get & Display Global Consensus
+#_______________________________________________________________________________________________12 Get & Display Global Consensus
 #_______________________________________________________________________________________________
-
     def get_global_consensus(self, threshold=None, aa_aln_file=None):
 
         print('#  Generating global consensus')
@@ -2043,7 +1971,6 @@ class codon(QWidget):
 
 # --------------------------------------------
 # --------------------------------------------Amino Acid Consensus
-
         global_p_consensus_str = None  # Default to None for safe return
         if aa_aln_file and os.path.exists(aa_aln_file) and os.path.getsize(aa_aln_file) > 0:
             try:
@@ -2100,7 +2027,6 @@ class codon(QWidget):
 
 #_______________________________________________________________________________________________13 Color Code Aligned Sequences
 #_______________________________________________________________________________________________
-
     def color_code_seq(self, seq_map=None, mode=None, group_idx=None):
 # --------------------------------------------Define Inside Fxns
         def get_col_similarity(seqs):
@@ -2150,9 +2076,9 @@ class codon(QWidget):
                             lbl.setStyleSheet(f'background-color: {color};')
 
 
-#_______________________________________________________________________________________________14 Custom Display % Conservation
+#_______________________________________________________________________________________________14 Custom Display % Conservation & Additional Residue Distribution Plot
 #_______________________________________________________________________________________________
-
+    # CALCULATE %CONSERVATION & RESIDUE DISTRIBUTION (BASED ON AA PROPERTIES)
     def custom_display_perc_cons(self, pos1, pos2, widget_checkbox):
 # --------------------------------------------Action
         # 1 Get Reference Consensus
@@ -2228,7 +2154,6 @@ class codon(QWidget):
 
 
 # --------------------------------------------%Conservation based on amino acid properties
-
         if widget_checkbox.isChecked():
             aa_properties = [['P','G','C'],['G','A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
             property_names = ["special","hydrophobic_aliphatic","hydrophobic_aromatic","polar","negative","positive","unknown"]
@@ -2271,9 +2196,7 @@ class codon(QWidget):
             QMessageBox.information(self, 'Saved', f'%Conservation data saved:\nTable: {aa_properties_perc_file}\n\nBar Chart: {png_path}')
 
 
-
-
-
+    # GENERATE DISTRIBUTION PLOT (BASED ON AA PROPERTIES)
     def save_aa_property_distribution_plot(self, percents, property_names, group_names):
         # Prepare species data from computed percents
         species_data = {group: [percents[prop_idx][grp_idx] for prop_idx in range(len(property_names))]
@@ -2296,12 +2219,10 @@ class codon(QWidget):
             '#999999'   # unknown (gray)
         ]
 
-
         # Bar chart setup
         fig, ax = plt.subplots(figsize=(14, 6))
         width = 0.1
         x = list(range(num_species))
-
         for i, prop_vals in enumerate(values):
             ax.bar([pos + i * width for pos in x], prop_vals, width=width, color=custom_colors[i], label=property_names[i])
 #            ax.bar([pos + i * width for pos in x], prop_vals, width=width, label=property_names[i])
@@ -2310,13 +2231,11 @@ class codon(QWidget):
         ax.set_xticklabels(species, rotation=45, ha='right')
         ax.set_ylabel('% Amino Acid Property Composition')
         ax.set_title('Amino Acid Property Distribution')
-#        ax.legend(title='Amino Acid Property')
         ax.legend(title='Amino Acid Property', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
-
         ax.grid(True, linestyle='--', alpha=0.5)
         plt.tight_layout()
 
-        # Save PNG
+        # Save plot as PNG file
         png_path = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.png')
         plt.savefig(png_path, dpi=300)
         plt.close()
@@ -2324,18 +2243,9 @@ class codon(QWidget):
         return png_path
 
 
-
-
-
-
-
-
-
-
-
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
-#________________________________________________________________________________________PSIPRED
-
+#________________________________________________________________________________________
+    # 1 RUN OFFLINE
     def build_secondary_structure_offline(self, psipred_dir, group=None, mode=None):
 
         print('#  Offline: Running PSIPRED V4 with database: BLAST+')
@@ -2431,10 +2341,7 @@ class codon(QWidget):
 
 
 
-
-#_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE
-#________________________________________________________________________________________PSIPRED
-
+    # 2 RUN ONLINE
     def build_secondary_structure_online(self, group=None, mode=None):
 
         print('#  Online: Running PSIPRED V4 online')
@@ -2445,8 +2352,6 @@ class codon(QWidget):
         os.makedirs(self.session_folder, exist_ok=True)                                         
         fasta_file = f"{self.session_folder}/{self.uid}_refaa.fasta"
         horiz_file = f"{self.session_folder}/{self.uid}_refaa.horiz"
-
-
 # -------------------------- for aligned reference sequence ---------------------------
 
         refcodon = ""                               # ""=empty string, None=no value, nothing, missing
@@ -2545,9 +2450,7 @@ class codon(QWidget):
         return self.prediction_text
 
 
-#_______________________________________________________________________________________________16 PSIPRED: DISPLAY ON GUI
-#________________________________________________________________________________________PSIPRED
-
+    # 3 DRAW PSIPRED OUTPUT ONTO GUI
     def draw_secondary_structure_to_gui(self, prediction_text, region_conservation=None, group=None, mode=None):
 
         print('#  Drawing secondary structure from PSIPRED on GUI')
@@ -2605,19 +2508,6 @@ class codon(QWidget):
                 refseq = group['widget_seq'][0]['seq']
 
         # 2 if -, check aa b4 & after
-#        final_pred = []
-#        pred_idx = 0
-#        for i in range(0, len(refseq), 3):
-#            codon = refseq[i:i+3]
-#            if codon == '---':
-#                final_pred.append('C')  # fallback for gapped codon
-#            else:
-#                if pred_idx < len(pred):
-#                    final_pred.append(pred[pred_idx])
-#                    pred_idx += 1
-#                else:
-#                    final_pred.append('C')  # fallback if pred string runs out
-
         final_pred = []
         pred_idx = 0
         num_codons = len(refseq) // 3
@@ -2653,28 +2543,8 @@ class codon(QWidget):
                     pred_idx += 1
                 else:
                     final_pred.append('C')  # fallback if prediction is missing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  # -------------------------- for aligned reference sequence ---------------------------
+
         # ---2 Turn C, E, H into symbols: ---, Arrow, Box
         width_per_residue = 0.15 * 3                                            # Width per base: 15 pixels
         fig_width = len(final_pred) * width_per_residue                             # Figure width
@@ -2723,18 +2593,14 @@ class codon(QWidget):
         layout_horizontal.addWidget(label, alignment=Qt.AlignLeft)
 
 
-
 #-----------------------------------------------------Output files
         ss_conservation_file = os.path.join(self.session_folder, f'{self.uid}_ssconservation.txt')
         with open(ss_conservation_file, 'w') as ss:
             ss.write("Position for amino acid residues:\n" + header + "\n" + body)
 
 
-
-
-#_______________________________________________________________________________________________16 PSIPRED: COMPUTE REGION %CONSERVATIVE
-#________________________________________________________________________________________PSIPRED
-
+#_______________________________________________________________________________________________16 PSIPRED: Compute SS Region Conservation
+#________________________________________________________________________________________
     def compute_region_conservation(self, prediction_text):
 
         print('#  Calculating %Conservation on secondary structure')
@@ -2849,18 +2715,27 @@ class codon(QWidget):
 
 
 
-#_______________________________________________________________________________________________18 PSIPRED: For %Conservation per SS
-#________________________________________________________________________________________PSIPRED
-
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________2 CLASS: PSIPRED: Display %Conservation on SS in interface
+#_______________________________________________________________________________________________
+#_______________________________________________________________________________________________
 class StructureLabel(QLabel):
+#_______________________________________________________________________________________________1 DEF: main to set tooltip
+#________________________________________________________________________________________
     def __init__(self, pixmap, tooltip_text, parent=None):
         super().__init__(parent)
         self.setPixmap(pixmap)
         self.tooltip_text = tooltip_text
 
+#_______________________________________________________________________________________________2 DEF: show tooltip
+#________________________________________________________________________________________
     def enterEvent(self, event):
         QToolTip.showText(event.globalPosition().toPoint(), self.tooltip_text, self)
 
+#_______________________________________________________________________________________________3 DEF: hide tooltip
+#________________________________________________________________________________________
     def leaveEvent(self, event):
         QToolTip.hideText()
 
+# Return to Alignate
