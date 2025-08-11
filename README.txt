@@ -18,7 +18,8 @@ RUN PROGRAM
 
 
 
-INSTALLATION
+
+### [NOT REQUIRED] ADDITIONAL NOTES: TO DOWNLOAD/INSTALL INDEPENDENTLY, FOLLOW BELOW.
 1. Install python packages. While in the project_alignate folder, please execute as below.
 % python3 -m venv pypackages
 % source pypackages/bin/activate
