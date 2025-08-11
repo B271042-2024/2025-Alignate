@@ -34,6 +34,8 @@ if [ ! -d pypackages ]; then
 		fi
 
 		# INSTALL tcsh
+		cd ../../../..
+
 		if ! command -v tcsh >/dev/null 2>&1; then
 			# install tcsh
 			if command -v apt >/dev/null 2>&1; then
@@ -53,6 +55,7 @@ if [ ! -d pypackages ]; then
 		echo "PSIPRED is not installed."
 	fi
 
+	echo "Checking python3 dependencies..."
 	# INSTALL PYTHON3 AND PYTHON3-PIP IF UNAVAILABLE
 	if ! command -v python3 >/dev/null 2>&1 || ! dpkg -s python3-venv >/dev/null 2>&1; then
 		if command -v apt-get >/dev/null 2>&1; then
