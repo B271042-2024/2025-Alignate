@@ -1,18 +1,33 @@
 #!/bin/bash
-set -euo pipefail	# e: exit immediately, u: treat unset var as error, o pipefail: fail if any command fails, not just the last one
 
 # Folder pypackages present?
 if [ ! -d pypackages ]; then
 
-	echo "First time opening file. Initial setup may take around 5 minutes..."
+	echo "First time opening file. Initial setup may take around 5-10 minutes..."
 	read -p "Would you like to install local PSIPRED? (y/n) " ans
 
 	# if user select y
 	if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
 
+		#INSTALL tcsh shell
+		if ! command -v tcsh >/dev/null 2>&1; then
+			# install tcsh
+			if command -v apt >/dev/null 2>&1; then
+				echo "Searching for tcsh shell..."
+				sudo apt install tcsh
+				echo "tcsh shell successfully installed."
+			else
+				echo "Error installing tcsh..."
+				exit 1
+			fi
+		else
+			echo "tcsh is available."
+		fi
+
+
 		#DOWNLOAD NCBI DB
 		echo "NCBI Protein Databases: https://ftp.ncbi.nlm.nih.gov/blast/db/"
-		read -p "Which protein database to download? Select from the link above (DEFAULT: swissprot). Enter to use default. " ans2
+		read -p "Which protein database to download? Select from the link above (DEFAULT: swissprot. Enter to use): " ans2
 
                 mkdir -p external_tools/psipred/BLAST+/blastdb
                 cd external_tools/psipred/BLAST+/blastdb || exit 1
@@ -36,19 +51,6 @@ if [ ! -d pypackages ]; then
 		# INSTALL tcsh
 		cd ../../../..
 
-		if ! command -v tcsh >/dev/null 2>&1; then
-			# install tcsh
-			if command -v apt >/dev/null 2>&1; then
-				echo "Searching for tcsh shell..."
-				sudo apt update && sudo apt install -y tcsh
-			else
-				echo "Error installing tcsh..."
-				exit 1
-			fi
-		else
-			echo "tcsh is available."
-		fi
-
 		# ALLOW EXECUTIONS
 		chmod -R +x .
 	else
@@ -63,7 +65,9 @@ if [ ! -d pypackages ]; then
 	if ! command -v python3 >/dev/null 2>&1 || ! dpkg -s python3-venv >/dev/null 2>&1; then
 		if command -v apt-get >/dev/null 2>&1; then
 			echo "Installing python3 and python3-venv..."
-			sudo apt-get update && sudo apt-get install -y python3 python3-pip python3-venv
+			sudo apt install python3
+                        sudo apt install puthon3-pip
+                        sudo apt install python3-venv
 		else
 			echo "Error installing python3. Please install directly on terminal."
 			exit 1
@@ -79,7 +83,7 @@ fi
 echo "Opening Alignate.."
 echo ""
 echo "NOTE:"
-echo "If you do not have local PSIPRED installed, webserver PSIPRED option is available but, it might take as long as 10 minutes."
+echo "If you do not have local PSIPRED installed, PSIPRED web is available but, it may run for ~10 mins (Local <1 min)."
 echo "To install local PSIPRED, see README.txt - (2), (3) & (4)"
 
 

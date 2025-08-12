@@ -36,7 +36,8 @@ fi
 if [ "$MAFFT_BINARIES" ]; then
 	prefix="$MAFFT_BINARIES"
 else
-	prefix=/mnt/c/Users/adria/Documents/UOE/Msc_dissertation/project_alignate/external_tools/mafft_linux/mafft_7_525_withoutextensions/libexec/mafft
+#	prefix=/mnt/c/Users/adria/Documents/UOE/Msc_dissertation/project_alignate/external_tools/mafft_linux/mafft_7_525_withoutextensions/libexec/mafft
+       prefix="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 export prefix # iranai
 
