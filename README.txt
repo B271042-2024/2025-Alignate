@@ -1,9 +1,10 @@
 ========================================================================
-Alignate V1.0 was completed on 01/08/2025 by Alignate Team.
+Alignate V1.0 was completed on 15/08/2025 by Alignate Team for MSc Dissertation.
 ========================================================================
 
 
 INTRODUCTION
+Optimized for use on Ubuntu/Debian-based Linux system.
 This tool aligns amino acid and codon sequences and generates consensus, conservation percentage and secondary structure prediction. It provides a better group comparison with multiple group-specific details, allowing users to select a reference group to base the comparisons on.
 
 
