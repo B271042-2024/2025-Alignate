@@ -14,6 +14,7 @@ if [ ! -d pypackages ]; then
 			# install tcsh
 			if command -v apt >/dev/null 2>&1; then
 				echo "Searching for tcsh shell..."
+                                sudo apt update
 				sudo apt install tcsh
 				echo "tcsh shell successfully installed."
 			else
@@ -64,10 +65,17 @@ if [ ! -d pypackages ]; then
 	# INSTALL PYTHON3 AND PYTHON3-PIP IF UNAVAILABLE
 	if ! command -v python3 >/dev/null 2>&1 || ! dpkg -s python3-venv >/dev/null 2>&1; then
 		if command -v apt-get >/dev/null 2>&1; then
-			echo "Installing python3 and python3-venv..."
+			echo "Installing python3..."
 			sudo apt install python3
-                        sudo apt install puthon3-pip
-                        sudo apt install python3-venv
+
+			if ! command -v pip3 >/dev/null 2>&1; then
+				echo "Installing python3-pip..."
+				sudo apt install python3-pip
+			fi
+			if ! dpkg -s python3-venv >/dev/null 2>&1; then
+				echo "Installing python3-venv"
+				sudo apt install python3-venv
+			fi
 		else
 			echo "Error installing python3. Please install directly on terminal."
 			exit 1

@@ -14,6 +14,7 @@ To run this Alignate v1.0, please type ./run.sh. This tool requires some additio
 
 
 RUN PROGRAM
+chmod -R +x .
 ./run.sh
 
 
