@@ -92,7 +92,7 @@ echo "Opening Alignate.."
 echo ""
 echo "NOTE:"
 echo "If you do not have local PSIPRED installed, PSIPRED web is available but, it may run for ~10 mins (Local <1 min)."
-echo "To install local PSIPRED, see README.txt - (2), (3) & (4)"
+echo "To install local PSIPRED, see README.txt - (2) & (3)"
 
 
 source pypackages/bin/activate

@@ -34,11 +34,12 @@ chmod -R +x .
 % cd external_tools/psipred/BLAST+/blastdb
 % wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz		# note: example database. please install accordingly.
 % tar -xzf swissprot.tar.gz						# note: change according to your database
-
-4. Allow executions in all files
 % chmod -R +x .
 
 
 
+
+
 ### IMPORTANT!
-If you move this folder, please remove and re-install python packages (1) if software failed to work.
+- If you move this folder, please remove and re-install python packages (1) if software failed to work.
+- If you are in trouble, leave me an email at adriana971026@gmail.com
