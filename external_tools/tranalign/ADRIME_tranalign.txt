@@ -1,0 +1,21 @@
+# 1 configure 
+./configure --prefix=$PWD/.local --without-x
+
+# 2 compile files
+make clean (if failed to make)
+make
+make install
+
+## tranalign & its dependencies
+make -C ajax
+make -C nucleus
+make -C plplot
+make -C emboss tranalign
+
+## check libraries required
+ldd bin/tranalign.bin   (-> list of missing libs)
+
+## its dependencies (do for all) to separate tranalign 
+make -C ensembl
+make -C ensembl install (-> file.so.*)
+cp ensembl/.libs/*so* /path/to/lib

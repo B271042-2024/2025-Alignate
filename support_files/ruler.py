@@ -133,7 +133,7 @@ class ruler(QWidget):
             layout_dialog = QVBoxLayout()
             widget_dialog.setLayout(layout_dialog)
             
-            widget_label1 = QLabel(f"WARNING! ONLY VALID FOR ALIGNED SEQUENCES. Showing %Conservation for region: {pos1} to {pos2}. Press Yes to continue.")
+            widget_label1 = QLabel(f"Showing %Similarity against a reference group (checked) for region: {pos1} to {pos2}. Press Yes to continue. (% is displayed in each group below)\n\n!1 ONLY VALID after sequence alignment.\n!2 ONLY VALID if group total is >1")
             widget_label2 = QLabel("")
             widget_button = QWidget()
             layout_button = QHBoxLayout()
@@ -148,7 +148,6 @@ class ruler(QWidget):
 
             # if in window: protein, add function to compute amino acid distributiion
             if getattr(self.context, 'is_protein', False):
-
                 # add option for %Conservation based on amino acid properties
                 h_widget4 = QWidget()
                 h_layout4 = QHBoxLayout()
@@ -159,6 +158,8 @@ class ruler(QWidget):
                 h_layout4.addSpacing(5)
                 h_layout4.addWidget(widget_label4)
                 layout_dialog.addWidget(h_widget4)
+
+
 
             layout_dialog.addWidget(widget_button)
 
@@ -171,9 +172,11 @@ class ruler(QWidget):
 
             button_cancel.clicked.connect(widget_dialog.reject)
             button_cancel.clicked.connect(reset_state)
-            button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2, widget_checkbox)))
+            if getattr(self.context, 'is_protein', False):
+                button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2, widget_checkbox)))
+            else:
+                button_yes.clicked.connect(lambda: (widget_dialog.accept(), self.context.custom_display_perc_cons(pos1, pos2)))
             button_yes.clicked.connect(reset_state)
-
             widget_dialog.exec()
 
             for label in self.ruler_labels:                                      # 8 red mark

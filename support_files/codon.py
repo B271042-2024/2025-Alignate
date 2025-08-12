@@ -113,7 +113,8 @@ class AlignmentWorker(QThread):
             return
 
 # -------3 Run Alignment: Codon Sequences via tranalign
-        tranalign_path = "./external_tools/tranalign/bin/tranalign"
+        #tranalign_path = "./external_tools/tranalign/bin/tranalign"
+        tranalign_path = "./external_tools/tranalign/tranalign"
         if not os.path.exists(self.aligned_aa_output_file) or os.path.getsize(self.aligned_aa_output_file) == 0:
             self.error.emit("Aligned amino acid output is missing or empty.")
             return
@@ -2079,7 +2080,7 @@ class codon(QWidget):
 #_______________________________________________________________________________________________14 Custom Display % Conservation & Additional Residue Distribution Plot
 #_______________________________________________________________________________________________
     # CALCULATE %CONSERVATION & RESIDUE DISTRIBUTION (BASED ON AA PROPERTIES)
-    def custom_display_perc_cons(self, pos1, pos2, widget_checkbox):
+    def custom_display_perc_cons(self, pos1, pos2):
 # --------------------------------------------Action
         # 1 Get Reference Consensus
         ref_consensus = None
@@ -2151,96 +2152,6 @@ class codon(QWidget):
             layout_result.addWidget(invisible_label)
             widget_result.setLayout(layout_result)
             layout.addWidget(widget_result_main)
-
-
-# --------------------------------------------%Conservation based on amino acid properties
-        if widget_checkbox.isChecked():
-            aa_properties = [['P','G','C'],['G','A','V','L','I','M'],['F','Y','W'],['S','T','N','Q'],['E','D'],['R','H','K'],['X']]
-            property_names = ["special","hydrophobic_aliphatic","hydrophobic_aromatic","polar","negative","positive","unknown"]
-
-            # filter and name your groups
-            if group in self.groups:
-                group_names = [group['lineedit_groupname'].text() for group in self.groups]
-
-            # initialize counts per group per property
-            counts = [[0]*len(self.groups) for _ in aa_properties]  # 2D list, start with 0. - Stores no. of residues in each property category per group
-
-            # count
-            for grp_idx, g in enumerate(self.groups):
-                seq = g['consensus_seq_codon_codon']
-                for i in range(start, end+1):
-                    if i >= len(seq): 
-                        continue
-                    aa = seq[i]
-                    for prop_idx, props in enumerate(aa_properties):
-                        if aa in props:
-                            counts[prop_idx][grp_idx] += 1
-                            break
-
-            # compute totals per group (sum over all properties)
-            totals = [ sum(counts[prop][grp] for prop in range(len(aa_properties))) for grp in range(len(self.groups)) ]    # for each group, adds up total no. of residues classified into any property group
-
-            # build percent matrix
-            percents = [[(counts[prop_idx][grp_idx] / totals[grp_idx] * 100) if totals[grp_idx] else 0.0 for grp_idx in range(len(self.groups))] for prop_idx in range(len(aa_properties))]     # % residues in group_idx that fall into property prop_idx
-
-            # write file with header: aa_properties  group1  group2  ...
-            aa_properties_perc_file = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.txt')
-            with open(aa_properties_perc_file, 'w') as afile:
-                afile.write("# %Amino acid properties for each group\n")
-                afile.write("aa_properties\t" + "\t".join(group_names) + "\n")
-                for prop_idx, pname in enumerate(property_names):
-                    row = [f"{pname}"] + [f"{percents[prop_idx][g]:.1f}" for g in range(len(self.groups))]
-                    afile.write("\t".join(row) + "\n")
-
-            png_path = self.save_aa_property_distribution_plot(percents, property_names, group_names)
-            QMessageBox.information(self, 'Saved', f'%Conservation data saved:\nTable: {aa_properties_perc_file}\n\nBar Chart: {png_path}')
-
-
-    # GENERATE DISTRIBUTION PLOT (BASED ON AA PROPERTIES)
-    def save_aa_property_distribution_plot(self, percents, property_names, group_names):
-        # Prepare species data from computed percents
-        species_data = {group: [percents[prop_idx][grp_idx] for prop_idx in range(len(property_names))]
-                        for grp_idx, group in enumerate(group_names)}
-
-        species = list(species_data.keys())
-        num_species = len(species)
-        num_props = len(property_names)
-
-        # Transpose data for plotting: props x species
-        values = list(zip(*species_data.values()))
-
-        custom_colors = [
-            '#827717',  # special (purple)
-            '#33691e',  # hydrophobic_aliphatic (blue)
-            '#689138',  # hydrophobic_aromatic (green)
-            '#c0ca33',  # polar (darker green)
-            '#ffeb3b',  # negative (red)
-            '#ffc107',  # positive (orange)
-            '#999999'   # unknown (gray)
-        ]
-
-        # Bar chart setup
-        fig, ax = plt.subplots(figsize=(14, 6))
-        width = 0.1
-        x = list(range(num_species))
-        for i, prop_vals in enumerate(values):
-            ax.bar([pos + i * width for pos in x], prop_vals, width=width, color=custom_colors[i], label=property_names[i])
-#            ax.bar([pos + i * width for pos in x], prop_vals, width=width, label=property_names[i])
-
-        ax.set_xticks([pos + (num_props / 2 - 0.5) * width for pos in x])
-        ax.set_xticklabels(species, rotation=45, ha='right')
-        ax.set_ylabel('% Amino Acid Property Composition')
-        ax.set_title('Amino Acid Property Distribution')
-        ax.legend(title='Amino Acid Property', loc='center left', bbox_to_anchor=(1.02, 0.5), borderaxespad=0.)
-        ax.grid(True, linestyle='--', alpha=0.5)
-        plt.tight_layout()
-
-        # Save plot as PNG file
-        png_path = os.path.join(self.session_folder, f'{self.uid}_conservation_byaaproperties.png')
-        plt.savefig(png_path, dpi=300)
-        plt.close()
-
-        return png_path
 
 
 #_______________________________________________________________________________________________15 PSIPRED: BUILD SECONDARY STRUCTURE

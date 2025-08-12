@@ -1,0 +1,6 @@
+cat > share/acd/knowntypes.standard << 'EOF'
+Protein
+Nucleotide
+Sequence
+Alignment
+EOF

@@ -55,7 +55,10 @@ if [ ! -d pypackages ]; then
 		echo "PSIPRED is not installed."
 	fi
 
+        # INSTALL TRANALIGN
 	echo "Checking python3 dependencies..."
+
+
 	# INSTALL PYTHON3 AND PYTHON3-PIP IF UNAVAILABLE
 	if ! command -v python3 >/dev/null 2>&1 || ! dpkg -s python3-venv >/dev/null 2>&1; then
 		if command -v apt-get >/dev/null 2>&1; then
@@ -74,5 +77,11 @@ fi
 
 # RUN
 echo "Opening Alignate.."
+echo ""
+echo "NOTE:"
+echo "If you do not have local PSIPRED installed, webserver PSIPRED option is available but, it might take as long as 10 minutes."
+echo "To install local PSIPRED, see README.txt - (2), (3) & (4)"
+
+
 source pypackages/bin/activate
 python3 support_files/alignate.py
