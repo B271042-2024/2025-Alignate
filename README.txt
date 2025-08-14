@@ -40,6 +40,9 @@ chmod -R +x .
 
 
 
+### ADDITIONAL NOTES
+1. If you encounter an error: python packages not found, try deleting folder pypackages and type ./run.sh. It may occur as a result of an interrupted previous run.
+
 
 ### IMPORTANT!
 - If you move this folder, please remove and re-install python packages (1) if software failed to work.

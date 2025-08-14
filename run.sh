@@ -4,11 +4,26 @@
 if [ ! -d pypackages ]; then
 
 	echo "First time opening file. Initial setup may take around 5-10 minutes..."
+	echo ""
+
+	# check if blastdb is empty
+	BLASTDB_DIR="./external_tools/psipred/BLAST+/blastdb"
+	if [ -d "$BLASTDB_DIR" ]; then
+		echo "Checking if blastdb folder is empty..."
+    		if [ -z "$(find "$BLASTDB_DIR" -mindepth 1 -print -quit 2>/dev/null)" ]; then
+        		echo "blastdb is empty and ready to use. Continue..."
+        		echo ""
+		else
+        		echo "$BLASTDB_DIR is not empty. Please delete all files in it and re-run."
+	        	exit 1
+		fi
+	fi
+
 	read -p "Would you like to install local PSIPRED? (y/n) " ans
 
 	# if user select y
 	if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
-
+		echo ""
 		#INSTALL tcsh shell
 		if ! command -v tcsh >/dev/null 2>&1; then
 			# install tcsh
@@ -27,6 +42,7 @@ if [ ! -d pypackages ]; then
 
 
 		#DOWNLOAD NCBI DB
+		echo ""
 		echo "NCBI Protein Databases: https://ftp.ncbi.nlm.nih.gov/blast/db/"
 		read -p "Which protein database to download? Select from the link above (DEFAULT: swissprot. Enter to use): " ans2
 
@@ -34,6 +50,7 @@ if [ ! -d pypackages ]; then
                 cd external_tools/psipred/BLAST+/blastdb || exit 1
 
 		if [ -n "$ans2" ]; then
+			echo ""
 			if ! wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/"$ans2".tar.gz; then
 				echo "Download failed. Try downloading different database."
 				exit 1
@@ -41,6 +58,7 @@ if [ ! -d pypackages ]; then
 				tar -xzf "$ans2".tar.gz
 			fi
 		else
+			echo ""
 			if ! wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/swissprot.tar.gz; then
 				echo "Download failed. Try downloading different database."
 				exit 1
@@ -49,7 +67,6 @@ if [ ! -d pypackages ]; then
 			fi
 		fi
 
-		# INSTALL tcsh
 		cd ../../../..
 
 		# ALLOW EXECUTIONS
@@ -59,6 +76,7 @@ if [ ! -d pypackages ]; then
 	fi
 
         # INSTALL TRANALIGN
+	echo ""
 	echo "Checking python3 dependencies..."
 
 
