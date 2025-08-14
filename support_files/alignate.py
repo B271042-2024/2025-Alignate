@@ -167,7 +167,7 @@ class main(QMainWindow):
         menu2_color_blue.triggered.connect(lambda: self.active_window.set_similarity_color("DarkRed"))
 
         # ---Menu 3: Save residues at position with the pre-set conservation value
-        menu1_others_saveconservationfile.triggered.connect(self.active_window.menu1_others_saveconservationfile_clicked)
+        menu1_others_saveconservationfile.triggered.connect(lambda: self.active_window.menu1_others_saveconservationfile_clicked())
 
         # ---Def: Search bar
         def active_search_seq():
@@ -526,7 +526,7 @@ class protein(QWidget):
         self.checkboxslider.setToolTip('Tick to activate slider.')
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
-        labelslider = QLabel('Tick to activate %Conservation slider. Only for protein window.')
+        labelslider = QLabel('Tick to activate %Conservation slider.')
 
         # # 4 Status
         self.status = QLabel('')
@@ -2269,6 +2269,7 @@ class protein(QWidget):
         invisible_label.setFixedSize(120,20)
         layout_global.addWidget(invisible_label, alignment=Qt.AlignLeft)
         layout_global.addSpacing(5)
+
 
 # --------------------------------------------Action
         all_records = []

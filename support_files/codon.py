@@ -236,6 +236,7 @@ class codon(QWidget):
         self.similarity_color = 'darkmagenta'
         self.align_blue = False
         self.prediction_text = ""
+        self.saveconservation = False
 
 # --------------------------------------------Main
         # ---Layer 1
@@ -303,7 +304,7 @@ class codon(QWidget):
         )
         # # 3 Slider
         self.slidercon = QSlider(Qt.Horizontal)
-        self.slidercon.setToolTip(f'Show %Conservation for each residue position: \nTick the right checkbox and move slider.')
+        self.slidercon.setToolTip(f'Show %Conservation for each residue position: \nTick checkbox and move slider.')
         self.slidercon.setValue(100)
         self.slidercon.setMinimum(10)
         self.slidercon.setMaximum(100)
@@ -315,7 +316,7 @@ class codon(QWidget):
         self.checkboxslider.setToolTip('Tick to activate slider.')
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
-        labelslider = QLabel('Tick to activate %Conservation slider')
+        labelslider = QLabel('Tick to activate %Conservation slider.')
 
         # # 4 Status
         self.status = QLabel('')
