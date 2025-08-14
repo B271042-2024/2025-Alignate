@@ -514,7 +514,7 @@ class protein(QWidget):
         )
         # # 3 Slider
         self.slidercon = QSlider(Qt.Horizontal)
-        self.slidercon.setToolTip(f'Show %Conservation for each residue position: \nTick checkbox and move slider. Only for protein.')
+        self.slidercon.setToolTip(f'Show %Conservation for each residue position: \nTick checkbox and move slider.')
         self.slidercon.setValue(100)                                                            # Initial value: 10
         self.slidercon.setMinimum(10)
         self.slidercon.setMaximum(100)                                                          # Ticks: 1 - 10
@@ -526,7 +526,7 @@ class protein(QWidget):
         self.checkboxslider.setToolTip('Tick to activate slider.')
         self.checkboxslider.setChecked(False)
         self.checkboxslider.toggled.connect(self.handle_slider_mode_toggle)
-        labelslider = QLabel('Tick to activate %Conservation slider.')
+        labelslider = QLabel('Tick to activate %Conservation slider. Only for protein window.')
 
         # # 4 Status
         self.status = QLabel('')
